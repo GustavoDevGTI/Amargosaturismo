@@ -386,8 +386,10 @@ body.sao-joao-modal-open {
     transform: translateX(-50%);
     border-bottom-left-radius: 0.3vw;
     border-bottom-right-radius: 0.3vw;
-    padding: 1vw 0;
+    padding: 1vw;
     z-index: 50;
+    align-items: stretch;
+    gap: 1vw;
 }
 
 .menu-sub-campo.hamburger .submenu_horizontal {
@@ -397,7 +399,7 @@ body.sao-joao-modal-open {
 }
 
 .menu-sub-campo.hamburger.is-open .submenu_horizontal {
-    display: block;
+    display: flex;
 }
 
 .menu-sub-campo.hamburger.is-open .menu-btn-base {
@@ -405,77 +407,60 @@ body.sao-joao-modal-open {
 }
 
 .submenu_horizontal_col_esq {
-    width: 16vw;
-    float: left;
-    padding: 0.3vw;
+    flex: 0 0 18vw;
+    min-width: 250px;
+    display: flex;
 }
 
 .submenu_horizontal_col_dir {
-    width: calc(100% - 16vw);
-    float: left;
-    padding: 0.3vw;
-    column-count: 3;
+    flex: 1;
+    display: flex;
 }
 
 .submenu_horizontal_h1 {
     width: 100%;
-    height: 3vw;
-    min-height: 48px;
+    min-height: 170px;
     background-color: var(--padrao02);
-    margin-bottom: 0.5vw;
     border-radius: 0.3vw;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 1.1vw 1.2vw;
+    border: 1px solid var(--branco-lente03);
 }
 
 .submenu_horizontal_h1-icone {
-    width: 20%;
-    height: 100%;
-    line-height: 3vw;
-    float: left;
+    width: 3.4vw;
+    min-width: 48px;
+    height: 3.4vw;
+    min-height: 48px;
     font-size: 2vw;
     color: var(--white);
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.submenu_horizontal_h1-copy {
+    display: grid;
+    gap: 0.35vw;
+    padding-left: 1vw;
 }
 
 .submenu_horizontal_h1-titulo {
-    width: 80%;
-    height: 100%;
-    line-height: 3vw;
-    float: left;
     font-weight: 600;
-    font-size: 0.8vw;
+    font-size: 1vw;
     color: var(--white);
     text-transform: uppercase;
 }
 
-.submenu_horizontal_h2,
-.submenu_horizontal_col_esq-btn {
-    width: 100%;
-    min-height: 2vw;
-    font-size: 0.8vw;
-    color: var(--white);
-    padding: 0 1vw;
-    margin-bottom: 0.5vw;
-    display: table;
-    border-radius: 0.3vw;
-}
-
-.submenu_horizontal_h2 {
-    font-weight: 600;
-    cursor: default;
-}
-
-.submenu_horizontal_h2 span,
-.submenu_horizontal_col_esq-btn a {
-    display: table-cell;
-    vertical-align: middle;
-    padding: 0.55vw 0;
-    color: inherit;
-    text-decoration: none;
-}
-
-.submenu_horizontal_col_esq-btn.realce {
-    background-color: var(--preto-lente02);
+.submenu_horizontal_h1-subtitulo {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.82vw;
+    line-height: 1.45;
 }
 
 .submenu_horizontal_col_esq-btn:hover,
@@ -483,29 +468,50 @@ body.sao-joao-modal-open {
     text-decoration: underline;
 }
 
+.submenu_horizontal_links_card {
+    width: 100%;
+    min-height: 170px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75vw;
+    padding: 0.3vw;
+    border-radius: 0.3vw;
+    border: 1px solid var(--branco-lente03);
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .submenu_horizontal-btn {
-    font-size: 0.8vw;
-    line-height: 1vw;
+    font-size: 0.84vw;
     color: var(--white);
-    padding: 0.5vw;
-    break-inside: avoid;
+    min-height: 4.3vw;
+    border-radius: 0.3vw;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: all 0.2s ease-in-out;
 }
 
 .submenu_horizontal-btn a {
-    display: block;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
     color: inherit;
     text-decoration: none;
+    padding: 0.9vw 1vw;
 }
 
-.menu-sub-campo.hamburger .submenu_horizontal_col_dir .submenu_horizontal-btn:nth-child(n + 8) {
-    display: none;
+.submenu_horizontal-btn:hover,
+.submenu_horizontal-btn:focus-within {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.26);
+    text-decoration: none;
 }
 
 .menu-sub-campo:hover .submenu,
 .menu-sub-campo:focus-within .submenu,
 .menu-sub-campo.hamburger:hover .submenu_horizontal,
 .menu-sub-campo.hamburger:focus-within .submenu_horizontal {
-    display: block;
+    display: flex;
 }
 
 .menu-mobile,
