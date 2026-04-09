@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guia de Amargosa</title>
   <meta name="description"
-    content="Explore pontos turisticos, wi-fi gratuito e, em breve, locais de gastronomia e hospedagem em Amargosa.">
+    content="Encontre pontos turisticos, wi-fi gratuito, opcoes de gastronomia e hospedagem no mapa da cidade.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -941,7 +941,7 @@
       <div class="hero__content">
         <h1>Guia de Amargosa</h1>
         <p class="hero__text">
-          Encontre pontos tur&iacute;sticos, wi-fi gratuito e, em breve, op&ccedil;&otilde;es de gastronomia e hospedagem no mapa da cidade.
+          Encontre pontos tur&iacute;sticos, wi-fi gratuito, op&ccedil;&otilde;es de gastronomia e hospedagem no mapa da cidade.
         </p>
       </div>
     </div>
@@ -952,6 +952,7 @@
       <div class="container">
         <h2>Explore por Categoria</h2>
         <div class="filter-toolbar" aria-label="Categorias de locais">
+          <button class="filter-button" type="button" data-filter="todos" aria-pressed="false">Todos</button>
           <button class="filter-button" type="button" data-filter="wifi" aria-pressed="false">Wi-Fi Gratuito</button>
           <button class="filter-button is-active" type="button" data-filter="turistico" aria-pressed="true">Pontos Tur&iacute;sticos</button>
           <button class="filter-button" type="button" data-filter="gastronomia" aria-pressed="false">Restaurantes/Bares</button>
@@ -1634,6 +1635,48 @@
                   </div>
                 </div>
               </article>
+
+              <article class="attraction-card" data-category="hotel" data-point-id="hotel-colibri" hidden>
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Hotel Fazenda Colibri" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Hospedagem</span>
+                  <h3>Hotel Fazenda Colibri</h3>
+                  <p class="subtitle-card">Estadia na rota Amargosa-Mutu&iacute;pe</p>
+                  <p>
+                    Op&ccedil;&atilde;o de hospedagem com perfil de hotel fazenda para quem busca estadia em ambiente mais tranquilo e com acesso pela rodovia.
+                  </p>
+                  <div class="card-meta">
+                    <span>Aberto todos os dias</span>
+                    <span>Rod. Amargosa-Mutuipe</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="hotel-colibri">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="hotel" data-point-id="hotel-vale-aguas" hidden>
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Hotel Fazenda Vale das &Aacute;guas" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Hospedagem</span>
+                  <h3>Hotel Fazenda Vale das &Aacute;guas</h3>
+                  <p class="subtitle-card">Hospedagem rural na rodovia</p>
+                  <p>
+                    Estadia com perfil de hotel fazenda na rodovia Amargosa-Mutuipe, indicada para visitantes que buscam uma experi&ecirc;ncia de hospedagem mais reservada.
+                  </p>
+                  <div class="card-meta">
+                    <span>Aberto todos os dias</span>
+                    <span>Rod. Amargosa-Mutuipe</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="hotel-vale-aguas">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
             </div>
           </div>
 
@@ -1679,12 +1722,14 @@
     const pointMarkers = new Map();
     const pointCategories = new Map();
     const filterLabels = {
+      todos: "todos os locais",
       wifi: "wi-fi gratuito",
       turistico: "pontos turisticos",
       gastronomia: "restaurantes/bares",
       hotel: "pousadas"
     };
     const mapPointCounts = {
+      todos: 46,
       wifi: 8,
       turistico: 9,
       gastronomia: 15,
@@ -1732,7 +1777,9 @@
       }
 
       if (activeCategory === "todos") {
-        filterFeedback.textContent = `Exibindo ${count} locais cadastrados no mapa.`;
+        const cardNoun = count === 1 ? "card" : "cards";
+        const mapNoun = mapCount === 1 ? "local" : "locais";
+        filterFeedback.textContent = `Exibindo ${count} ${cardNoun} e ${mapCount} ${mapNoun} no mapa.`;
         return;
       }
 
