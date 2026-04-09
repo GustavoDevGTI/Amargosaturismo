@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wi-Fi Gratuito em Amargosa</title>
+  <meta name="description"
+    content="Consulte os pontos públicos de Wi-Fi gratuito em Amargosa e visualize cada local no mapa da página.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #157c62;
+      --secondary-color: #339a80;
+      --accent-color: #fcc22f;
+      --accent-hover: #e3ad19;
+      --text-color: #33443f;
+      --body-muted: #55635f;
+      --muted-text: #67766f;
+      --light-bg: #e4e7ec;
+      --surface-soft: #f5f5ff;
+      --white: #ffffff;
+      --padrao01: #339a80;
+      --padrao02: #51b89e;
+      --padrao04: #157c62;
+      --warning-bg: rgba(252, 194, 47, 0.16);
+      --warning-border: #fcc22f;
+      --border-soft: rgba(21, 124, 98, 0.14);
+      --shadow: 0 18px 40px rgba(26, 37, 46, 0.12);
+      --header-shadow: 0 12px 28px rgba(16, 51, 43, 0.18);
+      --container: 1200px;
+      --transition: all 0.28s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Cabin", sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background: linear-gradient(180deg, #f7fbf9 0%, var(--light-bg) 55%, #edf2f0 100%);
+    }
+
+    body.nav-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--container));
+      margin: 0 auto;
+    }
+
+    section,
+    header[id] {
+      scroll-margin-top: 124px;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 500px;
+      color: var(--white);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, rgba(7, 29, 24, 0.42) 0%, rgba(8, 58, 48, 0.16) 48%, rgba(8, 27, 22, 0.44) 100%),
+        url("public/images/hero-amargosa.jpeg") center 58% / cover no-repeat;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 20, 17, 0.16) 0%, rgba(5, 20, 17, 0.2) 42%, rgba(5, 20, 17, 0.54) 100%);
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      min-height: 320px;
+      padding: 40px 0 16px;
+    }
+
+    .hero__content {
+      width: min(900px, 100%);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin-bottom: 12px;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      line-height: 1.02;
+      text-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero__text {
+      max-width: min(640px, 100%);
+      margin: 0 auto;
+      font-size: clamp(1rem, 1.8vw, 1.08rem);
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.94);
+      text-shadow: 0 6px 16px rgba(0, 0, 0, 0.38);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .btn--primary {
+      color: #183d31;
+      background: var(--accent-color);
+      box-shadow: 0 8px 18px rgba(252, 194, 47, 0.3);
+    }
+
+    .btn--primary:hover,
+    .btn--primary:focus-visible {
+      background: var(--accent-hover);
+    }
+
+    .btn--ghost {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(8px);
+    }
+
+    section {
+      padding: 64px 0;
+    }
+
+    .section-muted {
+      background: linear-gradient(180deg, #f7fbf9 0%, var(--light-bg) 100%);
+    }
+
+    section h2 {
+      position: relative;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      font-size: clamp(2.15rem, 4vw, 2.7rem);
+      line-height: 1.08;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    section h2::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 100px;
+      height: 4px;
+      border-radius: 999px;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .section-intro {
+      max-width: 720px;
+      margin: 0 auto 3rem;
+      text-align: center;
+      font-size: 1.08rem;
+      color: var(--muted-text);
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+    }
+
+    .featured-card,
+    .panel,
+    .attraction-card,
+    .info-card,
+    .about-text {
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .featured-card {
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .featured-card:hover,
+    .attraction-card:hover,
+    .info-card:hover,
+    .stat-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .featured-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+
+    .featured-card__body {
+      padding: 1.7rem;
+    }
+
+    .featured-card__eyebrow {
+      display: inline-block;
+      margin-bottom: 0.75rem;
+      color: var(--secondary-color);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .featured-card h3 {
+      margin-bottom: 0.85rem;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+      line-height: 1.15;
+    }
+
+    .featured-card p {
+      color: var(--body-muted);
+    }
+
+    .featured-card__highlight {
+      margin-top: 1rem;
+      padding: 0.95rem 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: var(--body-muted);
+      background: rgba(51, 154, 128, 0.08);
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .about-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+      gap: 2rem;
+      align-items: start;
+      margin-top: 2rem;
+    }
+
+    .about-text {
+      padding: 2rem;
+    }
+
+    .about-text h3 {
+      margin-bottom: 0.75rem;
+      color: var(--secondary-color);
+      font-size: 1.45rem;
+    }
+
+    .about-text h3 + p {
+      margin-bottom: 1.2rem;
+    }
+
+    .about-text p {
+      color: var(--body-muted);
+    }
+
+    .about-stats {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    .stat-card {
+      padding: 1.55rem;
+      border-left: 4px solid var(--primary-color);
+      transition: var(--transition);
+    }
+
+    .stat-card h4 {
+      margin-bottom: 0.4rem;
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
+
+    .stat-card p {
+      color: var(--muted-text);
+      font-size: 0.96rem;
+    }
+
+    .map-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+      gap: 1.8rem;
+      align-items: start;
+      margin-top: 2rem;
+    }
+
+    .panel {
+      padding: 2rem;
+      border: 1px solid var(--border-soft);
+    }
+
+    .panel h3 {
+      color: var(--primary-color);
+      font-size: 1.3rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--body-muted);
+    }
+
+    .panel-head {
+      margin-bottom: 1.2rem;
+    }
+
+    .panel-head p {
+      margin-top: 0.65rem;
+    }
+
+    .map-shell {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      background: #d7ebe4;
+    }
+
+    #map {
+      width: 100%;
+      height: clamp(420px, 55vw, 680px);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 1rem;
+      color: var(--body-muted);
+      font-size: 0.95rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.confirmed {
+      background: var(--primary-color);
+    }
+
+    .dot.partial {
+      background: var(--accent-color);
+    }
+
+    .map-notes {
+      list-style: none;
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .map-note {
+      padding: 1rem 1.1rem;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f7fbf9, var(--surface-soft));
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .map-note strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--primary-color);
+    }
+
+    .map-callout {
+      margin-top: 1.2rem;
+      padding: 1rem 1.15rem;
+      border-radius: 14px;
+      background: var(--warning-bg);
+      border-left: 4px solid var(--warning-border);
+      color: var(--body-muted);
+    }
+
+    .attractions {
+      background: linear-gradient(180deg, #f7fbf9 0%, var(--light-bg) 100%);
+      padding-top: 28px;
+      padding-bottom: 52px;
+    }
+
+    .attractions h2 {
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.8rem;
+    }
+
+    .points-carousel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      margin-top: 1.35rem;
+    }
+
+    .points-carousel__viewport {
+      overflow: hidden;
+    }
+
+    .attractions-grid {
+      display: flex;
+      gap: 1.5rem;
+      transition: transform 0.35s ease;
+      will-change: transform;
+    }
+
+    .attraction-card {
+      flex: 0 0 calc((100% - 3rem) / 3);
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .attraction-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+
+    .attraction-card:hover img {
+      transform: scale(1.04);
+    }
+
+    .card-content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 1.2rem;
+    }
+
+    .card-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(51, 154, 128, 0.12);
+      color: var(--primary-color);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .card-content h3 {
+      margin: 0.75rem 0 0.35rem;
+      color: var(--primary-color);
+      font-size: 1.18rem;
+      line-height: 1.18;
+    }
+
+    .subtitle-card {
+      margin-bottom: 0.75rem;
+      color: var(--secondary-color);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .card-content p {
+      color: var(--body-muted);
+    }
+
+    .card-actions {
+      display: flex;
+      margin-top: auto;
+      padding-top: 0.9rem;
+    }
+
+    .card-link,
+    .card-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .card-link {
+      background: var(--primary-color);
+      color: var(--white);
+      border: 1px solid var(--primary-color);
+    }
+
+    .card-button {
+      background: rgba(51, 154, 128, 0.08);
+      color: var(--primary-color);
+      border: 1px solid rgba(51, 154, 128, 0.22);
+      width: 100%;
+    }
+
+    .card-link:hover,
+    .card-button:hover,
+    .card-link:focus-visible,
+    .card-button:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .carousel-arrow {
+      width: 54px;
+      height: 54px;
+      border: 1px solid rgba(21, 124, 98, 0.18);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--primary-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .carousel-arrow:hover,
+    .carousel-arrow:focus-visible {
+      transform: translateY(-2px);
+      background: var(--white);
+    }
+
+    .carousel-arrow:disabled {
+      opacity: 0.4;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .carousel-arrow .material-symbols-outlined {
+      font-size: 2rem;
+    }
+
+    .map-section {
+      padding-top: 0;
+      background: var(--white);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .info-card {
+      padding: 2rem;
+      background: linear-gradient(135deg, #f7fbf9, var(--surface-soft));
+      border-top: 4px solid var(--primary-color);
+      transition: var(--transition);
+    }
+
+    .info-card__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      margin-bottom: 1rem;
+      border-radius: 50%;
+      background: rgba(51, 154, 128, 0.14);
+      color: var(--primary-color);
+    }
+
+    .info-card h3 {
+      margin-bottom: 0.8rem;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+
+    .info-card p,
+    .info-card li {
+      color: var(--body-muted);
+    }
+
+    .info-card ul,
+    .info-card ol {
+      margin-top: 0.9rem;
+      padding-left: 1.2rem;
+    }
+
+    .info-card li + li {
+      margin-top: 0.45rem;
+    }
+
+    .support-band {
+      padding: 0 0 84px;
+      background: linear-gradient(180deg, var(--light-bg) 0%, #eff4f2 100%);
+    }
+
+    .support-band__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+      gap: 1.5rem;
+      padding: 2rem;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(21, 124, 98, 0.96), rgba(51, 154, 128, 0.94));
+      color: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .support-band h2 {
+      margin-bottom: 0.8rem;
+      padding-bottom: 0;
+      color: var(--white);
+      text-align: left;
+    }
+
+    .support-band h2::after {
+      display: none;
+    }
+
+    .support-band p {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .support-band__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-start;
+      margin-top: 1.4rem;
+    }
+
+    .support-band__meta {
+      display: grid;
+      gap: 1rem;
+      align-content: center;
+    }
+
+    .support-chip {
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .support-chip strong {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .hero .container {
+        min-height: 460px;
+      }
+
+      .about-content,
+      .map-layout,
+      .support-band__inner {
+        grid-template-columns: 1fr;
+      }
+
+      .attraction-card {
+        flex-basis: calc((100% - 1.5rem) / 2);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: min(calc(100% - 24px), var(--container));
+      }
+
+      .hero,
+      .hero .container {
+        min-height: 430px;
+      }
+
+      .hero .container {
+        padding: 56px 0 36px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 9vw, 3.8rem);
+      }
+
+      .featured-grid,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .about-text,
+      .info-card,
+      .support-band__inner {
+        padding: 1.5rem;
+      }
+
+      #map {
+        height: 360px;
+      }
+
+      .points-carousel {
+        grid-template-columns: 44px minmax(0, 1fr) 44px;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero .container {
+        min-height: 250px;
+        padding: 24px 0 10px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 9vw, 2.7rem);
+      }
+
+      .hero__text {
+        font-size: 0.96rem;
+      }
+
+      .btn,
+      .card-link,
+      .card-button {
+        width: 100%;
+      }
+
+      .support-band__actions {
+        flex-direction: column;
+      }
+
+      .attraction-card {
+        flex-basis: 100%;
+      }
+
+      .carousel-arrow {
+        width: 42px;
+        height: 42px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero" id="inicio">
+    <div class="container">
+      <div class="hero__content">
+        <h1>Wi-Fi Gratuito em Amargosa</h1>
+        <p class="hero__text">
+          Confira os pontos de acesso disponiveis e encontre cada local no mapa da pagina.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="attractions section-muted" id="pontos">
+      <div class="container">
+        <h2>Pontos de Acesso</h2>
+        <div class="points-carousel" data-carousel>
+          <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Mostrar ponto anterior">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          </button>
+
+          <div class="points-carousel__viewport">
+            <div class="attractions-grid">
+              <article class="attraction-card">
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Praça Lourival Monte" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça Lourival Monte (Jardim)</h3>
+                  <p class="subtitle-card">Ponto central e de maior circulação</p>
+                  <p>
+                    Ideal para quem precisa de conectividade no coração da cidade, seja para uma pausa rápida, consulta
+                    a serviços ou comunicação durante o passeio pelo centro.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="jardim">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Praça do Bosque" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Quadra de areia da Praça do Bosque</h3>
+                  <p class="subtitle-card">Área de esporte e convivência</p>
+                  <p>
+                    Funciona como apoio para frequentadores da praça e da área esportiva, facilitando o uso do celular
+                    durante treinos, descanso e encontros no espaço público.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="bosque">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Paisagem urbana de Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Pracinha dos Barreiros</h3>
+                  <p class="subtitle-card">Conectividade com presença da Árvore Digital</p>
+                  <p>
+                    Reforça a proposta de modernização em espaço público e serve como apoio para moradores que utilizam a
+                    praça em atividades cotidianas e momentos de convivência.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="barreiros">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Praça de Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça da Minguara</h3>
+                  <p class="subtitle-card">Acesso público em área de permanência</p>
+                  <p>
+                    Oferece suporte à navegação em uma praça importante para o dia a dia local, ajudando em pesquisas,
+                    mensagens e uso rápido de serviços digitais.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="minguara">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/catedral-de-amargosa.webp"
+                  alt="Centro de Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça da Santa Rita</h3>
+                  <p class="subtitle-card">Cobertura pública em bairro tradicional</p>
+                  <p>
+                    Fortalece a inclusão digital fora da área mais central, ampliando a presença do serviço para moradores
+                    e visitantes que circulam pela região de Santa Rita.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="santa-rita">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Centro urbano de Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça João Ângelo Pereira</h3>
+                  <p class="subtitle-card">Ponto rápido para circulação diária</p>
+                  <p>
+                    Serve como apoio para deslocamentos, consultas rápidas e comunicação em uma área de passagem frequente
+                    na malha urbana do município.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="joao-angelo">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Vista do centro de Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça Duque de Caxias</h3>
+                  <p class="subtitle-card">Cobertura no entorno comercial</p>
+                  <p>
+                    Ajuda a manter a conexão em uma área de serviços e comércio, apoiando quem precisa resolver demandas
+                    rápidas durante a permanência no centro.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="duque-caxias">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card">
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Praça do Cristo em Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sinal ativo</span>
+                  <h3>Praça do Cristo</h3>
+                  <p class="subtitle-card">Ponto emblemático com vista urbana</p>
+                  <p>
+                    Une paisagem, circulação e conectividade em um dos pontos mais conhecidos da cidade, facilitando o uso
+                    da internet durante o passeio e o registro da visita.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="cristo">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <button class="carousel-arrow" type="button" data-carousel-next aria-label="Mostrar próximo ponto">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="mapa" class="map-section">
+      <div class="container">
+        <article class="panel">
+          <div class="map-shell">
+            <div id="map" aria-label="Mapa dos pontos de Wi-Fi em Amargosa"></div>
+          </div>
+
+          <div class="legend" aria-label="Legenda do mapa">
+            <span><i class="dot confirmed" aria-hidden="true"></i> Ponto público destacado</span>
+            <span><i class="dot partial" aria-hidden="true"></i> Referência complementar</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const carouselRoot = document.querySelector("[data-carousel]");
+    const carouselTrack = carouselRoot?.querySelector(".attractions-grid");
+    const carouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
+    const carouselPrevButton = carouselRoot?.querySelector("[data-carousel-prev]");
+    const carouselNextButton = carouselRoot?.querySelector("[data-carousel-next]");
+    const mapFocusButtons = document.querySelectorAll("[data-map-focus]");
+    const pointMarkers = new Map();
+    let carouselIndex = 0;
+    let pendingMapFocusId = null;
+    let pageMap = null;
+    let pageInfoWindow = null;
+
+    function getCardsPerView() {
+      if (window.innerWidth <= 560) {
+        return 1;
+      }
+
+      if (window.innerWidth <= 980) {
+        return 2;
+      }
+
+      return 3;
+    }
+
+    function getMaxCarouselIndex() {
+      return Math.max(0, carouselCards.length - getCardsPerView());
+    }
+
+    function updateCarousel() {
+      if (!carouselTrack || !carouselCards.length) {
+        return;
+      }
+
+      const maxIndex = getMaxCarouselIndex();
+      carouselIndex = Math.max(0, Math.min(carouselIndex, maxIndex));
+      const activeCard = carouselCards[carouselIndex];
+
+      carouselTrack.style.transform = activeCard ? `translateX(-${activeCard.offsetLeft}px)` : "translateX(0)";
+
+      if (carouselPrevButton) {
+        carouselPrevButton.disabled = carouselIndex === 0;
+      }
+
+      if (carouselNextButton) {
+        carouselNextButton.disabled = carouselIndex === maxIndex;
+      }
+    }
+
+    carouselPrevButton?.addEventListener("click", () => {
+      carouselIndex -= 1;
+      updateCarousel();
+    });
+
+    carouselNextButton?.addEventListener("click", () => {
+      carouselIndex += 1;
+      updateCarousel();
+    });
+
+    window.addEventListener("resize", updateCarousel);
+
+    function focusPointOnMap(pointId) {
+      const marker = pointMarkers.get(pointId);
+
+      if (!marker || !pageMap || !pageInfoWindow) {
+        pendingMapFocusId = pointId;
+        return;
+      }
+
+      document.querySelector("#mapa")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+      pageMap.panTo(marker.getPosition());
+      pageMap.setZoom(16);
+      pageInfoWindow.setContent(marker.customContent);
+      pageInfoWindow.open(pageMap, marker);
+    }
+
+    mapFocusButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        focusPointOnMap(button.dataset.mapFocus);
+      });
+    });
+
+    function initMap() {
+      const mapOptions = {
+        zoom: 14,
+        center: { lat: -13.0265, lng: -39.6085 },
+        scrollwheel: false,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true
+      };
+
+      pageMap = new google.maps.Map(document.getElementById("map"), mapOptions);
+      pageInfoWindow = new google.maps.InfoWindow();
+      const geocoder = new google.maps.Geocoder();
+
+      const wifiPath = "M12 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-4.6-5.6l1.4 1.4c1.8-1.8 4.6-1.8 6.4 0l1.4-1.4c-2.6-2.6-6.6-2.6-9.2 0zm-3.5-3.6l1.4 1.5c3.7-3.7 9.7-3.7 13.4 0l1.4-1.5c-4.5-4.5-11.8-4.5-16.2 0zm-3.6-3.5l1.4 1.4c5.7-5.7 14.8-5.7 20.4 0l1.4-1.4c-6.4-6.4-16.8-6.4-23.2 0z";
+
+      const getPinSvg = (bgColor) => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 40" width="38" height="48">
+          <path fill="${bgColor}" stroke="#ffffff" stroke-width="1.5" d="M16 0C7.163 0 0 7.163 0 16c0 11 16 24 16 24s16-13 16-24C32 7.163 24.837 0 16 0z"/>
+          <path fill="#ffffff" transform="translate(4, 3)" d="${wifiPath}"/>
+        </svg>`);
+
+      const confirmedIcon = {
+        url: getPinSvg("#145844"),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const partialIcon = {
+        url: getPinSvg("#fcc22f"),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const points = [
+        {
+          id: "jardim",
+          name: "Praça Lourival Monte (Jardim)",
+          coords: { lat: -13.0316825, lng: -39.6035944 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0316825,-39.6035944",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça Lourival Monte</strong>
+              <span style="font-size: 0.92rem;">Ponto central de conectividade pública para moradores, visitantes e circulação no centro de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "bosque",
+          name: "Quadra de areia da Praça do Bosque",
+          coords: { lat: -13.0320631, lng: -39.6001171 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0320631,-39.6001171",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça do Bosque</strong>
+              <span style="font-size: 0.92rem;">Conectividade em área esportiva e de convivência pública.</span>
+            </div>
+          `
+        },
+        {
+          id: "barreiros",
+          name: "Pracinha dos Barreiros",
+          coords: { lat: -13.0116885, lng: -39.6211379 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0116885,-39.6211379",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pracinha dos Barreiros</strong>
+              <span style="font-size: 0.92rem;">Espaço com conectividade pública e referência da Árvore Digital.</span>
+            </div>
+          `
+        },
+        {
+          id: "minguara",
+          name: "Praça da Minguara",
+          coords: { lat: -13.018943, lng: -39.602437 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.018943,-39.602437",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça da Minguara</strong>
+              <span style="font-size: 0.92rem;">Ponto público de conexão em área de permanência da cidade.</span>
+            </div>
+          `
+        },
+        {
+          id: "santa-rita",
+          name: "Praça da Santa Rita",
+          query: "Praça Constantino Sampaio, Santa Rita, Amargosa, Bahia, Brasil",
+          icon: partialIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pra%C3%A7a%20Constantino%20Sampaio,%20Santa%20Rita,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça da Santa Rita</strong>
+              <span style="font-size: 0.92rem;">Cobertura pública em um bairro tradicional de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "joao-angelo",
+          name: "Praça João Ângelo Pereira",
+          coords: { lat: -13.026080, lng: -39.605009 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.026080,-39.605009",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça João Ângelo Pereira</strong>
+              <span style="font-size: 0.92rem;">Apoio à conexão em área urbana de circulação frequente.</span>
+            </div>
+          `
+        },
+        {
+          id: "duque-caxias",
+          name: "Praça Duque de Caxias",
+          coords: { lat: -13.029283, lng: -39.604800 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029283,-39.604800",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça Duque de Caxias</strong>
+              <span style="font-size: 0.92rem;">Conectividade pública no entorno comercial do centro.</span>
+            </div>
+          `
+        },
+        {
+          id: "cristo",
+          name: "Praça do Cristo",
+          coords: { lat: -13.029740, lng: -39.602443 },
+          icon: confirmedIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029740,-39.602443",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça do Cristo</strong>
+              <span style="font-size: 0.92rem;">Ponto urbano conhecido que combina paisagem e conectividade pública.</span>
+            </div>
+          `
+        }
+      ];
+
+      function getPopupContent(point) {
+        if (!point.directionsUrl) {
+          return point.content;
+        }
+
+        const directionsButton = `<a href="${point.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; margin-top: 12px; border-radius: 999px; background: rgba(51, 154, 128, 0.12); border: 1px solid rgba(51, 154, 128, 0.24); color: #157c62; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Como chegar</a>`;
+
+        return point.content.replace("</div>", `${directionsButton}</div>`);
+      }
+
+      const bounds = new google.maps.LatLngBounds();
+      let mappedPoints = 0;
+      let pendingLookups = points.length;
+
+      function finalizeMap() {
+        pendingLookups -= 1;
+
+        if (pendingLookups === 0 && mappedPoints > 0) {
+          pageMap.fitBounds(bounds);
+
+          google.maps.event.addListenerOnce(pageMap, "bounds_changed", () => {
+            if (pageMap.getZoom() > 16) {
+              pageMap.setZoom(16);
+            }
+          });
+
+          if (pendingMapFocusId) {
+            const pointId = pendingMapFocusId;
+            pendingMapFocusId = null;
+            focusPointOnMap(pointId);
+          }
+        }
+      }
+
+      function addMarker(point, position) {
+        const popupContent = getPopupContent(point);
+
+        const marker = new google.maps.Marker({
+          position,
+          map: pageMap,
+          icon: point.icon,
+          title: point.name
+        });
+
+        marker.customContent = popupContent;
+        marker.addListener("click", () => {
+          pageInfoWindow.setContent(popupContent);
+          pageInfoWindow.open(pageMap, marker);
+        });
+
+        pointMarkers.set(point.id, marker);
+        bounds.extend(position);
+        mappedPoints += 1;
+      }
+
+      points.forEach((point) => {
+        if (point.coords) {
+          addMarker(point, point.coords);
+          finalizeMap();
+          return;
+        }
+
+        geocoder.geocode({ address: point.query }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            addMarker(point, results[0].geometry.location);
+          } else {
+            console.warn("Não foi possível localizar no mapa:", point.name, status);
+          }
+
+          finalizeMap();
+        });
+      });
+    }
+
+    updateCarousel();
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc&callback=initMap"></script>
+</body>
+
+</html>
