@@ -1266,16 +1266,16 @@ section h2::after {
 
 .calendar-embed-shell {
     margin-top: 1.75rem;
-    border-radius: 30px;
+    border-radius: 26px;
     overflow: hidden;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.94) 100%);
-    border: 1px solid rgba(21, 124, 98, 0.12);
-    box-shadow: 0 28px 48px rgba(26, 37, 46, 0.14);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
 .calendar-embed-frame {
     padding: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(228, 231, 236, 0.9));
+    background: transparent;
 }
 
 .calendar-embed-iframe,
@@ -2146,7 +2146,7 @@ section h2::after {
     }
 
     .calendar-embed-frame {
-        padding: 0.25rem;
+        padding: 0;
     }
 
     .calendar-embed-iframe,
@@ -2334,7 +2334,7 @@ section h2::after {
     }
 
     .calendar-embed-frame {
-        padding: 0.2rem;
+        padding: 0;
     }
 
     .calendar-embed-iframe,
@@ -2685,9 +2685,9 @@ body.modo_escuro .event-attractions {
 }
 
 body.modo_escuro .calendar-embed-shell {
-    background: linear-gradient(180deg, rgba(23, 33, 30, 0.94) 0%, rgba(18, 26, 24, 0.98) 100%);
-    border-color: rgba(116, 217, 188, 0.14);
-    box-shadow: var(--shadow);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
 }
 
 body.modo_escuro .calendar-embed-top {
@@ -2700,7 +2700,7 @@ body.modo_escuro .calendar-embed-status {
 }
 
 body.modo_escuro .calendar-embed-frame {
-    background: linear-gradient(180deg, rgba(13, 20, 18, 0.86), rgba(16, 24, 22, 0.96));
+    background: transparent;
 }
 
 body.modo_escuro .calendar-embed-frame iframe {
