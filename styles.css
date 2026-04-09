@@ -1279,8 +1279,8 @@ section h2::after {
     width: 100%;
     min-height: 1240px;
     border: 0;
-    border-radius: 26px;
-    background-color: var(--white);
+    border-radius: 0;
+    background: transparent;
 }
 
 .gallery {
@@ -2147,7 +2147,7 @@ section h2::after {
     .calendar-embed-iframe,
     .calendar-embed-frame iframe {
         min-height: 1160px;
-        border-radius: 22px;
+        border-radius: 0;
     }
 }
 
@@ -2335,7 +2335,7 @@ section h2::after {
     .calendar-embed-iframe,
     .calendar-embed-frame iframe {
         min-height: 900px;
-        border-radius: 18px;
+        border-radius: 0;
     }
 
     .gallery-grid {
@@ -2699,7 +2699,7 @@ body.modo_escuro .calendar-embed-frame {
 }
 
 body.modo_escuro .calendar-embed-frame iframe {
-    background-color: #0f1715;
+    background: transparent;
 }
 
 body.modo_escuro .form-group input,
