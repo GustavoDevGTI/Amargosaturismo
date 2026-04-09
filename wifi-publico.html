@@ -415,6 +415,14 @@
       background: #fcc22f;
     }
 
+    .dot.gastronomy {
+      background: #c9642b;
+    }
+
+    .dot.lodging {
+      background: #3568c9;
+    }
+
     .map-notes {
       list-style: none;
       display: grid;
@@ -588,10 +596,30 @@
       color: var(--body-muted);
     }
 
+    .card-meta {
+      display: grid;
+      gap: 0.35rem;
+      margin-top: 0.85rem;
+      color: var(--muted-text);
+      font-size: 0.9rem;
+    }
+
+    .card-meta span {
+      display: block;
+    }
+
     .card-actions {
       display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
       margin-top: auto;
       padding-top: 0.9rem;
+    }
+
+    .card-actions-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
     }
 
     .card-link,
@@ -615,11 +643,28 @@
       border: 1px solid var(--primary-color);
     }
 
+    .card-link--soft {
+      background: rgba(51, 154, 128, 0.08);
+      color: var(--primary-color);
+      border: 1px solid rgba(51, 154, 128, 0.22);
+    }
+
+    .card-link--instagram {
+      background: rgba(201, 100, 43, 0.08);
+      color: #b25523;
+      border: 1px solid rgba(201, 100, 43, 0.22);
+    }
+
     .card-button {
       background: rgba(51, 154, 128, 0.08);
       color: var(--primary-color);
       border: 1px solid rgba(51, 154, 128, 0.22);
       width: 100%;
+    }
+
+    .card-actions-inline .card-link {
+      flex: 1 1 0;
+      min-width: 0;
     }
 
     .card-link:hover,
@@ -910,7 +955,7 @@
           <button class="filter-button" type="button" data-filter="wifi" aria-pressed="false">Wi-Fi Gratuito</button>
           <button class="filter-button is-active" type="button" data-filter="turistico" aria-pressed="true">Pontos Tur&iacute;sticos</button>
           <button class="filter-button" type="button" data-filter="gastronomia" aria-pressed="false">Restaurantes/Bares</button>
-          <button class="filter-button" type="button" data-filter="hotel" aria-pressed="false">Hot&eacute;is</button>
+          <button class="filter-button" type="button" data-filter="hotel" aria-pressed="false">Pousadas</button>
         </div>
         <p class="filter-feedback" data-filter-feedback>Exibindo locais em pontos turisticos.</p>
         <div class="points-carousel" data-carousel>
@@ -925,7 +970,7 @@
                   src="public/images/hero-amargosa.jpeg"
                   alt="Wi-Fi na Pra&ccedil;a Lourival Monte" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a Lourival Monte (Jardim)</h3>
                   <p class="subtitle-card">Ponto central e de maior circula&ccedil;&atilde;o</p>
                   <p>
@@ -942,7 +987,7 @@
                   src="public/images/praca-do-bosque-antiga-estacao.jpg"
                   alt="Wi-Fi na Pra&ccedil;a do Bosque" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Quadra de areia da Pra&ccedil;a do Bosque</h3>
                   <p class="subtitle-card">&Aacute;rea de esporte e conviv&ecirc;ncia</p>
                   <p>
@@ -959,7 +1004,7 @@
                   src="public/images/hero-calendario-praca-lourival-monte.jpg"
                   alt="Wi-Fi na Pracinha dos Barreiros" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pracinha dos Barreiros</h3>
                   <p class="subtitle-card">Conectividade com presen&ccedil;a da &Aacute;rvore Digital</p>
                   <p>
@@ -976,7 +1021,7 @@
                   src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
                   alt="Wi-Fi na Pra&ccedil;a da Minguara" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a da Minguara</h3>
                   <p class="subtitle-card">Acesso p&uacute;blico em &aacute;rea de perman&ecirc;ncia</p>
                   <p>
@@ -993,7 +1038,7 @@
                   src="public/images/catedral-de-amargosa.webp"
                   alt="Wi-Fi na Pra&ccedil;a da Santa Rita" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a da Santa Rita</h3>
                   <p class="subtitle-card">Cobertura p&uacute;blica em bairro tradicional</p>
                   <p>
@@ -1010,7 +1055,7 @@
                   src="public/images/hero-calendario-praca-lourival-monte.jpg"
                   alt="Wi-Fi na Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira</h3>
                   <p class="subtitle-card">Ponto r&aacute;pido para circula&ccedil;&atilde;o di&aacute;ria</p>
                   <p>
@@ -1027,7 +1072,7 @@
                   src="public/images/hero-amargosa.jpeg"
                   alt="Wi-Fi na Pra&ccedil;a Duque de Caxias" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a Duque de Caxias</h3>
                   <p class="subtitle-card">Cobertura no entorno comercial</p>
                   <p>
@@ -1044,7 +1089,7 @@
                   src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
                   alt="Wi-Fi na Pra&ccedil;a do Cristo" loading="lazy">
                 <div class="card-content">
-                  <span class="card-pill">Sinal ativo</span>
+                    <span class="card-pill">Wi-Fi gratuito</span>
                   <h3>Pra&ccedil;a do Cristo</h3>
                   <p class="subtitle-card">Ponto emblem&aacute;tico com vista urbana</p>
                   <p>
@@ -1208,6 +1253,387 @@
                   </div>
                 </div>
               </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-casa-do-gole" hidden>
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Casa do Gole" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Bar</span>
+                  <h3>Casa do Gole</h3>
+                  <p class="subtitle-card">Encontro descontra&iacute;do no centro</p>
+                  <p>
+                    Bar localizado na Av. Dr. Lu&iacute;s Sande, indicado no guia gastron&ocirc;mico de Amargosa para encontros e vida noturna no centro.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 13h &agrave;s 0h</span>
+                    <span>Av. Dr. Lu&iacute;s Sande, 160, Centro</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-casa-do-gole">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575999995542" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-casa-da-feijoada" hidden>
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Casa da Feijoada" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Restaurante</span>
+                  <h3>Casa da Feijoada</h3>
+                  <p class="subtitle-card">Aqui voc&ecirc; encontra a melhor feijoada de Amargosa</p>
+                  <p>
+                    Refer&ecirc;ncia para almo&ccedil;o no centro da cidade, com servi&ccedil;o di&aacute;rio e identidade gastron&ocirc;mica bem conhecida entre moradores e visitantes.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 11h &agrave;s 15h</span>
+                    <span>Rua Conselheiro Dantas, 15, Centro</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-casa-da-feijoada">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--instagram" href="https://www.instagram.com/casadafeijoada_/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988251394" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-chef-restaurante" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Chef Restaurante e Pizzaria" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Pizzaria</span>
+                  <h3>Chef Restaurante e Pizzaria</h3>
+                  <p class="subtitle-card">A sua pizzaria no Valle Shopping</p>
+                  <p>
+                    Op&ccedil;&atilde;o para refei&ccedil;&otilde;es e pizzas no Valle Shopping, com atendimento di&aacute;rio e foco em consumo local e delivery.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 16h &agrave;s 22h</span>
+                    <span>Valle Shopping</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-chef-restaurante">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--instagram" href="https://www.instagram.com/chefpizzaria_/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                      <a class="card-link card-link--soft" href="https://wa.me/5575999130774" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-cantinho-da-evely" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Cantinho da Evely" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Restaurante</span>
+                  <h3>Cantinho da Evely</h3>
+                  <p class="subtitle-card">Refei&ccedil;&otilde;es no Valle Shopping</p>
+                  <p>
+                    Espa&ccedil;o gastron&ocirc;mico com atendimento ao longo da semana e presen&ccedil;a ativa nas redes para pedidos e novidades.
+                  </p>
+                  <div class="card-meta">
+                    <span>Segunda a partir das 15h; ter&ccedil;a a s&aacute;bado a partir das 11h30; domingo a partir das 12h30</span>
+                    <span>Valle Shopping</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-cantinho-da-evely">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--instagram" href="https://www.instagram.com/cantinho_evely/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988182644" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-diversitas" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Diversitas" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Gastronomia</span>
+                  <h3>Diversitas</h3>
+                  <p class="subtitle-card">Perto da Pra&ccedil;a do Bosque</p>
+                  <p>
+                    Op&ccedil;&atilde;o de gastronomia em uma das &aacute;reas de lazer mais conhecidas da cidade, integrando conviv&ecirc;ncia e refei&ccedil;&atilde;o.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 18h &agrave;s 23h</span>
+                    <span>Pra&ccedil;a do Bosque</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-diversitas">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-3-marias" hidden>
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="3 Marias" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Caf&eacute;</span>
+                  <h3>3 Marias</h3>
+                  <p class="subtitle-card">Caf&eacute; da manh&atilde; na Pra&ccedil;a dos Correios</p>
+                  <p>
+                    Ponto indicado para caf&eacute; da manh&atilde; e refei&ccedil;&otilde;es leves, em local central e de f&aacute;cil acesso para quem circula pela cidade.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 9h &agrave;s 19h</span>
+                    <span>Pra&ccedil;a dos Correios</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-3-marias">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575992287847" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-boteco-boliche" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Boteco Boliche" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Boteco</span>
+                  <h3>Boteco Boliche</h3>
+                  <p class="subtitle-card">Parada descontra&iacute;da no Valle Shopping</p>
+                  <p>
+                    Espa&ccedil;o para encontro informal e consumo r&aacute;pido, integrado ao fluxo comercial do Valle Shopping.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, a partir das 9h</span>
+                    <span>Valle Shopping</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-boteco-boliche">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575998723955" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-villa-galicia" hidden>
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Villa Galicia Horto Restaurante" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Restaurante</span>
+                  <h3>Villa Gal&iacute;cia Horto Restaurante</h3>
+                  <p class="subtitle-card">Almo&ccedil;o e experi&ecirc;ncia gastron&ocirc;mica</p>
+                  <p>
+                    Restaurante indicado para refei&ccedil;&otilde;es com atmosfera mais reservada, com funcionamento regular durante o dia e atendimento noturno por reserva.
+                  </p>
+                  <div class="card-meta">
+                    <span>Quarta a domingo, das 11h &agrave;s 17h; &agrave; noite apenas com reserva</span>
+                    <span>Av. Lomanto J&uacute;nior, n&ordm; 35</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-villa-galicia">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988363209" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-bella-roma" hidden>
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Restaurante Bella Roma" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Restaurante</span>
+                  <h3>Restaurante Bella Roma</h3>
+                  <p class="subtitle-card">Pr&oacute;ximo ao Largo Maracan&atilde;</p>
+                  <p>
+                    Restaurante em uma &aacute;rea movimentada da cidade, com abertura regular para almo&ccedil;o e reuni&otilde;es em fam&iacute;lia.
+                  </p>
+                  <div class="card-meta">
+                    <span>Ter&ccedil;a a domingo, a partir das 11h</span>
+                    <span>Rio Branco, ao lado do Largo Maracan&atilde;</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-bella-roma">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575999022406" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-volupe" hidden>
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Volupe Gastro Bar" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Gastro bar</span>
+                  <h3>Volupe Gastro Bar</h3>
+                  <p class="subtitle-card">Noite e encontros no centro</p>
+                  <p>
+                    Espa&ccedil;o gastron&ocirc;mico voltado para a vida noturna, com funcionamento estendido e ambiente de encontros no centro de Amargosa.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 18h &agrave; 0h; s&aacute;bados at&eacute; 2h</span>
+                    <span>R. da Lapinha, 209, Centro</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-volupe">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575991982702" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-saori" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Saori Sushi" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Sushi</span>
+                  <h3>Saori Sushi</h3>
+                  <p class="subtitle-card">Culin&aacute;ria japonesa no Amarcenter</p>
+                  <p>
+                    Op&ccedil;&atilde;o para quem busca sushi e pratos orientais, com atendimento noturno em uma &aacute;rea de f&aacute;cil acesso.
+                  </p>
+                  <div class="card-meta">
+                    <span>Quinta a domingo, das 18h &agrave;s 22h</span>
+                    <span>Travessa Benito Almeida, Amarcenter</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-saori">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988275216" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-americano" hidden>
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Americano Bar e Lanchonete" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Lanchonete</span>
+                  <h3>Americano Bar e Lanchonete</h3>
+                  <p class="subtitle-card">Parada cl&aacute;ssica na Av. Lomanto J&uacute;nior</p>
+                  <p>
+                    Espa&ccedil;o para lanches e encontros informais em um dos corredores urbanos mais conhecidos da cidade.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, a partir das 8h</span>
+                    <span>Av. Lomanto J&uacute;nior</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-americano">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988035650" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-bar-prime" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Bar Prime Lounge" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Lounge</span>
+                  <h3>Bar Prime Lounge</h3>
+                  <p class="subtitle-card">Vida noturna perto da Pra&ccedil;a do Bosque</p>
+                  <p>
+                    Lounge indicado para a noite em Amargosa, com funcionamento at&eacute; a madrugada e localiza&ccedil;&atilde;o estrat&eacute;gica no entorno do Bosque.
+                  </p>
+                  <div class="card-meta">
+                    <span>Quarta a domingo, das 17h &agrave;s 4h</span>
+                    <span>R. Dr. Roberto Santos, 17, Pra&ccedil;a do Bosque</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-bar-prime">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575981190464" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-pug-efemero" hidden>
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Pub e Bar Ef&ecirc;mero" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Pub</span>
+                  <h3>Pub e Bar Ef&ecirc;mero</h3>
+                  <p class="subtitle-card">Bar pr&oacute;ximo ao Bosque</p>
+                  <p>
+                    Op&ccedil;&atilde;o para encontros noturnos em uma regi&atilde;o j&aacute; conhecida pelo fluxo de bares e restaurantes na cidade.
+                  </p>
+                  <div class="card-meta">
+                    <span>Quinta a domingo, das 19h &agrave;s 23h</span>
+                    <span>R. Carlos Gomes, pr&oacute;ximo ao Bosque</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-pug-efemero">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988665360" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="gastronomia" data-point-id="gas-restaurante-sias" hidden>
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Restaurante do Sias" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Restaurante</span>
+                  <h3>Restaurante do Sias</h3>
+                  <p class="subtitle-card">Em frente &agrave; Pra&ccedil;a Iraci Silva</p>
+                  <p>
+                    Restaurante de funcionamento di&aacute;rio em um ponto urbano de f&aacute;cil localiza&ccedil;&atilde;o, pr&oacute;ximo a uma das pra&ccedil;as mais conhecidas da cidade.
+                  </p>
+                  <div class="card-meta">
+                    <span>Todos os dias, das 11h &agrave;s 22h</span>
+                    <span>Travessa Almeida Sampaio, 250</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="gas-restaurante-sias">Ver no mapa</button>
+                    <div class="card-actions-inline">
+                      <a class="card-link card-link--soft" href="https://wa.me/5575988610863" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="hotel" data-point-id="hotel-calisto" hidden>
+                <img
+                  src="public/images/catedral-de-amargosa.webp"
+                  alt="Pousada Calisto" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Pousada</span>
+                  <h3>Pousada Calisto</h3>
+                  <p class="subtitle-card">Hospedagem com caf&eacute; da manh&atilde;</p>
+                  <p>
+                    Op&ccedil;&atilde;o de hospedagem em &aacute;rea urbana de Amargosa, com servi&ccedil;o de caf&eacute; da manh&atilde; e localiza&ccedil;&atilde;o de f&aacute;cil acesso.
+                  </p>
+                  <div class="card-meta">
+                    <span>Caf&eacute; da manh&atilde; incluso</span>
+                    <span>Av. Abelardo Veloso, 258</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="hotel-calisto">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
             </div>
           </div>
 
@@ -1216,7 +1642,7 @@
           </button>
         </div>
         <div class="filter-empty" data-filter-empty hidden>
-          Ainda nao ha locais cadastrados para esta categoria.
+          Os cards detalhados desta categoria serao adicionados em seguida. Os pontos ja estao marcados no mapa.
         </div>
       </div>
     </section>
@@ -1232,6 +1658,8 @@
             <span><i class="dot wifi" aria-hidden="true"></i> Wi-Fi gratuito</span>
             <span><i class="dot tourism" aria-hidden="true"></i> Pontos tur&iacute;sticos</span>
             <span><i class="dot heritage" aria-hidden="true"></i> Patrim&ocirc;nio hist&oacute;rico</span>
+            <span><i class="dot gastronomy" aria-hidden="true"></i> Restaurantes e bares</span>
+            <span><i class="dot lodging" aria-hidden="true"></i> Pousadas</span>
           </div>
         </article>
       </div>
@@ -1254,7 +1682,13 @@
       wifi: "wi-fi gratuito",
       turistico: "pontos turisticos",
       gastronomia: "restaurantes/bares",
-      hotel: "hoteis"
+      hotel: "pousadas"
+    };
+    const mapPointCounts = {
+      wifi: 8,
+      turistico: 9,
+      gastronomia: 15,
+      hotel: 14
     };
     const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
     const defaultMapZoom = 14;
@@ -1284,14 +1718,28 @@
 
       const count = visibleCarouselCards.length;
       const label = filterLabels[activeCategory] || "locais";
+      const mapCount = mapPointCounts[activeCategory] || count;
 
       if (count === 0) {
+        if (mapCount > 0) {
+          const noun = mapCount === 1 ? "local" : "locais";
+          filterFeedback.textContent = `Exibindo ${mapCount} ${noun} em ${label} no mapa. Os cards detalhados entram em seguida.`;
+          return;
+        }
+
         filterFeedback.textContent = `Ainda nao ha ${label} cadastrados no momento.`;
         return;
       }
 
       if (activeCategory === "todos") {
         filterFeedback.textContent = `Exibindo ${count} locais cadastrados no mapa.`;
+        return;
+      }
+
+      if (mapCount > count) {
+        const cardNoun = count === 1 ? "card" : "cards";
+        const mapNoun = mapCount === 1 ? "local" : "locais";
+        filterFeedback.textContent = `Exibindo ${count} ${cardNoun} e ${mapCount} ${mapNoun} em ${label}.`;
         return;
       }
 
@@ -1477,6 +1925,8 @@
       const wifiPath = "M12 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-4.6-5.6 1.4 1.4c1.8-1.8 4.6-1.8 6.4 0l1.4-1.4c-2.6-2.6-6.6-2.6-9.2 0zm-3.5-3.6 1.4 1.5c3.7-3.7 9.7-3.7 13.4 0l1.4-1.5c-4.5-4.5-11.8-4.5-16.2 0zm-3.6-3.5 1.4 1.4c5.7-5.7 14.8-5.7 20.4 0l1.4-1.4c-6.4-6.4-16.8-6.4-23.2 0z";
       const attractionPath = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
       const heritagePath = "M4 10v2h2v6H4v2h16v-2h-2v-6h2v-2L12 4 4 10zm2 0 6-3.18L18 10H6zm2 2h2v6H8v-6zm6 0h2v6h-2v-6zm-3 0h2v6h-2v-6z";
+      const gastronomyPath = "M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97L6 22h2l-.75-9.03C9.34 12.84 11 11.12 11 9zm5-3c-1.66 0-3 1.34-3 3v13h2v-5h2v5h2V9c0-1.66-1.34-3-3-3z";
+      const lodgingPath = "M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm10-6H11v8H3v-4H1v10h2v-2h18v2h2v-6c0-2.21-1.79-4-4-4z";
 
       const getPinSvg = (bgColor, symbolPath) => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 40" width="38" height="48">
@@ -1504,6 +1954,18 @@
 
       const heritageIcon = {
         url: getPinSvg("#fcc22f", heritagePath),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const gastronomyIcon = {
+        url: getPinSvg("#c9642b", gastronomyPath),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const lodgingIcon = {
+        url: getPinSvg("#3568c9", lodgingPath),
         scaledSize: new google.maps.Size(38, 48),
         anchor: new google.maps.Point(19, 48)
       };
@@ -1744,6 +2206,412 @@
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
               <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a do Cristo</strong>
               <span style="font-size: 0.92rem;">Ponto de passeio ao ar livre com vista urbana e ambiente tranquilo para contemplar Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-casa-do-gole",
+          name: "Casa do Gole",
+          category: "gastronomia",
+          query: "Casa do Gole, Avenida Doutor Luis Sande, 160, Centro, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Casa%20do%20Gole,%20Avenida%20Doutor%20Luis%20Sande,%20160,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Casa do Gole</strong>
+              <span style="font-size: 0.92rem;">Bar e ponto de encontro no centro de Amargosa, listado no guia municipal de bares e restaurantes.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-casa-da-feijoada",
+          name: "Casa da Feijoada",
+          category: "gastronomia",
+          query: "Casa da Feijoada, Rua Conselheiro Dantas, 15, Centro, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Casa%20da%20Feijoada,%20Rua%20Conselheiro%20Dantas,%2015,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Casa da Feijoada</strong>
+              <span style="font-size: 0.92rem;">Restaurante tradicional no centro da cidade, presente no material de apoio ao turismo local.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-chef-restaurante",
+          name: "Chef Restaurante e Pizzaria",
+          category: "gastronomia",
+          query: "Chef Restaurante e Pizzaria, Valle Shopping, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Chef%20Restaurante%20e%20Pizzaria,%20Valle%20Shopping,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Chef Restaurante e Pizzaria</strong>
+              <span style="font-size: 0.92rem;">Op&ccedil;&atilde;o de refei&ccedil;&otilde;es e pizzas na regi&atilde;o do Valle Shopping.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-cantinho-da-evely",
+          name: "Cantinho da Evely",
+          category: "gastronomia",
+          query: "Cantinho da Evely, Valle Shopping, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Cantinho%20da%20Evely,%20Valle%20Shopping,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Cantinho da Evely</strong>
+              <span style="font-size: 0.92rem;">Local de alimenta&ccedil;&atilde;o listado entre os destaques gastron&ocirc;micos do munic&iacute;pio.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-diversitas",
+          name: "Diversitas",
+          category: "gastronomia",
+          query: "Diversitas, Praca do Bosque, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Diversitas,%20Praca%20do%20Bosque,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Diversitas</strong>
+              <span style="font-size: 0.92rem;">Op&ccedil;&atilde;o gastron&ocirc;mica pr&oacute;xima &agrave; Pra&ccedil;a do Bosque, em uma &aacute;rea de lazer e conviv&ecirc;ncia.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-3-marias",
+          name: "3 Marias",
+          category: "gastronomia",
+          query: "3 Marias, Praca dos Correios, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=3%20Marias,%20Praca%20dos%20Correios,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">3 Marias</strong>
+              <span style="font-size: 0.92rem;">Ponto de caf&eacute; da manh&atilde; e refei&ccedil;&otilde;es na regi&atilde;o central de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-boteco-boliche",
+          name: "Boteco Boliche",
+          category: "gastronomia",
+          query: "Boteco Boliche, Valle Shopping, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Boteco%20Boliche,%20Valle%20Shopping,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Boteco Boliche</strong>
+              <span style="font-size: 0.92rem;">Bar e lanchonete situado no eixo comercial do Valle Shopping.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-villa-galicia",
+          name: "Villa Galicia Horto Restaurante",
+          category: "gastronomia",
+          query: "Villa Galicia Horto Restaurante, Avenida Lomanto Junior, 35, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Villa%20Galicia%20Horto%20Restaurante,%20Avenida%20Lomanto%20Junior,%2035,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Villa Galicia Horto Restaurante</strong>
+              <span style="font-size: 0.92rem;">Restaurante indicado no guia local para almo&ccedil;os e experi&ecirc;ncias gastron&ocirc;micas com reserva.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-bella-roma",
+          name: "Restaurante Bella Roma",
+          category: "gastronomia",
+          query: "Restaurante Bella Roma, Largo Maracana, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Restaurante%20Bella%20Roma,%20Largo%20Maracana,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Restaurante Bella Roma</strong>
+              <span style="font-size: 0.92rem;">Restaurante pr&oacute;ximo ao Largo Maracan&atilde;, listado entre as op&ccedil;&otilde;es gastron&ocirc;micas da cidade.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-volupe",
+          name: "Volupe Gastro Bar",
+          category: "gastronomia",
+          query: "Volupe Gastro Bar, Rua da Lapinha, 209, Centro, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Volupe%20Gastro%20Bar,%20Rua%20da%20Lapinha,%20209,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Volupe Gastro Bar</strong>
+              <span style="font-size: 0.92rem;">Gastro bar no centro de Amargosa, voltado para experi&ecirc;ncias noturnas e encontros.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-saori",
+          name: "Saori Sushi",
+          category: "gastronomia",
+          query: "Saori Sushi, Travessa Benedito Almeida, Amarcenter, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Saori%20Sushi,%20Travessa%20Benedito%20Almeida,%20Amarcenter,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Saori Sushi</strong>
+              <span style="font-size: 0.92rem;">Op&ccedil;&atilde;o de culin&aacute;ria japonesa no entorno do Amarcenter.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-americano",
+          name: "Americano Bar e Lanchonete",
+          category: "gastronomia",
+          query: "Americano Bar e Lanchonete, Avenida Lomanto Junior, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Americano%20Bar%20e%20Lanchonete,%20Avenida%20Lomanto%20Junior,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Americano Bar e Lanchonete</strong>
+              <span style="font-size: 0.92rem;">Bar e lanchonete em um dos corredores urbanos mais conhecidos de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-bar-prime",
+          name: "Bar Prime Lounge",
+          category: "gastronomia",
+          query: "Bar Prime Lounge, Rua Doutor Roberto Santos, 17, Praca do Bosque, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Bar%20Prime%20Lounge,%20Rua%20Doutor%20Roberto%20Santos,%2017,%20Praca%20do%20Bosque,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Bar Prime Lounge</strong>
+              <span style="font-size: 0.92rem;">Espa&ccedil;o voltado para a vida noturna, pr&oacute;ximo &agrave; Pra&ccedil;a do Bosque.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-pug-efemero",
+          name: "Pub e Bar Efemero",
+          category: "gastronomia",
+          query: "Pub e Bar Efemero, Rua Carlos Gomes, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pub%20e%20Bar%20Efemero,%20Rua%20Carlos%20Gomes,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Pub e Bar Efemero</strong>
+              <span style="font-size: 0.92rem;">Bar pr&oacute;ximo ao Bosque, indicado no roteiro gastron&ocirc;mico local.</span>
+            </div>
+          `
+        },
+        {
+          id: "gas-restaurante-sias",
+          name: "Restaurante do Sias",
+          category: "gastronomia",
+          query: "Restaurante do Sias, Travessa Almeida Sampaio, 250, Amargosa, Bahia, Brasil",
+          icon: gastronomyIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Restaurante%20do%20Sias,%20Travessa%20Almeida%20Sampaio,%20250,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #c9642b; font-size: 1.05rem;">Restaurante do Sias</strong>
+              <span style="font-size: 0.92rem;">Restaurante localizado em frente &agrave; Pra&ccedil;a Iraci Silva, no circuito urbano da cidade.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-katiara",
+          name: "Pousada Katiara",
+          category: "hotel",
+          query: "Pousada Katiara, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Katiara,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Katiara</strong>
+              <span style="font-size: 0.92rem;">Op&ccedil;&atilde;o de hospedagem listada no cadastro local de pousadas e hot&eacute;is de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-girassol",
+          name: "Pousada Girassol",
+          category: "hotel",
+          query: "Pousada Girassol, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Girassol,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Girassol</strong>
+              <span style="font-size: 0.92rem;">Hospedagem presente no material de apoio ao visitante da cidade.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-jequitiba",
+          name: "Pousada Jequitiba",
+          category: "hotel",
+          query: "Pousada Jequitiba, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Jequitiba,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Jequitib&aacute;</strong>
+              <span style="font-size: 0.92rem;">Pousada indicada no cadastro municipal de meios de hospedagem.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-vale-aguas",
+          name: "Hotel Fazenda Vale das Aguas",
+          category: "hotel",
+          query: "Hotel Fazenda Vale das Aguas, Rodovia Amargosa Mutuipe, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Hotel%20Fazenda%20Vale%20das%20Aguas,%20Rodovia%20Amargosa%20Mutuipe,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Hotel Fazenda Vale das &Aacute;guas</strong>
+              <span style="font-size: 0.92rem;">Hospedagem com perfil rural na rota de acesso a Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-calisto",
+          name: "Pousada Calisto",
+          category: "hotel",
+          query: "Pousada Calisto, Avenida Abelardo Veloso, 258, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Calisto,%20Avenida%20Abelardo%20Veloso,%20258,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Calisto</strong>
+              <span style="font-size: 0.92rem;">Hospedagem urbana com refer&ecirc;ncia no eixo central de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-bosque",
+          name: "Pousada do Bosque",
+          category: "hotel",
+          query: "Pousada do Bosque, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20do%20Bosque,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada do Bosque</strong>
+              <span style="font-size: 0.92rem;">Meio de hospedagem listado entre as pousadas dispon&iacute;veis no munic&iacute;pio.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-bj",
+          name: "Pousada BJ",
+          category: "hotel",
+          query: "Pousada BJ, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20BJ,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada BJ</strong>
+              <span style="font-size: 0.92rem;">Pousada cadastrada entre as op&ccedil;&otilde;es de hospedagem de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-dona-marieta",
+          name: "Pousada Dona Marieta",
+          category: "hotel",
+          query: "Pousada Dona Marieta, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Dona%20Marieta,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Dona Marieta</strong>
+              <span style="font-size: 0.92rem;">Hospedagem identificada no roteiro local de pousadas e hot&eacute;is.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-imperial",
+          name: "Pousada Imperial",
+          category: "hotel",
+          query: "Pousada Imperial, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Imperial,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Imperial</strong>
+              <span style="font-size: 0.92rem;">Op&ccedil;&atilde;o de hospedagem presente no cadastro compartilhado com visitantes.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-colibri",
+          name: "Hotel Fazenda Colibri",
+          category: "hotel",
+          query: "Hotel Fazenda Colibri, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Hotel%20Fazenda%20Colibri,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Hotel Fazenda Colibri</strong>
+              <span style="font-size: 0.92rem;">Hospedagem com perfil de hotel fazenda, indicada para estadias ligadas ao turismo regional.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-sampaio",
+          name: "Pousada Sampaio",
+          category: "hotel",
+          query: "Pousada Sampaio, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Sampaio,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Pousada Sampaio</strong>
+              <span style="font-size: 0.92rem;">Meio de hospedagem inclu&iacute;do na rela&ccedil;&atilde;o local de pousadas.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-baitinga",
+          name: "Resort Baitinga",
+          category: "hotel",
+          query: "Resort Baitinga, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Resort%20Baitinga,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Resort Baitinga</strong>
+              <span style="font-size: 0.92rem;">Hospedagem citada no material de refer&ecirc;ncia de pousadas e hot&eacute;is da regi&atilde;o.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-amargosa",
+          name: "Hotel Amargosa",
+          category: "hotel",
+          query: "Hotel Amargosa, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Hotel%20Amargosa,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Hotel Amargosa</strong>
+              <span style="font-size: 0.92rem;">Hospedagem urbana presente no levantamento de servi&ccedil;os para visitantes.</span>
+            </div>
+          `
+        },
+        {
+          id: "hotel-asa-branca",
+          name: "Motel Asa Branca",
+          category: "hotel",
+          query: "Motel Asa Branca, Amargosa, Bahia, Brasil",
+          icon: lodgingIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Motel%20Asa%20Branca,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #3568c9; font-size: 1.05rem;">Motel Asa Branca</strong>
+              <span style="font-size: 0.92rem;">Estabelecimento de hospedagem listado entre as op&ccedil;&otilde;es existentes em Amargosa.</span>
             </div>
           `
         }
