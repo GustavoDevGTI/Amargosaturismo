@@ -1987,6 +1987,12 @@ section h2::after {
     margin-top: 2rem;
 }
 
+.practical-info-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
 .info-card {
     background: linear-gradient(135deg, #f7fbf9, var(--surface-soft));
     padding: 2rem;
