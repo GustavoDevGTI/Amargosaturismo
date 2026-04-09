@@ -48,7 +48,8 @@ a {
     align-items: end;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 1.5rem;
+    min-height: 82px;
+    padding: 1.2rem 1.5rem 0;
 }
 
 .sj-hero__texture {
@@ -58,16 +59,6 @@ a {
     background: url('../public/images/sao-joao/bandeirolas.png') top center / 780px repeat-x;
     pointer-events: none;
     opacity: 0.95;
-}
-
-.sj-hero__content {
-    position: relative;
-    z-index: 1;
-}
-
-.sj-hero__content {
-    max-width: 860px;
-    padding: 6.2rem 1.5rem 0.8rem;
 }
 
 .sj-section__eyebrow {
@@ -85,19 +76,9 @@ a {
     text-transform: uppercase;
 }
 
-.sj-hero h1,
 .sj-section h2,
 .sj-experience__card h3 {
     font-family: 'Bree Serif', serif;
-}
-
-.sj-hero h1 {
-    margin: 0;
-    max-width: none;
-    font-size: clamp(2.8rem, 5.6vw, 5rem);
-    line-height: 1;
-    color: var(--sj-primary);
-    white-space: nowrap;
 }
 
 .sj-button {
@@ -132,11 +113,11 @@ a {
 .sj-main {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.15rem 1.5rem 3rem;
+    padding: 0 1.5rem 3rem;
 }
 
 .sj-section {
-    margin-top: 1rem;
+    margin-top: 0.35rem;
     padding: 2rem;
     border: 1px solid rgba(142, 47, 27, 0.1);
     border-radius: 32px;
@@ -254,12 +235,13 @@ a {
 }
 
 @media (max-width: 1080px) {
-    .sj-story {
-        grid-template-columns: 1fr;
+    .sj-hero {
+        min-height: 68px;
+        padding-top: 0.9rem;
     }
 
-    .sj-hero__content {
-        padding-top: 5.8rem;
+    .sj-story {
+        grid-template-columns: 1fr;
     }
 
     .sj-experience__grid {
@@ -281,14 +263,6 @@ a {
 
     .sj-hero__texture {
         background-size: 520px;
-    }
-
-    .sj-hero__content {
-        padding: 5rem 0 0.25rem;
-    }
-
-    .sj-hero h1 {
-        white-space: normal;
     }
 
     .sj-section {
