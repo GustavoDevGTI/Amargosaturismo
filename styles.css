@@ -421,7 +421,7 @@ body.sao-joao-modal-open {
     width: 100%;
     min-height: 170px;
     background-color: var(--padrao02);
-    border-radius: 0.3vw;
+    border-radius: 1vw;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -430,10 +430,10 @@ body.sao-joao-modal-open {
 }
 
 .submenu_horizontal_h1-icone {
-    width: 3.4vw;
-    min-width: 48px;
-    height: 3.4vw;
-    min-height: 48px;
+    width: 4.3vw;
+    min-width: 58px;
+    height: 4.3vw;
+    min-height: 58px;
     font-size: 2vw;
     color: var(--white);
     text-align: center;
@@ -441,7 +441,7 @@ body.sao-joao-modal-open {
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 .submenu_horizontal_h1-copy {
@@ -474,20 +474,17 @@ body.sao-joao-modal-open {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75vw;
-    padding: 0.3vw;
-    border-radius: 0.3vw;
-    border: 1px solid var(--branco-lente03);
-    background: rgba(255, 255, 255, 0.08);
 }
 
 .submenu_horizontal-btn {
     font-size: 0.84vw;
     color: var(--white);
     min-height: 4.3vw;
-    border-radius: 0.3vw;
-    background: rgba(255, 255, 255, 0.08);
+    border-radius: 0.8vw;
+    background: var(--padrao02);
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.2s ease-in-out;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .submenu_horizontal-btn a {
@@ -502,7 +499,7 @@ body.sao-joao-modal-open {
 
 .submenu_horizontal-btn:hover,
 .submenu_horizontal-btn:focus-within {
-    background: rgba(255, 255, 255, 0.16);
+    background: #63c7ae;
     border-color: rgba(255, 255, 255, 0.26);
     text-decoration: none;
 }
