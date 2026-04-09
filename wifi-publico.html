@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wi-Fi Gratuito em Amargosa</title>
+  <title>Guia de Amargosa</title>
   <meta name="description"
-    content="Consulte os pontos públicos de Wi-Fi gratuito em Amargosa e visualize cada local no mapa da página.">
+    content="Explore pontos turisticos, wi-fi gratuito e, em breve, locais de gastronomia e hospedagem em Amargosa.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -403,6 +403,18 @@
       background: var(--accent-color);
     }
 
+    .dot.wifi {
+      background: #145844;
+    }
+
+    .dot.tourism {
+      background: #339a80;
+    }
+
+    .dot.heritage {
+      background: #fcc22f;
+    }
+
     .map-notes {
       list-style: none;
       display: grid;
@@ -443,12 +455,66 @@
       padding-bottom: 0.8rem;
     }
 
+    .filter-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 1.4rem auto 0.75rem;
+    }
+
+    .filter-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(21, 124, 98, 0.2);
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--primary-color);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 10px 22px rgba(26, 37, 46, 0.08);
+    }
+
+    .filter-button:hover,
+    .filter-button:focus-visible {
+      transform: translateY(-2px);
+      background: var(--white);
+    }
+
+    .filter-button.is-active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--white);
+      box-shadow: 0 12px 24px rgba(21, 124, 98, 0.24);
+    }
+
+    .filter-feedback {
+      min-height: 1.6rem;
+      text-align: center;
+      color: var(--muted-text);
+      font-size: 0.95rem;
+    }
+
     .points-carousel {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
       gap: 16px;
       align-items: center;
       margin-top: 1.35rem;
+    }
+
+    .points-carousel.is-empty {
+      grid-template-columns: 1fr;
+    }
+
+    .points-carousel.is-empty .carousel-arrow {
+      display: none;
     }
 
     .points-carousel__viewport {
@@ -593,6 +659,21 @@
 
     .carousel-arrow .material-symbols-outlined {
       font-size: 2rem;
+    }
+
+    .filter-empty {
+      margin-top: 1rem;
+      padding: 1.35rem 1.5rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(21, 124, 98, 0.12);
+      box-shadow: var(--shadow);
+      text-align: center;
+      color: var(--body-muted);
+    }
+
+    .filter-empty[hidden] {
+      display: none;
     }
 
     .map-section {
@@ -745,6 +826,16 @@
         grid-template-columns: 1fr;
       }
 
+      .filter-toolbar {
+        gap: 0.6rem;
+      }
+
+      .filter-button {
+        min-height: 40px;
+        padding: 0 15px;
+        font-size: 0.9rem;
+      }
+
       .panel,
       .about-text,
       .info-card,
@@ -777,6 +868,7 @@
       }
 
       .btn,
+      .filter-button,
       .card-link,
       .card-button {
         width: 100%;
@@ -802,9 +894,9 @@
   <header class="hero" id="inicio">
     <div class="container">
       <div class="hero__content">
-        <h1>Wi-Fi Gratuito em Amargosa</h1>
+        <h1>Guia de Amargosa</h1>
         <p class="hero__text">
-          Confira os pontos de acesso disponiveis e encontre cada local no mapa da pagina.
+          Encontre pontos tur&iacute;sticos, wi-fi gratuito e, em breve, op&ccedil;&otilde;es de gastronomia e hospedagem no mapa da cidade.
         </p>
       </div>
     </div>
@@ -813,163 +905,318 @@
   <main>
     <section class="attractions section-muted" id="pontos">
       <div class="container">
-        <h2>Pontos de Acesso</h2>
+        <h2>Explore por Categoria</h2>
+        <div class="filter-toolbar" aria-label="Categorias de locais">
+          <button class="filter-button" type="button" data-filter="wifi" aria-pressed="false">Wi-Fi Gratuito</button>
+          <button class="filter-button is-active" type="button" data-filter="turistico" aria-pressed="true">Pontos Tur&iacute;sticos</button>
+          <button class="filter-button" type="button" data-filter="gastronomia" aria-pressed="false">Restaurantes/Bares</button>
+          <button class="filter-button" type="button" data-filter="hotel" aria-pressed="false">Hot&eacute;is</button>
+        </div>
+        <p class="filter-feedback" data-filter-feedback>Exibindo locais em pontos turisticos.</p>
         <div class="points-carousel" data-carousel>
-          <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Mostrar ponto anterior">
+          <button class="carousel-arrow" type="button" data-carousel-prev aria-label="Mostrar local anterior">
             <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
           </button>
 
           <div class="points-carousel__viewport">
             <div class="attractions-grid">
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-jardim" hidden>
                 <img
                   src="public/images/hero-amargosa.jpeg"
-                  alt="Praça Lourival Monte" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a Lourival Monte" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça Lourival Monte (Jardim)</h3>
-                  <p class="subtitle-card">Ponto central e de maior circulação</p>
+                  <h3>Pra&ccedil;a Lourival Monte (Jardim)</h3>
+                  <p class="subtitle-card">Ponto central e de maior circula&ccedil;&atilde;o</p>
                   <p>
-                    Ideal para quem precisa de conectividade no coração da cidade, seja para uma pausa rápida, consulta
-                    a serviços ou comunicação durante o passeio pelo centro.
+                    Ideal para quem precisa de conectividade no cora&ccedil;&atilde;o da cidade, seja para uma pausa r&aacute;pida, consulta a servi&ccedil;os ou comunica&ccedil;&atilde;o durante o passeio pelo centro.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="jardim">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-jardim">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-bosque" hidden>
                 <img
                   src="public/images/praca-do-bosque-antiga-estacao.jpg"
-                  alt="Praça do Bosque" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a do Bosque" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Quadra de areia da Praça do Bosque</h3>
-                  <p class="subtitle-card">Área de esporte e convivência</p>
+                  <h3>Quadra de areia da Pra&ccedil;a do Bosque</h3>
+                  <p class="subtitle-card">&Aacute;rea de esporte e conviv&ecirc;ncia</p>
                   <p>
-                    Funciona como apoio para frequentadores da praça e da área esportiva, facilitando o uso do celular
-                    durante treinos, descanso e encontros no espaço público.
+                    Funciona como apoio para frequentadores da pra&ccedil;a e da &aacute;rea esportiva, facilitando o uso do celular durante treinos, descanso e encontros no espa&ccedil;o p&uacute;blico.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="bosque">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-bosque">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-barreiros" hidden>
                 <img
                   src="public/images/hero-calendario-praca-lourival-monte.jpg"
-                  alt="Paisagem urbana de Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pracinha dos Barreiros" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
                   <h3>Pracinha dos Barreiros</h3>
-                  <p class="subtitle-card">Conectividade com presença da Árvore Digital</p>
+                  <p class="subtitle-card">Conectividade com presen&ccedil;a da &Aacute;rvore Digital</p>
                   <p>
-                    Reforça a proposta de modernização em espaço público e serve como apoio para moradores que utilizam a
-                    praça em atividades cotidianas e momentos de convivência.
+                    Refor&ccedil;a a proposta de moderniza&ccedil;&atilde;o em espa&ccedil;o p&uacute;blico e serve como apoio para moradores que utilizam a pra&ccedil;a em atividades cotidianas e momentos de conviv&ecirc;ncia.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="barreiros">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-barreiros">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-minguara" hidden>
                 <img
                   src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
-                  alt="Praça de Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a da Minguara" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça da Minguara</h3>
-                  <p class="subtitle-card">Acesso público em área de permanência</p>
+                  <h3>Pra&ccedil;a da Minguara</h3>
+                  <p class="subtitle-card">Acesso p&uacute;blico em &aacute;rea de perman&ecirc;ncia</p>
                   <p>
-                    Oferece suporte à navegação em uma praça importante para o dia a dia local, ajudando em pesquisas,
-                    mensagens e uso rápido de serviços digitais.
+                    Oferece suporte &agrave; navega&ccedil;&atilde;o em uma pra&ccedil;a importante para o dia a dia local, ajudando em pesquisas, mensagens e uso r&aacute;pido de servi&ccedil;os digitais.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="minguara">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-minguara">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-santa-rita" hidden>
                 <img
                   src="public/images/catedral-de-amargosa.webp"
-                  alt="Centro de Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a da Santa Rita" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça da Santa Rita</h3>
-                  <p class="subtitle-card">Cobertura pública em bairro tradicional</p>
+                  <h3>Pra&ccedil;a da Santa Rita</h3>
+                  <p class="subtitle-card">Cobertura p&uacute;blica em bairro tradicional</p>
                   <p>
-                    Fortalece a inclusão digital fora da área mais central, ampliando a presença do serviço para moradores
-                    e visitantes que circulam pela região de Santa Rita.
+                    Fortalece a inclus&atilde;o digital fora da &aacute;rea mais central, ampliando a presen&ccedil;a do servi&ccedil;o para moradores e visitantes que circulam pela regi&atilde;o de Santa Rita.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="santa-rita">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-santa-rita">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-joao-angelo" hidden>
                 <img
                   src="public/images/hero-calendario-praca-lourival-monte.jpg"
-                  alt="Centro urbano de Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça João Ângelo Pereira</h3>
-                  <p class="subtitle-card">Ponto rápido para circulação diária</p>
+                  <h3>Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira</h3>
+                  <p class="subtitle-card">Ponto r&aacute;pido para circula&ccedil;&atilde;o di&aacute;ria</p>
                   <p>
-                    Serve como apoio para deslocamentos, consultas rápidas e comunicação em uma área de passagem frequente
-                    na malha urbana do município.
+                    Serve como apoio para deslocamentos, consultas r&aacute;pidas e comunica&ccedil;&atilde;o em uma &aacute;rea de passagem frequente na malha urbana do munic&iacute;pio.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="joao-angelo">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-joao-angelo">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-duque-caxias" hidden>
                 <img
                   src="public/images/hero-amargosa.jpeg"
-                  alt="Vista do centro de Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a Duque de Caxias" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça Duque de Caxias</h3>
+                  <h3>Pra&ccedil;a Duque de Caxias</h3>
                   <p class="subtitle-card">Cobertura no entorno comercial</p>
                   <p>
-                    Ajuda a manter a conexão em uma área de serviços e comércio, apoiando quem precisa resolver demandas
-                    rápidas durante a permanência no centro.
+                    Ajuda a manter a conex&atilde;o em uma &aacute;rea de servi&ccedil;os e com&eacute;rcio, apoiando quem precisa resolver demandas r&aacute;pidas durante a perman&ecirc;ncia no centro.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="duque-caxias">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-duque-caxias">Ver no mapa</button>
                   </div>
                 </div>
               </article>
 
-              <article class="attraction-card">
+              <article class="attraction-card" data-category="wifi" data-point-id="wifi-cristo" hidden>
                 <img
                   src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
-                  alt="Praça do Cristo em Amargosa" loading="lazy">
+                  alt="Wi-Fi na Pra&ccedil;a do Cristo" loading="lazy">
                 <div class="card-content">
                   <span class="card-pill">Sinal ativo</span>
-                  <h3>Praça do Cristo</h3>
-                  <p class="subtitle-card">Ponto emblemático com vista urbana</p>
+                  <h3>Pra&ccedil;a do Cristo</h3>
+                  <p class="subtitle-card">Ponto emblem&aacute;tico com vista urbana</p>
                   <p>
-                    Une paisagem, circulação e conectividade em um dos pontos mais conhecidos da cidade, facilitando o uso
-                    da internet durante o passeio e o registro da visita.
+                    Une paisagem, circula&ccedil;&atilde;o e conectividade em um dos pontos mais conhecidos da cidade, facilitando o uso da internet durante o passeio e o registro da visita.
                   </p>
                   <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="cristo">Ver no mapa</button>
+                    <button class="card-button" type="button" data-map-focus="wifi-cristo">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-jardim">
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Pra&ccedil;a Lourival Monte" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Cart&atilde;o-postal</span>
+                  <h3>Pra&ccedil;a Lourival Monte</h3>
+                  <p class="subtitle-card">O Cart&atilde;o-Postal de Amargosa</p>
+                  <p>
+                    A Pra&ccedil;a Lourival Monte, conhecida como "Jardim", &eacute; um dos espa&ccedil;os mais simb&oacute;licos de Amargosa. O local re&uacute;ne paisagismo marcante, vida urbana e a presen&ccedil;a da Catedral de Nossa Senhora do Bom Conselho.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-jardim">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-bosque">
+                <img
+                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
+                  alt="Pra&ccedil;a do Bosque" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Conviv&ecirc;ncia</span>
+                  <h3>Pra&ccedil;a do Bosque</h3>
+                  <p class="subtitle-card">Espa&ccedil;o de conviv&ecirc;ncia e eventos</p>
+                  <p>
+                    A Pra&ccedil;a do Bosque &eacute; um espa&ccedil;o amplo e acolhedor para encontros, passeios em fam&iacute;lia e atividades culturais. Sua estrutura recebe eventos e oferece uma &aacute;rea agrad&aacute;vel para lazer e conviv&ecirc;ncia.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-bosque">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-catedral">
+                <img
+                  src="public/images/catedral-de-amargosa.webp"
+                  alt="Catedral de Nossa Senhora do Bom Conselho" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Patrim&ocirc;nio</span>
+                  <h3>Catedral de Nossa Senhora do Bom Conselho</h3>
+                  <p class="subtitle-card">Patrim&ocirc;nio Hist&oacute;rico e Arquitet&ocirc;nico</p>
+                  <p>
+                    Localizada na Pra&ccedil;a Lourival Monte, a Catedral &eacute; um importante patrim&ocirc;nio hist&oacute;rico de Amargosa. Sua arquitetura barroca preserva mem&oacute;rias religiosas, art&iacute;sticas e culturais da cidade.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-catedral">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-minguara">
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Pra&ccedil;a da Minguara" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Vida urbana</span>
+                  <h3>Pra&ccedil;a da Minguara</h3>
+                  <p class="subtitle-card">Perman&ecirc;ncia e encontro no centro urbano</p>
+                  <p>
+                    A Pra&ccedil;a da Minguara revela o cotidiano de Amargosa com movimento tranquilo, encontros ao ar livre e perman&ecirc;ncia de moradores em diferentes hor&aacute;rios do dia.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-minguara">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-santa-rita">
+                <img
+                  src="public/images/catedral-de-amargosa.webp"
+                  alt="Pra&ccedil;a da Santa Rita" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Tradi&ccedil;&atilde;o</span>
+                  <h3>Pra&ccedil;a da Santa Rita</h3>
+                  <p class="subtitle-card">Mem&oacute;ria religiosa e identidade de bairro</p>
+                  <p>
+                    Na regi&atilde;o de Santa Rita, a pra&ccedil;a comp&otilde;e um cen&aacute;rio de forte identidade comunit&aacute;ria, com presen&ccedil;a marcante na vida do bairro e liga&ccedil;&atilde;o com encontros locais.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-santa-rita">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-joao-angelo">
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Circuito urbano</span>
+                  <h3>Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira</h3>
+                  <p class="subtitle-card">Circula&ccedil;&atilde;o e vida cotidiana no centro</p>
+                  <p>
+                    A Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira integra a paisagem urbana do centro e funciona como ponto de passagem e perman&ecirc;ncia, conectando com&eacute;rcio, servi&ccedil;os e o ritmo di&aacute;rio da cidade.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-joao-angelo">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-duque-caxias">
+                <img
+                  src="public/images/hero-amargosa.jpeg"
+                  alt="Pra&ccedil;a Duque de Caxias" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Mem&oacute;ria urbana</span>
+                  <h3>Pra&ccedil;a Duque de Caxias</h3>
+                  <p class="subtitle-card">Entorno comercial e experi&ecirc;ncia do centro</p>
+                  <p>
+                    A Pra&ccedil;a Duque de Caxias se destaca pela localiza&ccedil;&atilde;o estrat&eacute;gica em uma &aacute;rea de servi&ccedil;os e com&eacute;rcio, compondo a experi&ecirc;ncia de quem percorre o centro de Amargosa.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-duque-caxias">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-cristo">
+                <img
+                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
+                  alt="Pra&ccedil;a do Cristo em Amargosa" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Passeio</span>
+                  <h3>Pra&ccedil;a do Cristo</h3>
+                  <p class="subtitle-card">Vista urbana e passeio ao ar livre</p>
+                  <p>
+                    A Pra&ccedil;a do Cristo oferece um ponto conhecido da cidade para contempla&ccedil;&atilde;o, caminhada e registro de visita, reunindo paisagem urbana e atmosfera tranquila em um dos espa&ccedil;os mais lembrados de Amargosa.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-cristo">Ver no mapa</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="attraction-card" data-category="turistico" data-point-id="tur-barreiros">
+                <img
+                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
+                  alt="Pracinha dos Barreiros" loading="lazy">
+                <div class="card-content">
+                  <span class="card-pill">Comunidade</span>
+                  <h3>Pracinha dos Barreiros</h3>
+                  <p class="subtitle-card">Encontro comunit&aacute;rio e lazer de bairro</p>
+                  <p>
+                    A Pracinha dos Barreiros &eacute; um espa&ccedil;o de lazer cotidiano que re&uacute;ne moradores em encontros, descanso e atividades ao ar livre, refor&ccedil;ando a identidade afetiva das pra&ccedil;as de Amargosa.
+                  </p>
+                  <div class="card-actions">
+                    <button class="card-button" type="button" data-map-focus="tur-barreiros">Ver no mapa</button>
                   </div>
                 </div>
               </article>
             </div>
           </div>
 
-          <button class="carousel-arrow" type="button" data-carousel-next aria-label="Mostrar próximo ponto">
+          <button class="carousel-arrow" type="button" data-carousel-next aria-label="Mostrar proximo local">
             <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
           </button>
+        </div>
+        <div class="filter-empty" data-filter-empty hidden>
+          Ainda nao ha locais cadastrados para esta categoria.
         </div>
       </div>
     </section>
@@ -978,12 +1225,13 @@
       <div class="container">
         <article class="panel">
           <div class="map-shell">
-            <div id="map" aria-label="Mapa dos pontos de Wi-Fi em Amargosa"></div>
+            <div id="map" aria-label="Mapa dos locais de Amargosa"></div>
           </div>
 
           <div class="legend" aria-label="Legenda do mapa">
-            <span><i class="dot confirmed" aria-hidden="true"></i> Ponto público destacado</span>
-            <span><i class="dot partial" aria-hidden="true"></i> Referência complementar</span>
+            <span><i class="dot wifi" aria-hidden="true"></i> Wi-Fi gratuito</span>
+            <span><i class="dot tourism" aria-hidden="true"></i> Pontos tur&iacute;sticos</span>
+            <span><i class="dot heritage" aria-hidden="true"></i> Patrim&ocirc;nio hist&oacute;rico</span>
           </div>
         </article>
       </div>
@@ -993,15 +1241,63 @@
   <script>
     const carouselRoot = document.querySelector("[data-carousel]");
     const carouselTrack = carouselRoot?.querySelector(".attractions-grid");
-    const carouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
+    const allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
     const carouselPrevButton = carouselRoot?.querySelector("[data-carousel-prev]");
     const carouselNextButton = carouselRoot?.querySelector("[data-carousel-next]");
+    const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
+    const filterFeedback = document.querySelector("[data-filter-feedback]");
+    const filterEmpty = document.querySelector("[data-filter-empty]");
     const mapFocusButtons = document.querySelectorAll("[data-map-focus]");
     const pointMarkers = new Map();
+    const pointCategories = new Map();
+    const filterLabels = {
+      wifi: "wi-fi gratuito",
+      turistico: "pontos turisticos",
+      gastronomia: "restaurantes/bares",
+      hotel: "hoteis"
+    };
+    const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
+    const defaultMapZoom = 14;
+    let visibleCarouselCards = [...allCarouselCards];
+    let activeCategory = "turistico";
     let carouselIndex = 0;
     let pendingMapFocusId = null;
     let pageMap = null;
     let pageInfoWindow = null;
+
+    function matchesActiveCategory(category) {
+      return activeCategory === "todos" || category === activeCategory;
+    }
+
+    function updateFilterButtons() {
+      filterButtons.forEach((button) => {
+        const isActive = button.dataset.filter === activeCategory;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+
+    function updateFilterFeedback() {
+      if (!filterFeedback) {
+        return;
+      }
+
+      const count = visibleCarouselCards.length;
+      const label = filterLabels[activeCategory] || "locais";
+
+      if (count === 0) {
+        filterFeedback.textContent = `Ainda nao ha ${label} cadastrados no momento.`;
+        return;
+      }
+
+      if (activeCategory === "todos") {
+        filterFeedback.textContent = `Exibindo ${count} locais cadastrados no mapa.`;
+        return;
+      }
+
+      const noun = count === 1 ? "local" : "locais";
+      filterFeedback.textContent = `Exibindo ${count} ${noun} em ${label}.`;
+    }
 
     function getCardsPerView() {
       if (window.innerWidth <= 560) {
@@ -1016,17 +1312,31 @@
     }
 
     function getMaxCarouselIndex() {
-      return Math.max(0, carouselCards.length - getCardsPerView());
+      return Math.max(0, visibleCarouselCards.length - getCardsPerView());
     }
 
     function updateCarousel() {
-      if (!carouselTrack || !carouselCards.length) {
+      if (!carouselTrack) {
+        return;
+      }
+
+      if (!visibleCarouselCards.length) {
+        carouselTrack.style.transform = "translateX(0)";
+
+        if (carouselPrevButton) {
+          carouselPrevButton.disabled = true;
+        }
+
+        if (carouselNextButton) {
+          carouselNextButton.disabled = true;
+        }
+
         return;
       }
 
       const maxIndex = getMaxCarouselIndex();
       carouselIndex = Math.max(0, Math.min(carouselIndex, maxIndex));
-      const activeCard = carouselCards[carouselIndex];
+      const activeCard = visibleCarouselCards[carouselIndex];
 
       carouselTrack.style.transform = activeCard ? `translateX(-${activeCard.offsetLeft}px)` : "translateX(0)";
 
@@ -1037,6 +1347,27 @@
       if (carouselNextButton) {
         carouselNextButton.disabled = carouselIndex === maxIndex;
       }
+    }
+
+    function refreshVisibleCards() {
+      visibleCarouselCards = allCarouselCards.filter((card) => matchesActiveCategory(card.dataset.category));
+
+      allCarouselCards.forEach((card) => {
+        card.hidden = !matchesActiveCategory(card.dataset.category);
+      });
+
+      if (carouselRoot) {
+        carouselRoot.classList.toggle("is-empty", visibleCarouselCards.length === 0);
+      }
+
+      if (filterEmpty) {
+        filterEmpty.hidden = visibleCarouselCards.length !== 0;
+      }
+
+      carouselIndex = 0;
+      updateFilterButtons();
+      updateFilterFeedback();
+      updateCarousel();
     }
 
     carouselPrevButton?.addEventListener("click", () => {
@@ -1051,7 +1382,52 @@
 
     window.addEventListener("resize", updateCarousel);
 
+    function applyMapFilter() {
+      if (!pageMap) {
+        return;
+      }
+
+      if (pageInfoWindow) {
+        pageInfoWindow.close();
+      }
+
+      const visibleMarkers = [];
+
+      pointMarkers.forEach((marker) => {
+        const shouldShow = matchesActiveCategory(marker.category);
+        marker.setVisible(shouldShow);
+
+        if (shouldShow) {
+          visibleMarkers.push(marker);
+        }
+      });
+
+      if (!visibleMarkers.length) {
+        pageMap.setCenter(defaultMapCenter);
+        pageMap.setZoom(defaultMapZoom);
+        return;
+      }
+
+      const bounds = new google.maps.LatLngBounds();
+      visibleMarkers.forEach((marker) => bounds.extend(marker.getPosition()));
+      pageMap.fitBounds(bounds);
+
+      google.maps.event.addListenerOnce(pageMap, "bounds_changed", () => {
+        if (pageMap.getZoom() > 16) {
+          pageMap.setZoom(16);
+        }
+      });
+    }
+
     function focusPointOnMap(pointId) {
+      const pointCategory = pointCategories.get(pointId);
+
+      if (pointCategory && activeCategory !== "todos" && activeCategory !== pointCategory) {
+        activeCategory = pointCategory;
+        refreshVisibleCards();
+        applyMapFilter();
+      }
+
       const marker = pointMarkers.get(pointId);
 
       if (!marker || !pageMap || !pageInfoWindow) {
@@ -1076,10 +1452,18 @@
       });
     });
 
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.filter;
+        refreshVisibleCards();
+        applyMapFilter();
+      });
+    });
+
     function initMap() {
       const mapOptions = {
-        zoom: 14,
-        center: { lat: -13.0265, lng: -39.6085 },
+        zoom: defaultMapZoom,
+        center: defaultMapCenter,
         scrollwheel: false,
         mapTypeControl: false,
         streetViewControl: false,
@@ -1090,32 +1474,47 @@
       pageInfoWindow = new google.maps.InfoWindow();
       const geocoder = new google.maps.Geocoder();
 
-      const wifiPath = "M12 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-4.6-5.6l1.4 1.4c1.8-1.8 4.6-1.8 6.4 0l1.4-1.4c-2.6-2.6-6.6-2.6-9.2 0zm-3.5-3.6l1.4 1.5c3.7-3.7 9.7-3.7 13.4 0l1.4-1.5c-4.5-4.5-11.8-4.5-16.2 0zm-3.6-3.5l1.4 1.4c5.7-5.7 14.8-5.7 20.4 0l1.4-1.4c-6.4-6.4-16.8-6.4-23.2 0z";
+      const wifiPath = "M12 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-4.6-5.6 1.4 1.4c1.8-1.8 4.6-1.8 6.4 0l1.4-1.4c-2.6-2.6-6.6-2.6-9.2 0zm-3.5-3.6 1.4 1.5c3.7-3.7 9.7-3.7 13.4 0l1.4-1.5c-4.5-4.5-11.8-4.5-16.2 0zm-3.6-3.5 1.4 1.4c5.7-5.7 14.8-5.7 20.4 0l1.4-1.4c-6.4-6.4-16.8-6.4-23.2 0z";
+      const attractionPath = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
+      const heritagePath = "M4 10v2h2v6H4v2h16v-2h-2v-6h2v-2L12 4 4 10zm2 0 6-3.18L18 10H6zm2 2h2v6H8v-6zm6 0h2v6h-2v-6zm-3 0h2v6h-2v-6z";
 
-      const getPinSvg = (bgColor) => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+      const getPinSvg = (bgColor, symbolPath) => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 40" width="38" height="48">
           <path fill="${bgColor}" stroke="#ffffff" stroke-width="1.5" d="M16 0C7.163 0 0 7.163 0 16c0 11 16 24 16 24s16-13 16-24C32 7.163 24.837 0 16 0z"/>
-          <path fill="#ffffff" transform="translate(4, 3)" d="${wifiPath}"/>
+          <path fill="#ffffff" transform="translate(4, 3)" d="${symbolPath}"/>
         </svg>`);
 
-      const confirmedIcon = {
-        url: getPinSvg("#145844"),
+      const wifiIcon = {
+        url: getPinSvg("#145844", wifiPath),
         scaledSize: new google.maps.Size(38, 48),
         anchor: new google.maps.Point(19, 48)
       };
 
-      const partialIcon = {
-        url: getPinSvg("#fcc22f"),
+      const wifiReferenceIcon = {
+        url: getPinSvg("#fcc22f", wifiPath),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const attractionIcon = {
+        url: getPinSvg("#339a80", attractionPath),
+        scaledSize: new google.maps.Size(38, 48),
+        anchor: new google.maps.Point(19, 48)
+      };
+
+      const heritageIcon = {
+        url: getPinSvg("#fcc22f", heritagePath),
         scaledSize: new google.maps.Size(38, 48),
         anchor: new google.maps.Point(19, 48)
       };
 
       const points = [
         {
-          id: "jardim",
+          id: "wifi-jardim",
           name: "Praça Lourival Monte (Jardim)",
+          category: "wifi",
           coords: { lat: -13.0316825, lng: -39.6035944 },
-          icon: confirmedIcon,
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0316825,-39.6035944",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1125,10 +1524,11 @@
           `
         },
         {
-          id: "bosque",
+          id: "wifi-bosque",
           name: "Quadra de areia da Praça do Bosque",
+          category: "wifi",
           coords: { lat: -13.0320631, lng: -39.6001171 },
-          icon: confirmedIcon,
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0320631,-39.6001171",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1138,10 +1538,11 @@
           `
         },
         {
-          id: "barreiros",
+          id: "wifi-barreiros",
           name: "Pracinha dos Barreiros",
+          category: "wifi",
           coords: { lat: -13.0116885, lng: -39.6211379 },
-          icon: confirmedIcon,
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0116885,-39.6211379",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1151,10 +1552,11 @@
           `
         },
         {
-          id: "minguara",
+          id: "wifi-minguara",
           name: "Praça da Minguara",
+          category: "wifi",
           coords: { lat: -13.018943, lng: -39.602437 },
-          icon: confirmedIcon,
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.018943,-39.602437",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1164,10 +1566,11 @@
           `
         },
         {
-          id: "santa-rita",
+          id: "wifi-santa-rita",
           name: "Praça da Santa Rita",
+          category: "wifi",
           query: "Praça Constantino Sampaio, Santa Rita, Amargosa, Bahia, Brasil",
-          icon: partialIcon,
+          icon: wifiReferenceIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pra%C3%A7a%20Constantino%20Sampaio,%20Santa%20Rita,%20Amargosa,%20Bahia,%20Brasil",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1177,10 +1580,11 @@
           `
         },
         {
-          id: "joao-angelo",
+          id: "wifi-joao-angelo",
           name: "Praça João Ângelo Pereira",
-          coords: { lat: -13.026080, lng: -39.605009 },
-          icon: confirmedIcon,
+          category: "wifi",
+          coords: { lat: -13.02608, lng: -39.605009 },
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.026080,-39.605009",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1190,10 +1594,11 @@
           `
         },
         {
-          id: "duque-caxias",
+          id: "wifi-duque-caxias",
           name: "Praça Duque de Caxias",
-          coords: { lat: -13.029283, lng: -39.604800 },
-          icon: confirmedIcon,
+          category: "wifi",
+          coords: { lat: -13.029283, lng: -39.6048 },
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029283,-39.604800",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
@@ -1203,15 +1608,142 @@
           `
         },
         {
-          id: "cristo",
+          id: "wifi-cristo",
           name: "Praça do Cristo",
-          coords: { lat: -13.029740, lng: -39.602443 },
-          icon: confirmedIcon,
+          category: "wifi",
+          coords: { lat: -13.02974, lng: -39.602443 },
+          icon: wifiIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029740,-39.602443",
           content: `
             <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
               <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça do Cristo</strong>
               <span style="font-size: 0.92rem;">Ponto urbano conhecido que combina paisagem e conectividade pública.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-jardim",
+          name: "PraÃ§a Lourival Monte",
+          category: "turistico",
+          coords: { lat: -13.0316825, lng: -39.6035944 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0316825,-39.6035944",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a Lourival Monte</strong>
+              <span style="font-size: 0.92rem;">Cart&atilde;o-postal de Amargosa, com paisagismo marcante, vida urbana e a presen&ccedil;a da Catedral do Bom Conselho.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-catedral",
+          name: "Catedral de Nossa Senhora do Bom Conselho",
+          category: "turistico",
+          coords: { lat: -13.03142, lng: -39.60336 },
+          icon: heritageIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.03142,-39.60336",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Catedral de Nossa Senhora do Bom Conselho</strong>
+              <span style="font-size: 0.92rem;">Patrim&ocirc;nio hist&oacute;rico de Amargosa, com arquitetura barroca e mem&oacute;rias religiosas, art&iacute;sticas e culturais.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-bosque",
+          name: "PraÃ§a do Bosque",
+          category: "turistico",
+          coords: { lat: -13.0320631, lng: -39.6001171 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0320631,-39.6001171",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a do Bosque</strong>
+              <span style="font-size: 0.92rem;">Espa&ccedil;o de conviv&ecirc;ncia, passeios em fam&iacute;lia, eventos e atividades culturais em Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-barreiros",
+          name: "Pracinha dos Barreiros",
+          category: "turistico",
+          coords: { lat: -13.0116885, lng: -39.6211379 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0116885,-39.6211379",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pracinha dos Barreiros</strong>
+              <span style="font-size: 0.92rem;">Espa&ccedil;o de encontro comunit&aacute;rio, lazer cotidiano e conviv&ecirc;ncia de bairro.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-minguara",
+          name: "PraÃ§a da Minguara",
+          category: "turistico",
+          coords: { lat: -13.018943, lng: -39.602437 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.018943,-39.602437",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a da Minguara</strong>
+              <span style="font-size: 0.92rem;">Pra&ccedil;a de perman&ecirc;ncia e encontros ao ar livre que traduz o cotidiano de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-santa-rita",
+          name: "PraÃ§a da Santa Rita",
+          category: "turistico",
+          query: "PraÃ§a Constantino Sampaio, Santa Rita, Amargosa, Bahia, Brasil",
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pra%C3%A7a%20Constantino%20Sampaio,%20Santa%20Rita,%20Amargosa,%20Bahia,%20Brasil",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a da Santa Rita</strong>
+              <span style="font-size: 0.92rem;">Espa&ccedil;o de tradi&ccedil;&atilde;o local, identidade comunit&aacute;ria e mem&oacute;ria afetiva do bairro.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-joao-angelo",
+          name: "PraÃ§a JoÃ£o Ã‚ngelo Pereira",
+          category: "turistico",
+          coords: { lat: -13.026080, lng: -39.605009 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.026080,-39.605009",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira</strong>
+              <span style="font-size: 0.92rem;">Pra&ccedil;a central que conecta servi&ccedil;os, com&eacute;rcio e a circula&ccedil;&atilde;o cotidiana de Amargosa.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-duque-caxias",
+          name: "PraÃ§a Duque de Caxias",
+          category: "turistico",
+          coords: { lat: -13.029283, lng: -39.604800 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029283,-39.604800",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a Duque de Caxias</strong>
+              <span style="font-size: 0.92rem;">Pra&ccedil;a integrada ao centro comercial, com forte presen&ccedil;a na experi&ecirc;ncia urbana da cidade.</span>
+            </div>
+          `
+        },
+        {
+          id: "tur-cristo",
+          name: "PraÃ§a do Cristo",
+          category: "turistico",
+          coords: { lat: -13.029740, lng: -39.602443 },
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029740,-39.602443",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pra&ccedil;a do Cristo</strong>
+              <span style="font-size: 0.92rem;">Ponto de passeio ao ar livre com vista urbana e ambiente tranquilo para contemplar Amargosa.</span>
             </div>
           `
         }
@@ -1227,7 +1759,10 @@
         return point.content.replace("</div>", `${directionsButton}</div>`);
       }
 
-      const bounds = new google.maps.LatLngBounds();
+      points.forEach((point) => {
+        pointCategories.set(point.id, point.category);
+      });
+
       let mappedPoints = 0;
       let pendingLookups = points.length;
 
@@ -1235,13 +1770,7 @@
         pendingLookups -= 1;
 
         if (pendingLookups === 0 && mappedPoints > 0) {
-          pageMap.fitBounds(bounds);
-
-          google.maps.event.addListenerOnce(pageMap, "bounds_changed", () => {
-            if (pageMap.getZoom() > 16) {
-              pageMap.setZoom(16);
-            }
-          });
+          applyMapFilter();
 
           if (pendingMapFocusId) {
             const pointId = pendingMapFocusId;
@@ -1262,13 +1791,13 @@
         });
 
         marker.customContent = popupContent;
+        marker.category = point.category;
         marker.addListener("click", () => {
           pageInfoWindow.setContent(popupContent);
           pageInfoWindow.open(pageMap, marker);
         });
 
         pointMarkers.set(point.id, marker);
-        bounds.extend(position);
         mappedPoints += 1;
       }
 
@@ -1283,7 +1812,7 @@
           if (status === "OK" && results[0]) {
             addMarker(point, results[0].geometry.location);
           } else {
-            console.warn("Não foi possível localizar no mapa:", point.name, status);
+            console.warn("NÃ£o foi possÃ­vel localizar no mapa:", point.name, status);
           }
 
           finalizeMap();
@@ -1291,10 +1820,11 @@
       });
     }
 
-    updateCarousel();
+    refreshVisibleCards();
   </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc&callback=initMap"></script>
 </body>
 
 </html>
+
