@@ -1633,12 +1633,21 @@ section h2::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 0;
+    border: 1px solid rgba(142, 47, 27, 0.16);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.22);
-    color: #fff6ee;
+    background: rgba(255, 248, 239, 0.84);
+    color: #8e2f1b;
     cursor: pointer;
     z-index: 2;
+    box-shadow: 0 10px 22px rgba(34, 13, 9, 0.16);
+    transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease;
+}
+
+.event-modal__close:hover,
+.event-modal__close:focus-visible {
+    background: #8e2f1b;
+    color: #fff6ee;
+    transform: translateY(-1px);
 }
 
 .event-modal__content {
@@ -1743,6 +1752,19 @@ section h2::after {
     border-color: rgba(84, 198, 223, 0.2);
     background: linear-gradient(180deg, rgba(246, 253, 255, 0.98), rgba(226, 245, 255, 0.98));
     box-shadow: 0 32px 72px rgba(8, 32, 48, 0.3);
+}
+
+.event-modal--festival-forro .event-modal__close {
+    border-color: rgba(18, 111, 159, 0.18);
+    background: rgba(247, 253, 255, 0.86);
+    color: #126f9f;
+    box-shadow: 0 10px 22px rgba(8, 32, 48, 0.18);
+}
+
+.event-modal--festival-forro .event-modal__close:hover,
+.event-modal--festival-forro .event-modal__close:focus-visible {
+    background: #126f9f;
+    color: #f7fdff;
 }
 
 .event-modal--festival-forro .event-modal__content {
