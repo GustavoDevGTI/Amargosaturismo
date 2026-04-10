@@ -1745,11 +1745,19 @@ section h2::after {
     box-shadow: 0 32px 72px rgba(8, 32, 48, 0.3);
 }
 
+.event-modal--festival-forro .event-modal__content {
+    grid-template-columns: minmax(360px, 460px) minmax(0, 1fr);
+}
+
 .event-modal--festival-forro .event-modal__intro {
     background:
         radial-gradient(circle at 15% 10%, rgba(248, 211, 74, 0.34), transparent 28%),
         linear-gradient(180deg, rgba(18, 111, 159, 0.96), rgba(84, 198, 223, 0.9));
     color: #f7fdff;
+}
+
+.event-modal--festival-forro .event-modal__intro h3 {
+    font-size: clamp(2.2rem, 2.35vw, 3rem);
 }
 
 .event-modal--festival-forro .event-modal__eyebrow {
@@ -3242,6 +3250,10 @@ body.modo_escuro .event-modal__frame-shell {
     .event-modal__content {
         grid-template-columns: 1fr;
         min-height: auto;
+    }
+
+    .event-modal--festival-forro .event-modal__content {
+        grid-template-columns: 1fr;
     }
 
     .event-modal__intro {
