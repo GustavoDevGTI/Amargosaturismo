@@ -309,7 +309,7 @@
             <h2>Principais Eventos</h2>
 
             <div class="attractions-grid">
-                <div class="attraction-card">
+                <div class="attraction-card attraction-card--link attraction-card--event-modal attraction-card--carnaval-cultural" data-carnaval-cultural-modal-trigger tabindex="0" role="button" aria-haspopup="dialog" aria-controls="carnaval-cultural-modal" aria-label="Abrir especial do Carnaval Cultural de Amargosa">
                     <img src="public/images/carnaval-cultural-2026-cover.png" alt="Carnaval de Amargosa">
                     <div class="card-content">
                         <h3>Carnaval</h3>
@@ -679,6 +679,33 @@
                 <button class="gallery-modal__pagination-btn" type="button" id="gallery-modal-page-next" aria-label="Ir para a próxima página">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="event-modal event-modal--carnaval-cultural" id="carnaval-cultural-modal" hidden>
+        <div class="event-modal__backdrop" data-carnaval-cultural-modal-close></div>
+        <div class="event-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="carnaval-cultural-modal-title">
+            <button class="event-modal__close" type="button" data-carnaval-cultural-modal-close aria-label="Fechar especial do Carnaval Cultural">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="event-modal__content">
+                <div class="event-modal__intro">
+                    <span class="event-modal__eyebrow">Especial cultural</span>
+                    <h3 id="carnaval-cultural-modal-title">Carnaval Cultural de Amargosa</h3>
+                    <p class="event-modal__lead">Folia, tradi&ccedil;&atilde;o e identidade popular se encontram nas ruas, com caretas, Bloco das Almas, fantasias e uma festa aberta para todos.</p>
+                    <p class="event-modal__copy">Neste espa&ccedil;o, o visitante encontra uma apresenta&ccedil;&atilde;o r&aacute;pida da festa e um atalho direto para a galeria tem&aacute;tica do portal principal.</p>
+
+                    <div class="event-modal__actions">
+                        <a class="event-modal__action" href="./carnaval-cultural/">Abrir p&aacute;gina completa</a>
+                        <a class="event-modal__action event-modal__action--secondary" href="./index.html?gallery=carnaval-cultural#galeria">Ir para a galeria</a>
+                    </div>
+                </div>
+
+                <div class="event-modal__frame-shell">
+                    <iframe class="event-modal__frame" src="./carnaval-cultural/" title="Subsite do Carnaval Cultural de Amargosa" loading="lazy"></iframe>
+                </div>
             </div>
         </div>
     </div>

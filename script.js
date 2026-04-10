@@ -47,6 +47,9 @@ const galleryModalPreviewCaption = document.querySelector('#gallery-modal-previe
 const galleryModalPreviewCloseButton = document.querySelector('#gallery-modal-preview-close');
 const galleryModalCloseButton = galleryModal?.querySelector('.gallery-modal__close');
 const eventGalleryButtons = Array.from(document.querySelectorAll('.event-gallery-button[data-gallery-key]'));
+const carnavalCulturalModal = document.querySelector('#carnaval-cultural-modal');
+const carnavalCulturalModalCloseButton = carnavalCulturalModal?.querySelector('.event-modal__close');
+const carnavalCulturalModalTriggers = Array.from(document.querySelectorAll('[data-carnaval-cultural-modal-trigger]'));
 const saoJoaoModal = document.querySelector('#sao-joao-modal');
 const saoJoaoModalCloseButton = saoJoaoModal?.querySelector('.event-modal__close');
 const saoJoaoModalTriggers = Array.from(document.querySelectorAll('[data-sao-joao-modal-trigger]'));
@@ -110,6 +113,7 @@ const galleryState = {
 };
 
 let lastGalleryTrigger = null;
+let lastCarnavalCulturalModalTrigger = null;
 let lastSaoJoaoModalTrigger = null;
 let lastFestivalForroModalTrigger = null;
 let heroActiveIndex = heroSlides.findIndex((slide) => slide.classList.contains('is-active'));
@@ -1262,6 +1266,31 @@ function queueEventModalFrameSync() {
     });
 }
 
+function openCarnavalCulturalModal(trigger = null) {
+    if (!carnavalCulturalModal) {
+        return;
+    }
+
+    if (trigger instanceof Element && !carnavalCulturalModal.contains(trigger)) {
+        lastCarnavalCulturalModalTrigger = trigger;
+    }
+
+    carnavalCulturalModal.hidden = false;
+    body.classList.add('carnaval-cultural-modal-open');
+    carnavalCulturalModalCloseButton?.focus();
+    queueEventModalFrameSync();
+}
+
+function closeCarnavalCulturalModal() {
+    if (!carnavalCulturalModal || carnavalCulturalModal.hidden) {
+        return;
+    }
+
+    carnavalCulturalModal.hidden = true;
+    body.classList.remove('carnaval-cultural-modal-open');
+    lastCarnavalCulturalModalTrigger?.focus?.();
+}
+
 function openSaoJoaoModal(trigger = null) {
     if (!saoJoaoModal) {
         return;
@@ -1398,6 +1427,41 @@ function openGalleryHub(trigger = null) {
     renderGalleryCollections();
     renderGalleryGrid();
     setGalleryStatus('');
+}
+
+function initCarnavalCulturalModal() {
+    if (!carnavalCulturalModal || !carnavalCulturalModalTriggers.length) {
+        return;
+    }
+
+    carnavalCulturalModalTriggers.forEach((trigger) => {
+        trigger.addEventListener('click', (event) => {
+            if (event.target.closest('a, button')) {
+                return;
+            }
+
+            openCarnavalCulturalModal(trigger);
+        });
+
+        trigger.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+            }
+
+            event.preventDefault();
+            openCarnavalCulturalModal(trigger);
+        });
+    });
+
+    carnavalCulturalModal.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        if (event.target.closest('[data-carnaval-cultural-modal-close]')) {
+            closeCarnavalCulturalModal();
+        }
+    });
 }
 
 function initSaoJoaoModal() {
@@ -1693,6 +1757,7 @@ function initTooltips() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initTooltips();
+    initCarnavalCulturalModal();
     initSaoJoaoModal();
     initFestivalForroModal();
     await initEventGalleryButtons();
@@ -1737,6 +1802,11 @@ document.addEventListener('keydown', (event) => {
                 closeGalleryModal();
             }
 
+            return;
+        }
+
+        if (carnavalCulturalModal && !carnavalCulturalModal.hidden) {
+            closeCarnavalCulturalModal();
             return;
         }
 
