@@ -152,7 +152,7 @@ a {
 }
 
 .cc-experience__card img {
-    height: 240px;
+    height: 320px;
 }
 
 .cc-experience__card div {
@@ -237,8 +237,8 @@ a {
 
     .cc-story__media img,
     .cc-experience__card img {
-        min-height: 240px;
-        height: 240px;
+        min-height: 280px;
+        height: 280px;
     }
 
     .cc-gallery-cta .cc-button,
