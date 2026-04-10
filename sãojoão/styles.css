@@ -40,9 +40,10 @@ a {
 }
 
 .sj-section__eyebrow {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.45rem;
+    width: 100%;
     margin-bottom: 0.85rem;
     padding: 0.45rem 0.9rem;
     border-radius: 999px;
