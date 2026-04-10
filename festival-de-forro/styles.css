@@ -41,30 +41,6 @@ a {
         linear-gradient(225deg, rgba(18, 111, 159, 0.06) 25%, transparent 25%) 0 0 / 44px 44px;
 }
 
-.ff-hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    align-items: end;
-    max-width: 1200px;
-    margin: 0 auto;
-    min-height: 82px;
-    padding: 1.2rem 1.5rem 0;
-}
-
-.ff-hero__ribbons {
-    position: absolute;
-    inset: 18px 1.5rem auto;
-    height: 58px;
-    border-radius: 999px;
-    background:
-        linear-gradient(90deg, var(--ff-primary), var(--ff-secondary), var(--ff-accent), var(--ff-coral), var(--ff-secondary));
-    opacity: 0.2;
-    filter: blur(0.2px);
-    pointer-events: none;
-}
-
 .ff-section__eyebrow {
     display: inline-flex;
     align-items: center;
@@ -240,11 +216,6 @@ a {
 }
 
 @media (max-width: 1080px) {
-    .ff-hero {
-        min-height: 68px;
-        padding-top: 0.9rem;
-    }
-
     .ff-story__body {
         grid-template-columns: 1fr;
     }
@@ -260,7 +231,6 @@ a {
 }
 
 @media (max-width: 720px) {
-    .ff-hero,
     .ff-main {
         padding-left: 1rem;
         padding-right: 1rem;
@@ -269,11 +239,6 @@ a {
     .ff-section {
         padding: 1.3rem;
         border-radius: 24px;
-    }
-
-    .ff-hero__ribbons {
-        inset-inline: 1rem;
-        height: 46px;
     }
 
     .ff-story__media img,
