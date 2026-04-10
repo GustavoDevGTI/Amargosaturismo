@@ -954,7 +954,8 @@ section h2::after {
     margin-top: 2.5rem;
 }
 
-.attractions-cta .btn {
+.attractions-cta .btn,
+.practical-info-cta .btn {
     min-width: min(100%, 320px);
 }
 
