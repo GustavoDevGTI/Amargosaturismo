@@ -34,10 +34,40 @@ a {
 }
 
 .sj-shell {
+    position: relative;
+    overflow: hidden;
     min-height: 100vh;
+    padding-top: clamp(3.6rem, 8vw, 5.8rem);
     background:
         radial-gradient(circle at top left, rgba(255, 213, 106, 0.38), transparent 36%),
-        radial-gradient(circle at top right, rgba(217, 103, 39, 0.22), transparent 28%);
+        radial-gradient(circle at top right, rgba(217, 103, 39, 0.22), transparent 28%),
+        linear-gradient(90deg, rgba(142, 47, 27, 0.04) 1px, transparent 1px) 0 0 / 64px 64px;
+}
+
+.sj-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: clamp(86px, 14vw, 152px);
+    background: url('../public/images/sao-joao/bandeirolas.png') top center / min(920px, 130vw) repeat-x;
+    opacity: 0.98;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.sj-shell::after {
+    content: "";
+    position: absolute;
+    inset: 4rem -10% auto auto;
+    width: 420px;
+    height: 420px;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle, rgba(255, 213, 106, 0.28), transparent 62%),
+        radial-gradient(circle at 30% 30%, rgba(47, 108, 83, 0.16), transparent 52%);
+    filter: blur(2px);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .sj-section__eyebrow {
@@ -90,19 +120,41 @@ a {
 }
 
 .sj-main {
+    position: relative;
+    z-index: 1;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1.5rem 3rem;
 }
 
 .sj-section {
+    position: relative;
+    overflow: hidden;
     margin-top: 0.35rem;
     padding: 2rem;
     border: 1px solid rgba(142, 47, 27, 0.1);
     border-radius: 32px;
-    background: var(--sj-surface);
+    background:
+        linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(255, 246, 233, 0.92)),
+        var(--sj-surface);
     box-shadow: var(--sj-shadow);
     backdrop-filter: blur(8px);
+}
+
+.sj-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 6% 8%, rgba(255, 213, 106, 0.2), transparent 18%),
+        radial-gradient(circle at 96% 4%, rgba(47, 108, 83, 0.14), transparent 16%),
+        linear-gradient(135deg, transparent 0 46%, rgba(217, 103, 39, 0.05) 46% 54%, transparent 54% 100%);
+    pointer-events: none;
+}
+
+.sj-section > * {
+    position: relative;
+    z-index: 1;
 }
 
 .sj-section__heading {
@@ -138,6 +190,16 @@ a {
 .sj-story {
     display: grid;
     gap: 1.5rem;
+}
+
+.sj-story::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 88px;
+    background: url('../public/images/sao-joao/bandeirolas.png') top center / 620px repeat-x;
+    opacity: 0.22;
+    pointer-events: none;
 }
 
 .sj-story--merged {
@@ -184,10 +246,20 @@ a {
 }
 
 .sj-experience__card {
+    position: relative;
     overflow: hidden;
     border-radius: 26px;
     background: rgba(255, 255, 255, 0.72);
     border: 1px solid rgba(142, 47, 27, 0.08);
+}
+
+.sj-experience__card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 6px;
+    background: linear-gradient(90deg, var(--sj-primary), var(--sj-accent), var(--sj-green), var(--sj-secondary));
+    z-index: 1;
 }
 
 .sj-experience__card img {
@@ -199,6 +271,7 @@ a {
 }
 
 .sj-gallery-cta {
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: space-between;
