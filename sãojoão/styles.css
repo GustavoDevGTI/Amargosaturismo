@@ -143,17 +143,7 @@ a {
 .sj-story {
     display: grid;
     gap: 1.5rem;
-    padding-top: 4.2rem;
-}
-
-.sj-story::before {
-    content: "";
-    position: absolute;
-    inset: 0 1.5rem auto;
-    height: 78px;
-    background: url('../public/images/sao-joao/oficial/bandeirolas.png') top center / min(760px, 96vw) auto no-repeat;
-    opacity: 0.58;
-    pointer-events: none;
+    padding-top: 2rem;
 }
 
 .sj-story--merged {
@@ -219,9 +209,7 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    background:
-        linear-gradient(135deg, rgba(142, 47, 27, 0.94), rgba(217, 103, 39, 0.92)),
-        url('../public/images/sao-joao/oficial/bandeirolas.png') center top / 520px repeat-x;
+    background: linear-gradient(135deg, rgba(142, 47, 27, 0.94), rgba(217, 103, 39, 0.92));
     color: #fff7f0;
 }
 
