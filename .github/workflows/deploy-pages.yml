@@ -49,6 +49,9 @@ jobs:
           if [ -d "festival-de-forro" ]; then
             cp -R "festival-de-forro" "_site/festival-de-forro"
           fi
+          if [ -d "carnaval-cultural" ]; then
+            cp -R "carnaval-cultural" "_site/carnaval-cultural"
+          fi
           cp -R public _site/public
           touch _site/.nojekyll
 
