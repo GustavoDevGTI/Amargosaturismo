@@ -1290,7 +1290,7 @@ section h2::after {
 
 .calendar-embed-shell {
     margin-top: 1.75rem;
-    border-radius: 30px;
+    border-radius: 8px;
     overflow: hidden;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.94) 100%);
     border: 1px solid rgba(21, 124, 98, 0.12);
@@ -1308,7 +1308,7 @@ section h2::after {
     width: 100%;
     min-height: 1240px;
     border: 0;
-    border-radius: 26px;
+    border-radius: 8px;
     background-color: var(--white);
 }
 
@@ -2464,7 +2464,7 @@ section h2::after {
     }
 
     .calendar-embed-shell {
-        border-radius: 26px;
+        border-radius: 8px;
     }
 
     .calendar-embed-frame {
@@ -2474,7 +2474,7 @@ section h2::after {
     .calendar-embed-iframe,
     .calendar-embed-frame iframe {
         min-height: 1160px;
-        border-radius: 22px;
+        border-radius: 8px;
     }
 }
 
@@ -2556,7 +2556,7 @@ section h2::after {
 
     .calendar-embed-iframe,
     .calendar-embed-frame iframe {
-        min-height: 980px;
+        min-height: 1120px;
     }
 
     .gallery-grid {
@@ -2652,7 +2652,7 @@ section h2::after {
     }
 
     .calendar-embed-shell {
-        border-radius: 22px;
+        border-radius: 8px;
     }
 
     .calendar-embed-frame {
@@ -2661,8 +2661,8 @@ section h2::after {
 
     .calendar-embed-iframe,
     .calendar-embed-frame iframe {
-        min-height: 900px;
-        border-radius: 18px;
+        min-height: 1040px;
+        border-radius: 8px;
     }
 
     .gallery-grid {
