@@ -1783,7 +1783,7 @@ function initTooltips() {
 }
 
 function initCalendarIframeScrollBridge() {
-    const scrollMultiplier = 2.6;
+    const scrollMultiplier = 4.4;
     let pendingDeltaY = 0;
     let animationFrameId = 0;
 
