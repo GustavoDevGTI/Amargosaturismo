@@ -1783,6 +1783,20 @@ function initTooltips() {
 }
 
 function initCalendarIframeScrollBridge() {
+    const scrollMultiplier = 2.6;
+    let pendingDeltaY = 0;
+    let animationFrameId = 0;
+
+    function flushScroll() {
+        const nextDeltaY = pendingDeltaY;
+        pendingDeltaY = 0;
+        animationFrameId = 0;
+
+        if (nextDeltaY) {
+            window.scrollBy(0, nextDeltaY);
+        }
+    }
+
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) {
             return;
@@ -1798,11 +1812,10 @@ function initCalendarIframeScrollBridge() {
             return;
         }
 
-        window.scrollBy({
-            top: deltaY,
-            left: 0,
-            behavior: 'auto'
-        });
+        pendingDeltaY += deltaY * scrollMultiplier;
+        if (!animationFrameId) {
+            animationFrameId = window.requestAnimationFrame(flushScroll);
+        }
     });
 }
 
