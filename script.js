@@ -842,6 +842,14 @@ function syncGalleryHeader() {
     const activeCollection = galleryState.activeCollection;
     const subtitleText = activeCollection ? '' : (galleryState.gallerySubtitle || 'Escolha uma colecao.');
 
+    if (galleryModal) {
+        if (galleryState.galleryKey) {
+            galleryModal.dataset.galleryTheme = galleryState.galleryKey;
+        } else {
+            delete galleryModal.dataset.galleryTheme;
+        }
+    }
+
     galleryModalTitle.textContent = activeCollection?.title || galleryState.galleryTitle || 'Galeria';
     galleryModalSubtitle.textContent = subtitleText;
     galleryModalSubtitle.hidden = !subtitleText;
