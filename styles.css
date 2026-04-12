@@ -400,6 +400,10 @@ body.festival-forro-modal-open {
     transform: none;
 }
 
+.menu-sub-campo.hamburger .submenu_horizontal--simple {
+    width: min(38vw, 520px);
+}
+
 .menu-sub-campo.hamburger.is-open .submenu_horizontal {
     display: flex;
 }
@@ -417,6 +421,10 @@ body.festival-forro-modal-open {
 .submenu_horizontal_col_dir {
     flex: 1;
     display: flex;
+}
+
+.submenu_horizontal--simple .submenu_horizontal_col_dir {
+    width: 100%;
 }
 
 .submenu_horizontal_h1 {
@@ -705,7 +713,7 @@ body.festival-forro-modal-open {
 .hero-slide--gallery .hero-slide__title {
     color: var(--white);
     margin-left: 0;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1.15rem;
     text-align: left;
 }
 
@@ -2900,6 +2908,11 @@ section h2::after {
     .menu-mobile-links-panel {
         padding: 14px;
         background: rgba(255, 255, 255, 0.72);
+    }
+
+    .menu-mobile-links-panel--simple {
+        display: grid;
+        gap: 10px;
     }
 
     .menu-mobile-links-featured,

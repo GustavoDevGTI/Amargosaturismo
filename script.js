@@ -291,91 +291,15 @@ function buildMobileMenuFromDesktop() {
     mobileMenuBox.replaceChildren();
 
     if (desktopHamburgerSubmenu) {
-        const submenuDetails = document.createElement('details');
-        const submenuSummary = document.createElement('summary');
-        const summaryContent = document.createElement('span');
-        const summaryIcon = document.createElement('span');
-        const summaryTitle = document.createElement('span');
-        const submenuPanel = document.createElement('div');
-        const featuredLinks = document.createElement('div');
-        const linksGrid = document.createElement('div');
-        const iconText = desktopHamburgerSubmenu.querySelector('.submenu_horizontal_h1-icone')?.textContent.trim() || 'travel_explore';
-        const titleText = desktopHamburgerSubmenu.querySelector('.submenu_horizontal_h1-titulo')?.textContent.trim() || 'Turismo';
+        const linksPanel = document.createElement('div');
+        linksPanel.className = 'menu-mobile-links-panel menu-mobile-links-panel--simple';
 
-        submenuDetails.className = 'menu-mobile-links-pai menu-mobile-links-pai--submenu';
-        submenuSummary.className = 'menu-mobile-links-summary';
-        summaryContent.className = 'menu-mobile-links-summary-content';
-        summaryIcon.className = 'menu-mobile-links-summary-icon material-symbols-outlined';
-        summaryTitle.className = 'menu-mobile-links-summary-title';
-        submenuPanel.className = 'menu-mobile-links-panel';
-        featuredLinks.className = 'menu-mobile-links-featured';
-        linksGrid.className = 'menu-mobile-links-grid';
-
-        summaryIcon.textContent = iconText;
-        summaryTitle.textContent = titleText;
-
-        summaryContent.append(summaryIcon, summaryTitle);
-        submenuSummary.appendChild(summaryContent);
-        submenuDetails.appendChild(submenuSummary);
-
-        desktopHamburgerSubmenu.querySelectorAll('.submenu_horizontal_col_esq-btn a').forEach((sourceLink) => {
-            const mobileLink = createMobileMenuLink(sourceLink, ['menu-mobile-links-btn--featured']);
-
-            if (sourceLink.closest('.submenu_horizontal_col_esq-btn.realce')) {
-                mobileLink.classList.add('menu-mobile-links-btn--featured-highlight');
-            }
-
-            featuredLinks.appendChild(mobileLink);
+        desktopHamburgerSubmenu.querySelectorAll('.submenu_horizontal-btn a').forEach((sourceLink) => {
+            linksPanel.appendChild(createMobileMenuLink(sourceLink));
         });
 
-        Array.from(desktopHamburgerSubmenu.querySelectorAll('.submenu_horizontal_col_dir .submenu_horizontal-btn a')).slice(0, 7).forEach((sourceLink) => {
-            linksGrid.appendChild(createMobileMenuLink(sourceLink));
-        });
-
-        if (featuredLinks.children.length) {
-            submenuPanel.appendChild(featuredLinks);
-        }
-
-        if (linksGrid.children.length) {
-            submenuPanel.appendChild(linksGrid);
-        }
-
-        submenuDetails.appendChild(submenuPanel);
-        mobileMenuBox.appendChild(submenuDetails);
+        mobileMenuBox.appendChild(linksPanel);
     }
-
-    if (desktopGalleryDropdownButton && desktopGalleryDropdownSubmenu) {
-        const galleryTitle = desktopGalleryDropdownButton.querySelector('.menu-btn-nome')?.textContent.trim() || 'Galeria';
-        const galleryLinks = Array.from(desktopGalleryDropdownSubmenu.querySelectorAll('.submenu-btn a'));
-        const galleryDetails = createMobileMenuDetails(galleryTitle, galleryLinks);
-
-        if (galleryDetails) {
-            mobileMenuBox.appendChild(galleryDetails);
-        }
-    }
-
-    if (sectionMenuButtons.length) {
-        const shortcutList = document.createElement('div');
-
-        shortcutList.className = 'menu-mobile-links-atalhos';
-
-        sectionMenuButtons.forEach((button) => {
-            const mobileLink = createMobileMenuShortcut(button);
-
-            if (mobileLink) {
-                shortcutList.appendChild(mobileLink);
-            }
-        });
-
-        mobileMenuBox.appendChild(shortcutList);
-    }
-
-    const actionList = document.createElement('div');
-    const themeToggleButton = createMobileThemeToggleButton();
-
-    actionList.className = 'menu-mobile-links-acoes';
-    actionList.appendChild(themeToggleButton);
-    mobileMenuBox.appendChild(actionList);
 }
 
 function setMobileMenuOpen(isOpen) {
