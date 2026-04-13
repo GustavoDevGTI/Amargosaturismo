@@ -1375,7 +1375,7 @@ section h2::after {
     box-shadow: 0 10px 18px rgba(21, 124, 98, 0.08);
     text-decoration: none;
     position: absolute;
-    top: 22px;
+    top: 24px;
     right: -46px;
     z-index: 3;
     transition: transform 0.2s ease, filter 0.2s ease;
@@ -2647,7 +2647,7 @@ section h2::after {
     }
 
     .calendar-embed-arrow {
-        top: 18px;
+        top: -14px;
         right: 10px;
     }
 
@@ -2831,7 +2831,7 @@ section h2::after {
     .calendar-embed-arrow {
         width: 36px;
         height: 32px;
-        top: 16px;
+        top: -12px;
     }
 
     .calendar-embed-frame {
