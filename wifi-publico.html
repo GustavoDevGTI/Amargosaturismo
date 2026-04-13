@@ -2123,6 +2123,7 @@
       gastronomia: "restaurantes/bares",
       hotel: "hoteis/pousadas"
     };
+    const categoryFilters = ["wifi", "turistico", "gastronomia", "hotel"];
     const mapPointCounts = {
       todos: 40,
       wifi: 8,
@@ -2133,19 +2134,60 @@
     const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
     const defaultMapZoom = 14;
     let visibleCarouselCards = [...allCarouselCards];
-    let activeCategory = "turistico";
+    let selectedCategories = new Set(["turistico"]);
     let carouselIndex = 0;
     let pendingMapFocusId = null;
     let pageMap = null;
     let pageInfoWindow = null;
 
+    function areAllCategoriesSelected() {
+      return categoryFilters.every((category) => selectedCategories.has(category));
+    }
+
+    function getSelectedCategories() {
+      if (areAllCategoriesSelected()) {
+        return [...categoryFilters];
+      }
+
+      return categoryFilters.filter((category) => selectedCategories.has(category));
+    }
+
+    function getSelectedLabelText() {
+      const labels = getSelectedCategories().map((category) => filterLabels[category]);
+
+      if (!labels.length || areAllCategoriesSelected()) {
+        return filterLabels.todos;
+      }
+
+      if (labels.length === 1) {
+        return labels[0];
+      }
+
+      if (labels.length === 2) {
+        return `${labels[0]} e ${labels[1]}`;
+      }
+
+      return `${labels.slice(0, -1).join(", ")} e ${labels[labels.length - 1]}`;
+    }
+
+    function getSelectedMapCount() {
+      if (areAllCategoriesSelected()) {
+        return mapPointCounts.todos;
+      }
+
+      return getSelectedCategories().reduce((total, category) => total + (mapPointCounts[category] || 0), 0);
+    }
+
     function matchesActiveCategory(category) {
-      return activeCategory === "todos" || category === activeCategory;
+      return areAllCategoriesSelected() || selectedCategories.has(category);
     }
 
     function updateFilterButtons() {
       filterButtons.forEach((button) => {
-        const isActive = button.dataset.filter === activeCategory;
+        const filter = button.dataset.filter;
+        const isActive = filter === "todos"
+          ? areAllCategoriesSelected()
+          : selectedCategories.has(filter);
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", isActive ? "true" : "false");
       });
@@ -2157,8 +2199,8 @@
       }
 
       const count = visibleCarouselCards.length;
-      const label = filterLabels[activeCategory] || "locais";
-      const mapCount = mapPointCounts[activeCategory] || count;
+      const label = getSelectedLabelText();
+      const mapCount = getSelectedMapCount() || count;
 
       if (count === 0) {
         if (mapCount > 0) {
@@ -2171,7 +2213,7 @@
         return;
       }
 
-      if (activeCategory === "todos") {
+      if (areAllCategoriesSelected()) {
         const cardNoun = count === 1 ? "card" : "cards";
         const mapNoun = mapCount === 1 ? "local" : "locais";
         filterFeedback.textContent = `Exibindo ${count} ${cardNoun} e ${mapCount} ${mapNoun} no mapa`;
@@ -2312,8 +2354,8 @@
     function focusPointOnMap(pointId) {
       const pointCategory = pointCategories.get(pointId);
 
-      if (pointCategory && activeCategory !== "todos" && activeCategory !== pointCategory) {
-        activeCategory = pointCategory;
+      if (pointCategory && !matchesActiveCategory(pointCategory)) {
+        selectedCategories.add(pointCategory);
         refreshVisibleCards();
         applyMapFilter();
       }
@@ -2344,7 +2386,22 @@
 
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        activeCategory = button.dataset.filter;
+        const filter = button.dataset.filter;
+
+        if (filter === "todos") {
+          selectedCategories = new Set(categoryFilters);
+        } else if (areAllCategoriesSelected()) {
+          selectedCategories = new Set([filter]);
+        } else if (selectedCategories.has(filter)) {
+          selectedCategories.delete(filter);
+
+          if (!selectedCategories.size) {
+            selectedCategories = new Set(categoryFilters);
+          }
+        } else {
+          selectedCategories.add(filter);
+        }
+
         refreshVisibleCards();
         applyMapFilter();
       });
