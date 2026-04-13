@@ -57,6 +57,8 @@ const saoJoaoModalTriggers = Array.from(document.querySelectorAll('[data-sao-joa
 const festivalForroModal = document.querySelector('#festival-forro-modal');
 const festivalForroModalCloseButton = festivalForroModal?.querySelector('.event-modal__close');
 const festivalForroModalTriggers = Array.from(document.querySelectorAll('[data-festival-forro-modal-trigger]'));
+const guiaModal = document.querySelector('#guia-modal');
+const guiaModalCloseButton = guiaModal?.querySelector('.event-modal__close');
 const eventModalFrames = Array.from(document.querySelectorAll('.event-modal__frame'));
 const eventModalMobileMediaQuery = window.matchMedia('(max-width: 960px)');
 const heroCarousel = document.querySelector('.hero-carousel');
@@ -117,6 +119,7 @@ let lastGalleryTrigger = null;
 let lastCarnavalCulturalModalTrigger = null;
 let lastSaoJoaoModalTrigger = null;
 let lastFestivalForroModalTrigger = null;
+let lastGuiaModalTrigger = null;
 let heroActiveIndex = heroSlides.findIndex((slide) => slide.classList.contains('is-active'));
 let heroAutoplayId = 0;
 
@@ -251,6 +254,11 @@ function applyNewTabToRedirectLinks(rootElement = document) {
 
 function openMenuUrl(url) {
     if (!url) {
+        return;
+    }
+
+    if (isIntegratedGuideUrl(url)) {
+        openGuiaModal(document.activeElement instanceof Element ? document.activeElement : null);
         return;
     }
 
@@ -1286,6 +1294,7 @@ function closeOpenEventModals() {
     closeCarnavalCulturalModal();
     closeSaoJoaoModal();
     closeFestivalForroModal();
+    closeGuiaModal();
 }
 
 function openCarnavalCulturalModal(trigger = null) {
@@ -1326,7 +1335,37 @@ function openEventModalByKey(eventKey, trigger = null) {
 
     if (eventKey === 'festival-de-forro') {
         openFestivalForroModal(trigger);
+        return;
     }
+
+    if (eventKey === 'guia-turista') {
+        openGuiaModal(trigger);
+    }
+}
+
+function openGuiaModal(trigger = null) {
+    if (!guiaModal) {
+        return;
+    }
+
+    if (trigger instanceof Element && !guiaModal.contains(trigger)) {
+        lastGuiaModalTrigger = trigger;
+    }
+
+    guiaModal.hidden = false;
+    body.classList.add('guia-modal-open');
+    guiaModalCloseButton?.focus();
+    queueEventModalFrameSync();
+}
+
+function closeGuiaModal() {
+    if (!guiaModal || guiaModal.hidden) {
+        return;
+    }
+
+    guiaModal.hidden = true;
+    body.classList.remove('guia-modal-open');
+    lastGuiaModalTrigger?.focus?.();
 }
 
 function openSaoJoaoModal(trigger = null) {
@@ -1593,6 +1632,22 @@ function initFestivalForroModal() {
     });
 }
 
+function initGuiaModal() {
+    if (!guiaModal) {
+        return;
+    }
+
+    guiaModal.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        if (event.target.closest('[data-guia-modal-close]')) {
+            closeGuiaModal();
+        }
+    });
+}
+
 eventModalFrames.forEach((frame) => {
     frame.addEventListener('load', queueEventModalFrameSync);
 });
@@ -1807,6 +1862,16 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    const guideModalTrigger = event.target.closest('[data-guide-modal-trigger]');
+
+    if (guideModalTrigger) {
+        event.preventDefault();
+        setMobileMenuOpen(false);
+        setDesktopHamburgerOpen(false);
+        openGuiaModal(guideModalTrigger);
+        return;
+    }
+
     const galleryHubTrigger = event.target.closest('[data-gallery-hub]');
 
     if (galleryHubTrigger) {
@@ -1890,6 +1955,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initCarnavalCulturalModal();
     initSaoJoaoModal();
     initFestivalForroModal();
+    initGuiaModal();
     await initEventGalleryButtons();
     await handleGalleryDeepLink();
     console.log('Página de Turismo de Amargosa carregada com sucesso!');
@@ -1947,6 +2013,11 @@ document.addEventListener('keydown', (event) => {
 
         if (festivalForroModal && !festivalForroModal.hidden) {
             closeFestivalForroModal();
+            return;
+        }
+
+        if (guiaModal && !guiaModal.hidden) {
+            closeGuiaModal();
             return;
         }
 

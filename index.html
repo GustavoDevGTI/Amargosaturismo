@@ -66,7 +66,7 @@
                                     <div class="submenu_horizontal-btn"><a href="#calendario"><span>Agenda</span></a></div>
                                     <div class="submenu_horizontal-btn"><a href="#pontos"><span>Pontos Tur&iacute;sticos</span></a></div>
                                     <div class="submenu_horizontal-btn"><a href="#galeria" data-gallery-hub><span>Galeria</span></a></div>
-                                    <div class="submenu_horizontal-btn"><a href="./wifi-publico.html"><span>Guia do Turista</span></a></div>
+                                    <div class="submenu_horizontal-btn"><a href="./wifi-publico.html" data-guide-modal-trigger aria-haspopup="dialog" aria-controls="guia-modal"><span>Guia do Turista</span></a></div>
                                     <div class="submenu_horizontal-btn"><a href="https://api.whatsapp.com/send/?phone=557535127811&text=Ol%C3%A1%2C+preciso+de+ajuda&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer"><span>Contato</span></a></div>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
         </div>
         </div>
 
-        <a class="hero-slide hero-slide--guide" href="./wifi-publico.html" data-hero-slide aria-hidden="true" tabindex="-1">
+        <a class="hero-slide hero-slide--guide" href="./wifi-publico.html" data-hero-slide data-guide-modal-trigger aria-haspopup="dialog" aria-controls="guia-modal" aria-hidden="true" tabindex="-1">
             <div class="hero-slide__content">
                 <span class="hero-slide__eyebrow">Guia da cidade</span>
                 <h2 class="hero-slide__title">Guia</h2>
@@ -403,7 +403,7 @@
             </div>
 
             <div class="practical-info-cta">
-                <a class="btn attractions-cta__button" href="./wifi-publico.html">Ver mais</a>
+                <a class="btn attractions-cta__button" href="./wifi-publico.html" data-guide-modal-trigger aria-haspopup="dialog" aria-controls="guia-modal">Ver mais</a>
             </div>
         </div>
     </section>
@@ -510,7 +510,7 @@
             </div>
 
             <div class="attractions-cta">
-                <a class="btn attractions-cta__button" href="./wifi-publico.html">Ver mais</a>
+                <a class="btn attractions-cta__button" href="./wifi-publico.html" data-guide-modal-trigger aria-haspopup="dialog" aria-controls="guia-modal">Ver mais</a>
             </div>
         </div>
     </section>
@@ -731,6 +731,32 @@
 
                 <div class="event-modal__frame-shell">
                     <iframe class="event-modal__frame" src="./festival-de-forro/" title="Subsite do Festival de Forr&oacute; de Amargosa" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="event-modal event-modal--guia" id="guia-modal" hidden>
+        <div class="event-modal__backdrop" data-guia-modal-close></div>
+        <div class="event-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="guia-modal-title">
+            <button class="event-modal__close" type="button" data-guia-modal-close aria-label="Fechar guia do turista">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="event-modal__content">
+                <div class="event-modal__intro">
+                    <h3 id="guia-modal-title">Guia do Turista de Amargosa</h3>
+                    <p class="event-modal__lead">Encontre pontos tur&iacute;sticos, rede wi-fi p&uacute;blica, gastronomia e hospedagem em um guia completo da cidade.</p>
+                    <p class="event-modal__copy">No mapa interativo, voc&ecirc; pode explorar os locais por categoria e ir direto para cada ponto de interesse.</p>
+
+                    <div class="event-modal__actions">
+                        <a class="event-modal__action" href="./wifi-publico.html" target="_blank" rel="noopener noreferrer">Abrir p&aacute;gina completa</a>
+                        <a class="event-modal__action event-modal__action--secondary" href="./wifi-publico.html#mapa" target="guia-modal-frame">Ver mapa</a>
+                    </div>
+                </div>
+
+                <div class="event-modal__frame-shell">
+                    <iframe class="event-modal__frame" name="guia-modal-frame" src="./wifi-publico.html" title="Guia do Turista de Amargosa" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
