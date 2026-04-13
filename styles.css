@@ -1354,63 +1354,49 @@ section h2::after {
 .calendar-embed-shell {
     margin-top: 1.75rem;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.94) 100%);
     border: 1px solid rgba(21, 124, 98, 0.12);
     box-shadow: 0 28px 48px rgba(26, 37, 46, 0.14);
 }
 
-.calendar-embed-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.9rem;
-    padding: 0.85rem 1rem;
-    background: linear-gradient(135deg, rgba(21, 124, 98, 0.14), rgba(255, 255, 255, 0.92));
-    border-bottom: 1px solid rgba(21, 124, 98, 0.14);
-}
-
-.calendar-embed-status {
-    margin: 0;
-    font-size: 0.92rem;
-    color: var(--primary-color);
-    background-color: rgba(255, 255, 255, 0.74);
-    border: 1px solid rgba(21, 124, 98, 0.2);
-    border-radius: 999px;
-    padding: 0.42rem 0.78rem;
-    line-height: 1.25;
-}
-
-.calendar-embed-open {
+.calendar-embed-arrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.32rem;
-    min-height: 42px;
-    padding: 0 0.95rem;
+    justify-content: center;
+    width: 38px;
+    height: 34px;
+    padding: 0;
     border-radius: 999px;
-    border: 1px solid rgba(21, 124, 98, 0.24);
-    background: linear-gradient(135deg, #0f6f5a, #168a72);
-    color: var(--white);
-    font-size: 0.92rem;
-    font-weight: 700;
+    border: 0;
+    background: rgba(255, 255, 255, 0.8);
+    color: #0f6f5a;
+    box-shadow: 0 10px 18px rgba(21, 124, 98, 0.08);
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: absolute;
+    top: 12px;
+    right: -46px;
+    z-index: 3;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.calendar-embed-open:hover,
-.calendar-embed-open:focus-visible {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 22px rgba(21, 124, 98, 0.2);
+.calendar-embed-arrow:hover,
+.calendar-embed-arrow:focus-visible {
+    transform: translateY(-2px);
+    filter: brightness(1.04);
 }
 
-.calendar-embed-open .material-symbols-outlined {
-    font-size: 1.12rem;
+.calendar-embed-arrow .material-symbols-outlined {
+    font-size: 1.05rem;
     line-height: 1;
 }
 
 .calendar-embed-frame {
     padding: 0;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(228, 231, 236, 0.9));
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .calendar-embed-iframe,
@@ -2660,19 +2646,9 @@ section h2::after {
         box-shadow: none;
     }
 
-    .calendar-embed-top {
-        padding: 0.75rem 0.85rem;
-        border-bottom: 1px solid rgba(21, 124, 98, 0.12);
-        flex-wrap: wrap;
-    }
-
-    .calendar-embed-status {
-        flex: 1 1 100%;
-        font-size: 0.88rem;
-    }
-
-    .calendar-embed-open {
-        margin-left: auto;
+    .calendar-embed-arrow {
+        top: 10px;
+        right: 10px;
     }
 
     .calendar-embed-frame {
@@ -2852,19 +2828,9 @@ section h2::after {
         border-radius: 0;
     }
 
-    .calendar-embed-top {
-        padding: 0.7rem 0.75rem;
-    }
-
-    .calendar-embed-status {
-        font-size: 0.84rem;
-        padding: 0.36rem 0.7rem;
-    }
-
-    .calendar-embed-open {
-        min-height: 40px;
-        padding: 0 0.85rem;
-        font-size: 0.86rem;
+    .calendar-embed-arrow {
+        width: 36px;
+        height: 32px;
     }
 
     .calendar-embed-frame {
@@ -3243,25 +3209,15 @@ body.modo_escuro .calendar-embed-shell {
     box-shadow: var(--shadow);
 }
 
-body.modo_escuro .calendar-embed-top {
-    background: linear-gradient(135deg, rgba(20, 86, 70, 0.96), rgba(18, 63, 52, 0.92));
+body.modo_escuro .calendar-embed-arrow {
+    background: rgba(17, 25, 22, 0.92);
+    color: #edf5f2;
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18);
 }
 
-body.modo_escuro .calendar-embed-status {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #f2fbf8;
-}
-
-body.modo_escuro .calendar-embed-open {
-    background: linear-gradient(135deg, #3eaf95, #61c9b2);
-    border-color: rgba(255, 255, 255, 0.28);
-    color: #10231d;
-}
-
-body.modo_escuro .calendar-embed-open:hover,
-body.modo_escuro .calendar-embed-open:focus-visible {
-    box-shadow: 0 10px 22px rgba(97, 201, 178, 0.26);
+body.modo_escuro .calendar-embed-arrow:hover,
+body.modo_escuro .calendar-embed-arrow:focus-visible {
+    filter: brightness(1.08);
 }
 
 body.modo_escuro .calendar-embed-frame {
