@@ -2131,10 +2131,14 @@
       gastronomia: 12,
       hotel: 11
     };
+    const guideQueryParams = new URLSearchParams(window.location.search);
+    const requestedFilter = (guideQueryParams.get("filter") || guideQueryParams.get("filtro") || "").toLowerCase();
     const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
     const defaultMapZoom = 14;
     let visibleCarouselCards = [...allCarouselCards];
-    let selectedCategories = new Set(["turistico"]);
+    let selectedCategories = requestedFilter === "todos"
+      ? new Set(categoryFilters)
+      : (categoryFilters.includes(requestedFilter) ? new Set([requestedFilter]) : new Set(["turistico"]));
     let carouselIndex = 0;
     let pendingMapFocusId = null;
     let pageMap = null;

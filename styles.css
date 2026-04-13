@@ -2589,6 +2589,10 @@ section h2::after {
     box-shadow: var(--shadow);
     border-top: 4px solid var(--primary-color);
     transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .info-card:hover {
@@ -2605,6 +2609,14 @@ section h2::after {
 .info-card p {
     color: var(--body-muted);
     line-height: 1.6;
+    margin: 0;
+}
+
+.info-card__action {
+    margin-top: auto;
+    min-height: 42px;
+    min-width: 0;
+    padding: 0 18px;
 }
 
 /* ========================================

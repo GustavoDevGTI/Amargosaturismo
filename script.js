@@ -59,6 +59,8 @@ const festivalForroModalCloseButton = festivalForroModal?.querySelector('.event-
 const festivalForroModalTriggers = Array.from(document.querySelectorAll('[data-festival-forro-modal-trigger]'));
 const guiaModal = document.querySelector('#guia-modal');
 const guiaModalCloseButton = guiaModal?.querySelector('.event-modal__close');
+const guiaModalFrame = guiaModal?.querySelector('iframe[name="guia-modal-frame"]');
+const guiaModalMapAction = guiaModal?.querySelector('.event-modal__action--secondary');
 const eventModalFrames = Array.from(document.querySelectorAll('.event-modal__frame'));
 const eventModalMobileMediaQuery = window.matchMedia('(max-width: 960px)');
 const heroCarousel = document.querySelector('.hero-carousel');
@@ -101,6 +103,8 @@ const galleryThemeCards = [
         coverUrl: 'public/images/festival-forro/palco.jpg'
     }
 ];
+
+const GUIDE_MODAL_DEFAULT_SRC = './wifi-publico.html';
 
 const galleryCache = new Map();
 const galleryState = {
@@ -215,6 +219,43 @@ function isIntegratedGuideUrl(url) {
     }
 }
 
+function normalizeGuideModalSource(url) {
+    if (!url || !isIntegratedGuideUrl(url)) {
+        return GUIDE_MODAL_DEFAULT_SRC;
+    }
+
+    try {
+        const resolvedUrl = new URL(url, window.location.href);
+        return `${resolvedUrl.pathname}${resolvedUrl.search}${resolvedUrl.hash}`;
+    } catch (error) {
+        return GUIDE_MODAL_DEFAULT_SRC;
+    }
+}
+
+function resolveGuideModalSource(trigger = null, fallbackUrl = GUIDE_MODAL_DEFAULT_SRC) {
+    if (trigger instanceof Element) {
+        const triggerHref = trigger.getAttribute('href') || trigger.dataset.url;
+
+        if (triggerHref) {
+            return normalizeGuideModalSource(triggerHref);
+        }
+    }
+
+    return normalizeGuideModalSource(fallbackUrl);
+}
+
+function buildGuideMapActionHref(sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
+    const normalizedSource = normalizeGuideModalSource(sourceUrl);
+
+    try {
+        const parsedUrl = new URL(normalizedSource, window.location.href);
+        parsedUrl.hash = 'mapa';
+        return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+    } catch (error) {
+        return `${GUIDE_MODAL_DEFAULT_SRC}#mapa`;
+    }
+}
+
 function shouldOpenInNewTab(url) {
     if (!url || url.startsWith('#')) {
         return false;
@@ -258,7 +299,7 @@ function openMenuUrl(url) {
     }
 
     if (isIntegratedGuideUrl(url)) {
-        openGuiaModal(document.activeElement instanceof Element ? document.activeElement : null);
+        openGuiaModal(document.activeElement instanceof Element ? document.activeElement : null, url);
         return;
     }
 
@@ -1343,13 +1384,23 @@ function openEventModalByKey(eventKey, trigger = null) {
     }
 }
 
-function openGuiaModal(trigger = null) {
+function openGuiaModal(trigger = null, sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
     if (!guiaModal) {
         return;
     }
 
+    const nextSourceUrl = resolveGuideModalSource(trigger, sourceUrl);
+
     if (trigger instanceof Element && !guiaModal.contains(trigger)) {
         lastGuiaModalTrigger = trigger;
+    }
+
+    if (guiaModalFrame && guiaModalFrame.getAttribute('src') !== nextSourceUrl) {
+        guiaModalFrame.setAttribute('src', nextSourceUrl);
+    }
+
+    if (guiaModalMapAction) {
+        guiaModalMapAction.setAttribute('href', buildGuideMapActionHref(nextSourceUrl));
     }
 
     guiaModal.hidden = false;
@@ -1868,7 +1919,7 @@ document.addEventListener('click', (event) => {
         event.preventDefault();
         setMobileMenuOpen(false);
         setDesktopHamburgerOpen(false);
-        openGuiaModal(guideModalTrigger);
+        openGuiaModal(guideModalTrigger, resolveGuideModalSource(guideModalTrigger));
         return;
     }
 
