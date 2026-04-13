@@ -2310,6 +2310,38 @@
                 min-height: 0;
             }
 
+            #login-modal .modal-actions {
+                width: 100%;
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            #login-modal .modal-brand {
+                flex: 0 0 auto;
+                align-self: center;
+                max-width: 82px;
+                opacity: 0.82;
+            }
+
+            #login-modal .modal-actions-right {
+                width: auto;
+                flex: 1 1 auto;
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            #login-modal .modal-actions-right > button {
+                flex: 0 0 auto;
+                min-width: 90px;
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
             .modal-actions-right > button,
             .auth-panel > button {
                 flex: 1 1 auto;
