@@ -2124,6 +2124,36 @@
       hotel: "hoteis/pousadas"
     };
     const categoryFilters = ["wifi", "turistico", "gastronomia", "hotel"];
+    function getInitialSelectedCategories() {
+      const params = new URLSearchParams(window.location.search);
+      const rawFilters = [
+        ...params.getAll("filters").flatMap((value) => value.split(",")),
+        ...params.getAll("filter").flatMap((value) => value.split(",")),
+        ...params.getAll("filtro").flatMap((value) => value.split(","))
+      ]
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (!rawFilters.length) {
+        return new Set(["turistico"]);
+      }
+
+      if (rawFilters.includes("todos")) {
+        return new Set(categoryFilters);
+      }
+
+      const validFilters = rawFilters.filter((value) => categoryFilters.includes(value));
+
+      if (!validFilters.length) {
+        return new Set(["turistico"]);
+      }
+
+      if (validFilters.length === categoryFilters.length) {
+        return new Set(categoryFilters);
+      }
+
+      return new Set(validFilters);
+    }
     const mapPointCounts = {
       todos: 40,
       wifi: 8,
@@ -2131,14 +2161,10 @@
       gastronomia: 12,
       hotel: 11
     };
-    const guideQueryParams = new URLSearchParams(window.location.search);
-    const requestedFilter = (guideQueryParams.get("filter") || guideQueryParams.get("filtro") || "").toLowerCase();
     const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
     const defaultMapZoom = 14;
     let visibleCarouselCards = [...allCarouselCards];
-    let selectedCategories = requestedFilter === "todos"
-      ? new Set(categoryFilters)
-      : (categoryFilters.includes(requestedFilter) ? new Set([requestedFilter]) : new Set(["turistico"]));
+    let selectedCategories = getInitialSelectedCategories();
     let carouselIndex = 0;
     let pendingMapFocusId = null;
     let pageMap = null;

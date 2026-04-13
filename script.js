@@ -59,8 +59,9 @@ const festivalForroModalCloseButton = festivalForroModal?.querySelector('.event-
 const festivalForroModalTriggers = Array.from(document.querySelectorAll('[data-festival-forro-modal-trigger]'));
 const guiaModal = document.querySelector('#guia-modal');
 const guiaModalCloseButton = guiaModal?.querySelector('.event-modal__close');
-const guiaModalFrame = guiaModal?.querySelector('iframe[name="guia-modal-frame"]');
-const guiaModalMapAction = guiaModal?.querySelector('.event-modal__action--secondary');
+const guiaModalFrame = guiaModal?.querySelector('[data-guia-frame]');
+const guiaModalPrimaryAction = guiaModal?.querySelector('[data-guia-open-link]');
+const guiaModalMapAction = guiaModal?.querySelector('[data-guia-map-link]');
 const eventModalFrames = Array.from(document.querySelectorAll('.event-modal__frame'));
 const eventModalMobileMediaQuery = window.matchMedia('(max-width: 960px)');
 const heroCarousel = document.querySelector('.hero-carousel');
@@ -1399,10 +1400,13 @@ function openGuiaModal(trigger = null, sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
         guiaModalFrame.setAttribute('src', nextSourceUrl);
     }
 
+    if (guiaModalPrimaryAction) {
+        guiaModalPrimaryAction.setAttribute('href', nextSourceUrl);
+    }
+
     if (guiaModalMapAction) {
         guiaModalMapAction.setAttribute('href', buildGuideMapActionHref(nextSourceUrl));
     }
-
     guiaModal.hidden = false;
     body.classList.add('guia-modal-open');
     guiaModalCloseButton?.focus();
