@@ -1444,6 +1444,16 @@ function resetGalleryCollectionState() {
     resetGalleryPreview();
 }
 
+function clearGalleryHashFromUrl() {
+    const url = new URL(window.location.href);
+
+    if (url.hash !== '#galeria') {
+        return;
+    }
+
+    window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+}
+
 function openGalleryHub(trigger = null) {
     if (!galleryModal) {
         return;
@@ -1465,6 +1475,7 @@ function openGalleryHub(trigger = null) {
     renderGalleryCollections();
     renderGalleryGrid();
     setGalleryStatus('');
+    clearGalleryHashFromUrl();
 }
 
 function initEventModalOpenButtons() {
@@ -1630,8 +1641,7 @@ async function handleGalleryDeepLink() {
     await openGallery(galleryKey, galleryTrigger);
 
     url.searchParams.delete('gallery');
-    url.hash = 'galeria';
-    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}`);
 }
 
 function applyGalleryOverview(payload) {
@@ -1684,6 +1694,7 @@ async function openGallery(galleryKey, trigger = null) {
         lastGalleryTrigger = trigger;
     }
     showGalleryModalShell();
+    clearGalleryHashFromUrl();
     galleryState.galleryKey = galleryKey;
     galleryState.galleryTitle = themeCard?.title || fallbackTitle;
     galleryState.gallerySubtitle = 'Escolha o ano para abrir a galeria deste evento.';
