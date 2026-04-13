@@ -2755,42 +2755,46 @@ section h2::after {
     text-align: center;
 }
 
-.footer .container {
+.footer__container {
     position: relative;
+    min-height: 112px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .footer-brand-mark {
     position: absolute;
-    left: 0;
-    bottom: 4px;
-    width: clamp(78px, 9vw, 110px);
+    left: -10px;
+    bottom: 18px;
+    width: clamp(88px, 9vw, 122px);
     height: auto;
-    opacity: 0.34;
-    filter: grayscale(1) brightness(1.25);
+    opacity: 0.56;
+    filter: none;
     pointer-events: none;
     user-select: none;
 }
 
-.footer p {
-    margin-bottom: 0.5rem;
+.footer-brand-mark--right {
+    left: auto;
+    right: -10px;
 }
 
-.social-links {
-    margin-top: 1rem;
+.footer__center {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
 }
 
-.social-links a {
-    color: var(--white);
-    font-size: 1.2rem;
-    transition: var(--transition);
+.footer-prefeitura-logo {
+    width: clamp(70px, 7vw, 96px);
+    height: auto;
+    object-fit: contain;
 }
 
-.social-links a:hover {
-    color: var(--accent-color);
-    transform: scale(1.2);
+.footer__center p {
+    margin: 0;
 }
 
 /* ========================================
@@ -3315,10 +3319,19 @@ section h2::after {
     }
 
     .footer-brand-mark {
-        width: 72px;
-        left: 6px;
-        bottom: 8px;
-        opacity: 0.28;
+        width: 74px;
+        left: 0;
+        bottom: 12px;
+        opacity: 0.48;
+    }
+
+    .footer-brand-mark--right {
+        left: auto;
+        right: 0;
+    }
+
+    .footer-prefeitura-logo {
+        width: 62px;
     }
 }
 
