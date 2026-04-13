@@ -2124,6 +2124,22 @@
       hotel: "hoteis/pousadas"
     };
     const categoryFilters = ["wifi", "turistico", "gastronomia", "hotel"];
+    function getInitialGuideRouteTarget() {
+      const params = new URLSearchParams(window.location.search);
+      const routeTarget = (
+        params.get("route")
+        || params.get("rota")
+        || params.get("destino")
+        || ""
+      ).trim().toLowerCase();
+
+      if (["amargosa", "como-chegar", "chegar-amargosa"].includes(routeTarget)) {
+        return "amargosa";
+      }
+
+      return "";
+    }
+
     function getInitialSelectedCategories() {
       const params = new URLSearchParams(window.location.search);
       const rawFilters = [
@@ -2154,10 +2170,12 @@
 
       return new Set(validFilters);
     }
+    const initialGuideRouteTarget = getInitialGuideRouteTarget();
+    const extraTourismPoints = initialGuideRouteTarget === "amargosa" ? 1 : 0;
     const mapPointCounts = {
-      todos: 40,
+      todos: 40 + extraTourismPoints,
       wifi: 8,
-      turistico: 9,
+      turistico: 9 + extraTourismPoints,
       gastronomia: 12,
       hotel: 11
     };
@@ -2166,7 +2184,7 @@
     let visibleCarouselCards = [...allCarouselCards];
     let selectedCategories = getInitialSelectedCategories();
     let carouselIndex = 0;
-    let pendingMapFocusId = null;
+    let pendingMapFocusId = initialGuideRouteTarget === "amargosa" ? "route-amargosa" : null;
     let pageMap = null;
     let pageInfoWindow = null;
 
@@ -2512,6 +2530,20 @@
       };
 
       const points = [
+        ...(initialGuideRouteTarget === "amargosa" ? [{
+          id: "route-amargosa",
+          name: "Amargosa",
+          category: "turistico",
+          coords: defaultMapCenter,
+          icon: attractionIcon,
+          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Amargosa%2C%20Bahia%2C%20Brasil&travelmode=driving",
+          content: `
+            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Amargosa</strong>
+              <span style="font-size: 0.92rem;">Abra a rota para chegar &agrave; cidade pelo bot&atilde;o abaixo</span>
+            </div>
+          `
+        }] : []),
         {
           id: "wifi-jardim",
           name: "Praça Lourival Monte (Jardim)",
