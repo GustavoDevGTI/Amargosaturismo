@@ -374,6 +374,51 @@ body.festival-forro-modal-open {
     text-decoration: underline;
 }
 
+.menu-sub-campo--dropdown .submenu {
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 6px);
+}
+
+.menu-sub-campo--dropdown .submenu-box {
+    min-width: clamp(280px, 22vw, 360px);
+    padding: clamp(10px, 0.8vw, 14px);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(15, 111, 90, 0.96), rgba(22, 138, 114, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    display: grid;
+    gap: clamp(8px, 0.8vw, 12px);
+}
+
+.menu-sub-campo--dropdown .submenu-btn {
+    padding: 0;
+    font-size: clamp(0.95rem, 0.92vw, 1.02rem);
+    line-height: 1.35;
+    color: var(--padrao04);
+}
+
+.menu-sub-campo--dropdown .submenu-btn a {
+    min-height: clamp(56px, 4.4vw, 72px);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(245, 251, 248, 0.95), rgba(214, 236, 229, 0.97));
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    padding: clamp(14px, 1vw, 18px) clamp(16px, 1.2vw, 22px);
+    align-items: center;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 18px rgba(4, 52, 42, 0.14);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.menu-sub-campo--dropdown .submenu-btn a:hover,
+.menu-sub-campo--dropdown .submenu-btn a:focus-visible {
+    text-decoration: none;
+    background: linear-gradient(135deg, #ffffff, #eef8f5);
+    border-color: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 12px 22px rgba(4, 52, 42, 0.18);
+    transform: translateY(-1px);
+}
+
 .submenu_horizontal {
     width: min(61vw, 920px);
     background: linear-gradient(135deg, rgba(15, 111, 90, 0.96), rgba(22, 138, 114, 0.96));
@@ -3280,6 +3325,23 @@ body.modo_escuro .submenu_horizontal_h1 {
 body.modo_escuro .submenu-box,
 body.modo_escuro .submenu_horizontal {
     background-color: rgba(0, 0, 0, 0.55);
+}
+
+body.modo_escuro .menu-sub-campo--dropdown .submenu-box {
+    background: linear-gradient(135deg, rgba(15, 111, 90, 0.96), rgba(22, 138, 114, 0.96));
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+body.modo_escuro .menu-sub-campo--dropdown .submenu-btn a {
+    background: linear-gradient(135deg, rgba(245, 251, 248, 0.95), rgba(214, 236, 229, 0.97));
+    color: #0f6f5a;
+    border-color: rgba(255, 255, 255, 0.34);
+}
+
+body.modo_escuro .menu-sub-campo--dropdown .submenu-btn a:hover,
+body.modo_escuro .menu-sub-campo--dropdown .submenu-btn a:focus-visible {
+    background: linear-gradient(135deg, #ffffff, #eef8f5);
+    color: #0c5f4e;
 }
 
 body.modo_escuro .menu-mobile {
