@@ -2647,7 +2647,7 @@ section h2::after {
     }
 
     .calendar-embed-arrow {
-        top: -24px;
+        top: -36px;
         right: 16px;
     }
 
@@ -2831,7 +2831,7 @@ section h2::after {
     .calendar-embed-arrow {
         width: 36px;
         height: 32px;
-        top: -22px;
+        top: -34px;
         right: 16px;
     }
 
