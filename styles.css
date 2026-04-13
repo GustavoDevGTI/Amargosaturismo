@@ -2614,9 +2614,22 @@ section h2::after {
 
 .info-card__action {
     margin-top: auto;
-    min-height: 42px;
-    min-width: 0;
-    padding: 0 18px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.8rem 1.15rem;
+    text-decoration: none;
+    border-radius: 999px;
+}
+
+.practical-info .info-grid .info-card .info-card__action {
+    background: linear-gradient(135deg, #157c62, #1c8c70);
+    box-shadow: 0 10px 22px rgba(21, 124, 98, 0.22);
+}
+
+.practical-info .info-grid .info-card .info-card__action:hover,
+.practical-info .info-grid .info-card .info-card__action:focus-visible {
+    background: linear-gradient(135deg, #136f58, #1a8068);
+    transform: translateY(-2px);
 }
 
 /* ========================================
