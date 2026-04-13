@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Interativo | Turismo em Amargosa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="page-shell">
+        <section class="calendar-section" aria-labelledby="calendar-title">
+            <header class="section-head">
+                <div class="section-copy">
+                    <h1 id="calendar-title">Agenda</h1>
+                    <div class="access-filters-list" id="access-filters" aria-label="Filtros por tipo de acesso">
+                        <button class="access-filter-chip access-filter-chip--free" type="button" data-access-filter="free" aria-pressed="false">Gratuito 💸</button>
+                        <button class="access-filter-chip access-filter-chip--paid" type="button" data-access-filter="paid" aria-pressed="false">Pago 💲</button>
+                    </div>
+                </div>
+
+                <div class="topbar">
+                    <div class="topbar-meta">
+                        <div class="auth-panel">
+                            <button class="action-button" id="login-trigger" type="button">Entrar como admin</button>
+                            <span class="admin-pill" id="admin-pill" hidden>Admin</span>
+                            <button class="ghost-button" id="logout-trigger" type="button" hidden>Sair</button>
+                        </div>
+                        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Alternar tema">
+                            <span class="theme-toggle-icon" aria-hidden="true"></span>
+                            <span class="sr-only" id="theme-toggle-label">Modo escuro</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="category-filters-panel" aria-labelledby="category-filters-title">
+                <h2 class="category-filters-title" id="category-filters-title">Filtrar por Categoria</h2>
+                <div class="category-filters-list" id="category-filters" aria-label="Filtros de categoria"></div>
+            </section>
+
+            <div class="content-grid">
+                <article class="calendar-card" aria-label="Calendário mensal de eventos">
+                    <div class="calendar-toolbar">
+                        <div class="toolbar-left">
+                            <button class="nav-button" id="prev-month" type="button" aria-label="Mês anterior">&#10094;</button>
+                            <div>
+                                <h2 class="month-title" id="month-label">Março de 2026</h2>
+                                <p class="toolbar-note" id="toolbar-note" hidden>Clique em um dia para visualizar a programação.</p>
+                            </div>
+                            <button class="nav-button" id="next-month" type="button" aria-label="Próximo mês">&#10095;</button>
+                        </div>
+
+                        <button class="mini-button" id="today-button" type="button">Voltar para hoje</button>
+                    </div>
+
+                    <div class="calendar-grid" id="calendar-grid" aria-live="polite"></div>
+                </article>
+
+                <div class="admin-tools admin-tools--standalone" id="admin-tools" hidden>
+                    <button class="ghost-button" id="import-local-button" type="button" hidden>Importar eventos locais</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="login-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+            <div class="modal-head">
+                <div>
+                    <h2 id="login-modal-title">Acesso administrativo</h2>
+                    <p>entre com o email e senha da conta administrativa</p>
+                </div>
+                <button class="close-button" type="button" data-close-modal="login-modal" aria-label="Fechar login">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Modal simples para ativar o modo de edição do calendário. -->
+                <form class="form-grid" id="login-form">
+                    <div class="field">
+                        <label for="login-email">E-mail administrativo</label>
+                        <input id="login-email" name="email" type="email" placeholder="Digite o e-mail do administrador" autocomplete="username" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="login-password">Senha</label>
+                        <input id="login-password" name="password" type="password" placeholder="Digite a senha" autocomplete="current-password" required>
+                        <a class="field-link" href="https://wa.me/5575982202596?text=Ol%C3%A1%2C%20preciso%20de%20ajuda" target="_blank" rel="noreferrer">Esqueceu a senha?</a>
+                    </div>
+
+                    <p class="form-note">Somente a conta autenticada pode adicionar, editar, excluir ou importar eventos para a agenda online.</p>
+                    <p class="form-error" id="login-error" aria-live="polite"></p>
+
+                    <div class="modal-actions">
+                        <div class="modal-brand" aria-hidden="true">
+                            <img src="assets/gustavo-borges-logo.png" alt="Logo Gustavo Borges">
+                        </div>
+                        <div class="modal-actions-right">
+                            <button class="ghost-button" type="button" data-close-modal="login-modal">Cancelar</button>
+                            <button class="action-button" type="submit">Entrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="event-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="event-modal-title">
+            <div class="modal-head">
+                <div>
+                    <h2 id="event-modal-title">Novo evento</h2>
+                    <p id="event-modal-subtitle">Preencha os dados abaixo para registrar um evento no calendário.</p>
+                </div>
+                <button class="close-button" type="button" data-close-modal="event-modal" aria-label="Fechar formulário">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Formulário usado tanto para criação quanto edição de eventos. -->
+                <form class="form-grid" id="event-form">
+                    <input id="event-date-input" name="dateKey" type="hidden">
+                    <input id="event-id-input" name="eventId" type="hidden">
+
+                    <div class="date-highlight" id="event-date-label"></div>
+
+                    <div class="field">
+                        <label for="event-title">Título do evento</label>
+                        <input id="event-title" name="title" type="text" maxlength="80" placeholder="Ex.: Feira de artesanato" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="event-time">Horário (opcional)</label>
+                        <input id="event-time" name="time" type="time">
+                    </div>
+
+                    <div class="field">
+                        <label for="event-description">Descrição</label>
+                        <textarea id="event-description" name="description" maxlength="200" placeholder="Descreva a programação, atrações ou observações do evento."></textarea>
+                    </div>
+
+                    <p class="form-note">A descrição aceita no máximo 200 caracteres e é necessário escolher ao menos uma categoria.</p>
+
+                    <div class="field event-image-field">
+                        <label for="event-image">Imagem do evento (opcional)</label>
+                        <input id="event-image-url-input" name="imageUrl" type="hidden">
+                        <input id="event-image" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+                        <p class="form-note">Escolha uma imagem da máquina para aparecer no popup da programação. Formatos aceitos: JPG, PNG, WEBP ou GIF, até 4 MB.</p>
+                        <div class="event-image-preview" id="event-image-preview" hidden>
+                            <img id="event-image-preview-img" alt="Prévia da imagem do evento">
+                            <button class="ghost-button" id="remove-event-image-button" type="button">Remover imagem</button>
+                        </div>
+                    </div>
+
+                    <fieldset class="access-type-field">
+                        <legend>Tipo de acesso</legend>
+                        <div class="access-type-options" id="event-access-options">
+                            <label class="access-type-option access-type-option--free">
+                                <input class="access-type-input" type="radio" name="accessType" value="free" checked>
+                                <span class="access-type-pill">Gratuito</span>
+                            </label>
+                            <label class="access-type-option access-type-option--paid">
+                                <input class="access-type-input" type="radio" name="accessType" value="paid">
+                                <span class="access-type-pill">Pago</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="display-style-field">
+                        <legend>Visual no calendário</legend>
+                        <div class="display-style-options" id="event-display-options">
+                            <label class="display-style-option">
+                                <input class="display-style-input" type="radio" name="displayStyle" value="dot" checked>
+                                <span class="display-style-pill">Ponto com horário</span>
+                            </label>
+                            <label class="display-style-option">
+                                <input class="display-style-input" type="radio" name="displayStyle" value="bar">
+                                <span class="display-style-pill">Barra inteira</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="category-picker-field">
+                        <legend>Categorias</legend>
+                        <div class="category-picker-list" id="event-category-options"></div>
+                    </fieldset>
+
+                    <p class="form-error" id="event-error" aria-live="polite"></p>
+
+                    <div class="modal-actions">
+                        <button class="danger-button" id="delete-event-button" type="button" hidden>Excluir evento</button>
+
+                        <div class="modal-actions-right">
+                            <button class="ghost-button" type="button" data-close-modal="event-modal">Cancelar</button>
+                            <button class="action-button" type="submit" id="save-event-button">Salvar evento</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="day-details-modal" aria-hidden="true">
+        <div class="modal modal--day-details" role="dialog" aria-modal="true" aria-labelledby="day-details-modal-title">
+            <div class="modal-head">
+                <div>
+                    <h2 id="day-details-modal-title">Programação do dia</h2>
+                    <p>Confira os eventos publicados para esta data.</p>
+                </div>
+                <button class="close-button" type="button" data-close-modal="day-details-modal" aria-label="Fechar programação">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="date-highlight" id="day-details-date-label"></div>
+                <div class="events-stack modal-events-stack" id="day-details-events"></div>
+                <div class="sidebar-empty" id="day-details-empty"></div>
+
+                <div class="modal-actions">
+                    <span></span>
+                    <div class="modal-actions-right">
+                        <button class="ghost-button" type="button" data-close-modal="day-details-modal">Fechar</button>
+                        <button class="action-button" id="day-details-create-button" type="button" hidden>Novo evento</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="image-viewer-modal" aria-hidden="true">
+        <div class="modal modal--image-viewer" role="dialog" aria-modal="true" aria-labelledby="image-viewer-title">
+            <div class="modal-head">
+                <div>
+                    <h2 id="image-viewer-title">Imagem do evento</h2>
+                    <p id="image-viewer-caption">Visualização completa da imagem cadastrada.</p>
+                </div>
+                <button class="close-button" type="button" data-close-modal="image-viewer-modal" aria-label="Fechar imagem">&times;</button>
+            </div>
+
+            <div class="modal-body modal-body--image-viewer">
+                <figure class="image-viewer-figure">
+                    <img id="image-viewer-image" alt="">
+                </figure>
+
+                <div class="modal-actions">
+                    <span></span>
+                    <div class="modal-actions-right">
+                        <button class="ghost-button" type="button" data-close-modal="image-viewer-modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+    <div class="day-preview" id="day-preview" hidden aria-hidden="true"></div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -52,6 +52,9 @@ jobs:
           if [ -d "carnaval-cultural" ]; then
             cp -R "carnaval-cultural" "_site/carnaval-cultural"
           fi
+          if [ -d "Amargosacalendario" ]; then
+            cp -R "Amargosacalendario" "_site/Amargosacalendario"
+          fi
           cp -R public _site/public
           touch _site/.nojekyll
 
