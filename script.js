@@ -1328,6 +1328,12 @@ function syncEventModalFrameHeights() {
     const shouldUseSingleScroll = eventModalMobileMediaQuery.matches;
 
     eventModalFrames.forEach((frame) => {
+        if (frame === guiaModalFrame) {
+            frame.style.removeProperty('height');
+            frame.removeAttribute('scrolling');
+            return;
+        }
+
         if (!shouldUseSingleScroll) {
             frame.style.removeProperty('height');
             frame.removeAttribute('scrolling');

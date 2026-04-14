@@ -3898,6 +3898,57 @@ body.modo_escuro .event-modal--guia .event-modal__frame-shell {
         min-height: 0;
         pointer-events: auto;
     }
+
+    .event-modal--guia {
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .event-modal--guia .event-modal__dialog {
+        width: min(100%, 720px);
+        max-height: calc(100dvh - 32px);
+    }
+
+    .event-modal--guia .event-modal__content {
+        display: flex;
+        flex-direction: column;
+        height: calc(100dvh - 32px);
+        max-height: calc(100dvh - 32px);
+        min-height: 0;
+        border-radius: inherit;
+    }
+
+    .event-modal--guia .event-modal__intro {
+        flex: 0 0 auto;
+        gap: 0.75rem;
+        padding: 1.45rem;
+    }
+
+    .event-modal--guia .event-modal__intro h3 {
+        max-width: calc(100% - 48px);
+        font-size: clamp(1.7rem, 6vw, 2.25rem);
+    }
+
+    .event-modal--guia .event-modal__lead,
+    .event-modal--guia .event-modal__copy {
+        line-height: 1.55;
+    }
+
+    .event-modal--guia .event-modal__actions {
+        margin-top: 0.2rem;
+    }
+
+    .event-modal--guia .event-modal__frame-shell {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .event-modal--guia .event-modal__frame {
+        height: 100%;
+        min-height: 0;
+        border-radius: 20px;
+    }
 }
 
 @media (max-width: 640px) {
@@ -3945,5 +3996,37 @@ body.modo_escuro .event-modal--guia .event-modal__frame-shell {
     .event-modal__dialog,
     .gallery-modal__dialog {
         max-height: calc(100dvh - 24px);
+    }
+
+    .event-modal--guia {
+        padding: 10px;
+    }
+
+    .event-modal--guia .event-modal__dialog {
+        border-radius: 22px;
+        max-height: calc(100dvh - 20px);
+    }
+
+    .event-modal--guia .event-modal__content {
+        height: calc(100dvh - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 22px;
+    }
+
+    .event-modal--guia .event-modal__intro {
+        padding: 1.1rem;
+    }
+
+    .event-modal--guia .event-modal__copy {
+        display: none;
+    }
+
+    .event-modal--guia .event-modal__frame-shell {
+        padding: 0.85rem;
+        border-radius: 0 0 22px 22px;
+    }
+
+    .event-modal--guia .event-modal__frame {
+        border-radius: 16px;
     }
 }
