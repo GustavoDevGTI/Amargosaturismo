@@ -3883,7 +3883,8 @@ body.modo_escuro .event-modal--guia .event-modal__frame-shell {
     }
 
     .event-modal--carnaval-cultural .event-modal__content,
-    .event-modal--festival-forro .event-modal__content {
+    .event-modal--festival-forro .event-modal__content,
+    .event-modal--guia .event-modal__content {
         grid-template-columns: 1fr;
     }
 
