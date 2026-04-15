@@ -3196,13 +3196,20 @@
       ];
 
       function getPopupContent(point) {
+        const template = document.createElement("template");
+        template.innerHTML = point.content.trim();
+        const titleNode = template.content.querySelector("strong");
+        const titleText = titleNode?.textContent?.trim() || point.name;
+        const titleColor = titleNode?.style?.color || "#157c62";
+        const title = `<strong style="display: block; margin-bottom: 10px; color: ${titleColor}; font-size: 1.05rem; line-height: 1.35;">${titleText}</strong>`;
+
         if (!point.directionsUrl) {
-          return point.content;
+          return `<div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">${title}</div>`;
         }
 
-        const directionsButton = `<a href="${point.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; margin-top: 12px; border-radius: 999px; background: rgba(51, 154, 128, 0.12); border: 1px solid rgba(51, 154, 128, 0.24); color: #157c62; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Como chegar</a>`;
+        const directionsButton = `<a href="${point.directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(51, 154, 128, 0.12); border: 1px solid rgba(51, 154, 128, 0.24); color: #157c62; font-size: 0.9rem; font-weight: 700; text-decoration: none;">Como chegar</a>`;
 
-        return point.content.replace("</div>", `${directionsButton}</div>`);
+        return `<div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">${title}${directionsButton}</div>`;
       }
 
       points.forEach((point) => {
