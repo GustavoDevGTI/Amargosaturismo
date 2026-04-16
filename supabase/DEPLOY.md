@@ -62,3 +62,36 @@ Exemplo de ideia:
 - `2024` com seus albuns
 - `2026` com seus albuns
 - `2027` quando voce quiser publicar o proximo Carnaval
+
+---
+
+# Limpeza automatica de imagens antigas do calendario
+
+## 1. Publicar a Edge Function
+
+Crie/publice tambem a funcao:
+
+- `supabase/functions/calendar-image-cleanup/index.ts`
+
+Nome da funcao no Supabase:
+
+- `calendar-image-cleanup`
+
+## 2. Salvar secrets no Vault (SQL Editor)
+
+```sql
+select vault.create_secret('https://SEU-PROJETO.supabase.co', 'project_url');
+select vault.create_secret('SUA_ANON_KEY', 'anon_key');
+```
+
+## 3. Aplicar o SQL de agendamento
+
+Rode novamente o arquivo:
+
+- `Amargosacalendario/supabase-setup.sql`
+
+Ele vai criar/atualizar o job:
+
+- `calendar-image-cleanup-daily` (03:15 UTC, todos os dias)
+
+Esse job chama a Edge Function e remove imagens de eventos com mais de 2 meses.

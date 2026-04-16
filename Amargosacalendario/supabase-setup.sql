@@ -1,4 +1,6 @@
 create extension if not exists pgcrypto;
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
 
 create table if not exists public.calendar_events (
     id uuid primary key default gen_random_uuid(),
@@ -97,3 +99,73 @@ with check (
     bucket_id = 'calendar-event-images'
     and (auth.jwt() ->> 'email') = 'admincalendarioamargosa@gmail.com'
 );
+
+/*
+  Agenda diaria para chamar a Edge Function `calendar-image-cleanup`.
+  Antes de executar este bloco, salve no Vault os secrets:
+
+    select vault.create_secret('https://SEU-PROJETO.supabase.co', 'project_url');
+    select vault.create_secret('SUA_ANON_KEY', 'anon_key');
+*/
+do $cron$
+declare
+    existing_job_id integer;
+    project_url text;
+    anon_key text;
+    cron_command text;
+begin
+    begin
+        select decrypted_secret
+          into project_url
+          from vault.decrypted_secrets
+         where name = 'project_url'
+         limit 1;
+
+        select decrypted_secret
+          into anon_key
+          from vault.decrypted_secrets
+         where name = 'anon_key'
+         limit 1;
+    exception
+        when undefined_table then
+            raise notice 'Vault nao encontrado. Configure os secrets e rode novamente este script.';
+            return;
+    end;
+
+    if project_url is null or anon_key is null then
+        raise notice 'Secrets project_url/anon_key ausentes no Vault. Pulando agendamento do cleanup.';
+        return;
+    end if;
+
+    cron_command := format(
+        $job$
+        select
+          net.http_post(
+              url := %L,
+              headers := jsonb_build_object(
+                  'Content-Type', 'application/json',
+                  'Authorization', 'Bearer ' || %L
+              ),
+              body := '{"retentionMonths":2}'::jsonb
+          ) as request_id;
+        $job$,
+        project_url || '/functions/v1/calendar-image-cleanup',
+        anon_key
+    );
+
+    select jobid
+      into existing_job_id
+      from cron.job
+     where jobname = 'calendar-image-cleanup-daily';
+
+    if existing_job_id is not null then
+        perform cron.unschedule(existing_job_id);
+    end if;
+
+    perform cron.schedule(
+        'calendar-image-cleanup-daily',
+        '15 3 * * *',
+        cron_command
+    );
+end;
+$cron$;
