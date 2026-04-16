@@ -1048,7 +1048,7 @@
             refs.eventModalSubtitle.textContent = "Preencha os dados abaixo para criar um evento nesta data.";
             setSelectedEventCategories(state.activeCategoryFilter === CATEGORY_FILTER_ALL ? [] : [state.activeCategoryFilter]);
             setSelectedAccessType(ACCESS_TYPE_FREE);
-            setSelectedDisplayStyle(DISPLAY_STYLE_DOT);
+            setSelectedDisplayStyle(DISPLAY_STYLE_BAR);
             renderEventImagePreview("");
             refs.deleteEventButton.hidden = true;
         }
@@ -1455,15 +1455,11 @@
     }
 
     function getSelectedDisplayStyle() {
-        const selectedInput = refs.eventDisplayOptions.querySelector("input[name=\"displayStyle\"]:checked");
-        return sanitizeDisplayStyle(selectedInput ? selectedInput.value : "");
+        return DISPLAY_STYLE_BAR;
     }
 
     function setSelectedDisplayStyle(value) {
-        const selected = sanitizeDisplayStyle(value);
-        refs.eventDisplayOptions.querySelectorAll("input[name=\"displayStyle\"]").forEach((input) => {
-            input.checked = input.value === selected;
-        });
+        return sanitizeDisplayStyle(value);
     }
 
     function sanitizeAccessType(value) {
@@ -1471,7 +1467,7 @@
     }
 
     function sanitizeDisplayStyle(value) {
-        return String(value || "").trim() === DISPLAY_STYLE_BAR ? DISPLAY_STYLE_BAR : DISPLAY_STYLE_DOT;
+        return DISPLAY_STYLE_BAR;
     }
 
     function isPaidEvent(eventItem) {
@@ -1855,9 +1851,11 @@
         refs.eventAccessOptions.querySelectorAll("input[name=\"accessType\"]").forEach((input) => {
             input.disabled = isDeleteOnly;
         });
-        refs.eventDisplayOptions.querySelectorAll("input[name=\"displayStyle\"]").forEach((input) => {
-            input.disabled = isDeleteOnly;
-        });
+        if (refs.eventDisplayOptions) {
+            refs.eventDisplayOptions.querySelectorAll("input[name=\"displayStyle\"]").forEach((input) => {
+                input.disabled = isDeleteOnly;
+            });
+        }
         refs.eventCategoryOptions.querySelectorAll("input[name=\"categories\"]").forEach((input) => {
             input.disabled = isDeleteOnly;
         });
