@@ -371,7 +371,8 @@
         for (let index = 0; index < 42; index += 1) {
             const cellDate = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
             const cellKey = formatDateKey(cellDate);
-            const cellEvents = getFilteredEventsForDate(cellKey);
+            const dayEvents = getFilteredEventsForDate(cellKey);
+            const cellEvents = getCalendarDisplayEventsForDate(cellKey, dayEvents);
             const isPast = startOfDay(cellDate) < today;
             const cell = document.createElement("div");
             cell.className = "day-cell";
@@ -847,7 +848,7 @@
             return;
         }
 
-        const dayEvents = getFilteredEventsForDate(dateKey);
+        const dayEvents = getCalendarDisplayEventsForDate(dateKey, getFilteredEventsForDate(dateKey));
         if (!dayEvents.length) {
             return;
         }
@@ -858,7 +859,7 @@
         }, 90);
     }
 
-    function showDayPreview(dateKey, anchorElement, dayEvents = getFilteredEventsForDate(dateKey)) {
+    function showDayPreview(dateKey, anchorElement, dayEvents = getCalendarDisplayEventsForDate(dateKey, getFilteredEventsForDate(dateKey))) {
         if (!refs.dayPreview || !supportsDayHoverPreview() || !anchorElement || !dayEvents.length) {
             return;
         }
@@ -882,7 +883,7 @@
         const previewList = document.createElement("div");
         previewList.className = "day-preview-list";
 
-        dayEvents.slice(0, 3).forEach((calendarEvent) => {
+        dayEvents.slice(0, 6).forEach((calendarEvent) => {
             const categoryDetails = getEventCategoryDetails(calendarEvent.categories);
             const primaryCategory = getPrimaryEventCategory(categoryDetails);
             const item = document.createElement("article");
@@ -905,10 +906,10 @@
 
         refs.dayPreview.appendChild(previewList);
 
-        if (dayEvents.length > 3) {
+        if (dayEvents.length > 6) {
             const more = document.createElement("div");
             more.className = "day-preview-more";
-            more.textContent = "+" + (dayEvents.length - 3) + " eventos";
+            more.textContent = "+" + (dayEvents.length - 6) + " eventos";
             refs.dayPreview.appendChild(more);
         }
 
@@ -1374,6 +1375,61 @@
             const matchesAccess = state.activeAccessFilter === CATEGORY_FILTER_ALL || sanitizeAccessType(eventItem.accessType) === state.activeAccessFilter;
             return matchesCategory && matchesAccess;
         });
+    }
+
+    function getCalendarDisplayEventsForDate(dateKey, events = getFilteredEventsForDate(dateKey)) {
+        const orderedEvents = sortEvents((Array.isArray(events) ? events : []).slice());
+        if (!shouldPrioritizeCurrentDayEvents(dateKey, orderedEvents.length)) {
+            return orderedEvents;
+        }
+
+        const upcomingEvents = [];
+        const expiredEvents = [];
+
+        orderedEvents.forEach((eventItem) => {
+            if (isEventExpiredForHighlight(dateKey, eventItem)) {
+                expiredEvents.push(eventItem);
+            } else {
+                upcomingEvents.push(eventItem);
+            }
+        });
+
+        return upcomingEvents.concat(expiredEvents);
+    }
+
+    function shouldPrioritizeCurrentDayEvents(dateKey, eventCount) {
+        return eventCount >= 4 && dateKey === formatDateKey(new Date());
+    }
+
+    function isEventExpiredForHighlight(dateKey, eventItem) {
+        const eventStart = getEventStartDate(dateKey, eventItem && eventItem.time);
+        if (!eventStart) {
+            return false;
+        }
+        return Date.now() >= (eventStart.getTime() + (60 * 60 * 1000));
+    }
+
+    function getEventStartDate(dateKey, timeValue) {
+        const time = normalizeTimeValue(timeValue);
+        const [hours, minutes] = String(time).split(":").map(Number);
+        if (!time || !Number.isFinite(hours) || !Number.isFinite(minutes)) {
+            return null;
+        }
+
+        const eventDate = parseDateKey(dateKey);
+        if (!(eventDate instanceof Date) || Number.isNaN(eventDate.getTime())) {
+            return null;
+        }
+
+        return new Date(
+            eventDate.getFullYear(),
+            eventDate.getMonth(),
+            eventDate.getDate(),
+            hours,
+            minutes,
+            0,
+            0
+        );
     }
 
     function getEventsForDate(dateKey) {
