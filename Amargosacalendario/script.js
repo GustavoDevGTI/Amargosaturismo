@@ -422,10 +422,30 @@
             cellEvents.slice(0, 3).forEach((calendarEvent) => {
                 eventList.appendChild(buildCalendarEventChip(calendarEvent, cellKey));
             });
+            if (cellEvents.length > 3) {
+                eventList.appendChild(buildEventOverflowBadge(cellEvents.length - 3, cellEvents));
+            }
 
             cell.appendChild(eventList);
             refs.calendarGrid.appendChild(cell);
         }
+    }
+
+    function buildEventOverflowBadge(hiddenCount, eventsForDay = []) {
+        const badge = document.createElement("span");
+        badge.className = "event-more";
+        badge.textContent = "+" + hiddenCount;
+        badge.setAttribute("aria-label", hiddenCount === 1 ? "Mais 1 evento" : "Mais " + hiddenCount + " eventos");
+
+        if (hasMixedAccessEvents(eventsForDay)) {
+            badge.classList.add("event-more--mixed-access");
+        } else if (hasOnlyPaidEvents(eventsForDay)) {
+            badge.classList.add("event-more--paid");
+        } else {
+            badge.classList.add("event-more--free");
+        }
+
+        return badge;
     }
 
     function buildCalendarEventChip(calendarEvent, dateKey) {
