@@ -1050,11 +1050,31 @@ section h2::after {
 
 .tourism-points__photo-stack--merged {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, minmax(220px, 1fr));
+    grid-template-rows: none;
+    gap: 0.45rem;
+    padding: 0.45rem;
+}
+
+.tourism-points__photo-stack--merged .tourism-points__photo-frame {
+    height: 17rem;
+    border-radius: 6px;
 }
 
 .tourism-points__photo-stack--merged img {
-    min-height: 220px;
+    min-height: 0;
+    height: 100%;
+}
+
+@media (max-width: 1024px) {
+    .tourism-points__photo-stack--merged .tourism-points__photo-frame {
+        height: 14rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .tourism-points__photo-stack--merged .tourism-points__photo-frame {
+        height: 11.5rem;
+    }
 }
 
 .about-subtopic--attractions .tourism-points__grid {
