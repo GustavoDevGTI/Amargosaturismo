@@ -1022,6 +1022,28 @@ section h2::after {
     margin-top: 2.5rem;
 }
 
+.about-subtopic {
+    margin-top: 2.75rem;
+}
+
+.about-subtopic__title {
+    color: var(--secondary-color);
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+.about-content--cultural {
+    margin-top: 0;
+}
+
+.about-subtopic--attractions .tourism-points__grid {
+    margin-top: 1.2rem;
+}
+
+.about-subtopic--attractions .attractions-cta {
+    margin-top: 2rem;
+}
+
 .about-text h3 {
     color: var(--secondary-color);
     font-size: 1.5rem;
