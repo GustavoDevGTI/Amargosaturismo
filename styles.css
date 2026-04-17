@@ -795,9 +795,9 @@ textarea {
 }
 
 .hero-slide--attractions {
-    --hero-image: url('public/images/praca-do-bosque-antiga-estacao.jpg');
+    --hero-image: url('public/images/sao-joao-amargosa-destaque.jpg');
     --hero-overlay: linear-gradient(115deg, rgba(50, 32, 10, 0.82) 0%, rgba(179, 122, 35, 0.22) 54%, rgba(46, 28, 8, 0.76) 100%);
-    --hero-position: center 62%;
+    --hero-position: center 56%;
 }
 
 .hero-slide--guide {
