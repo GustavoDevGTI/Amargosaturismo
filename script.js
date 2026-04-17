@@ -2037,20 +2037,8 @@ function initTooltips() {
 }
 
 function initCalendarIframeScrollBridge() {
-    const scrollMultiplier = 1.25;
-    const maxStep = 160;
-    let pendingDeltaY = 0;
-    let animationFrameId = 0;
-
-    function flushScroll() {
-        const nextDeltaY = pendingDeltaY;
-        pendingDeltaY = 0;
-        animationFrameId = 0;
-
-        if (nextDeltaY) {
-            window.scrollBy(0, nextDeltaY);
-        }
-    }
+    const scrollMultiplier = 2.4;
+    const maxStep = 320;
 
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) {
@@ -2077,10 +2065,8 @@ function initCalendarIframeScrollBridge() {
         }
 
         const scaledDeltaY = deltaY * scrollMultiplier;
-        pendingDeltaY += Math.max(-maxStep, Math.min(maxStep, scaledDeltaY));
-        if (!animationFrameId) {
-            animationFrameId = window.requestAnimationFrame(flushScroll);
-        }
+        const nextStep = Math.max(-maxStep, Math.min(maxStep, scaledDeltaY));
+        window.scrollBy(0, nextStep);
     });
 }
 

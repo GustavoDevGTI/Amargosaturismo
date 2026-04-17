@@ -129,8 +129,6 @@
     };
     let calendarLayoutObserver = null;
     let parentFrameHeightSyncId = 0;
-    let parentScrollRelayFrameId = 0;
-    let pendingParentScrollRelayDeltaY = 0;
 
     init();
 
@@ -1855,25 +1853,6 @@
         });
     }
 
-    function queueParentScrollRelay(deltaY) {
-        pendingParentScrollRelayDeltaY += deltaY;
-        if (parentScrollRelayFrameId) {
-            return;
-        }
-        parentScrollRelayFrameId = window.requestAnimationFrame(() => {
-            const nextDeltaY = pendingParentScrollRelayDeltaY;
-            pendingParentScrollRelayDeltaY = 0;
-            parentScrollRelayFrameId = 0;
-            if (!nextDeltaY) {
-                return;
-            }
-            window.parent.postMessage({
-                type: "amargosa-calendar-scroll",
-                deltaY: nextDeltaY
-            }, window.location.origin);
-        });
-    }
-
     function relayScrollToParentAtBoundary(scrollElement, deltaY, event) {
         if (!deltaY) {
             return false;
@@ -1886,7 +1865,10 @@
             if (event.cancelable) {
                 event.preventDefault();
             }
-            queueParentScrollRelay(deltaY);
+            window.parent.postMessage({
+                type: "amargosa-calendar-scroll",
+                deltaY
+            }, window.location.origin);
             return true;
         }
 
