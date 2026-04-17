@@ -129,6 +129,8 @@
     };
     let calendarLayoutObserver = null;
     let parentFrameHeightSyncId = 0;
+    let parentScrollRelayFrameId = 0;
+    let pendingParentScrollRelayDeltaY = 0;
 
     init();
 
@@ -1819,7 +1821,6 @@
         if (!state.isEmbedMode || window.parent === window) {
             return;
         }
-        const shouldRelayTouchScroll = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
         [refs.loginModal, refs.eventModal, refs.dayDetailsModal, refs.imageViewerModal].forEach((modal) => {
             const modalBody = modal.querySelector(".modal-body");
@@ -1828,32 +1829,23 @@
             }
 
             let previousTouchY = 0;
-            let isTouchScrollChained = false;
-            if (shouldRelayTouchScroll) {
-                modalBody.addEventListener("touchstart", (event) => {
-                    previousTouchY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
-                    isTouchScrollChained = false;
-                }, { passive: true });
+            modalBody.addEventListener("touchstart", (event) => {
+                previousTouchY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
+            }, { passive: true });
 
-                modalBody.addEventListener("touchmove", (event) => {
-                    if (!modal.classList.contains("open") || !event.touches || !event.touches[0]) {
-                        return;
-                    }
+            modalBody.addEventListener("touchmove", (event) => {
+                if (!modal.classList.contains("open") || !event.touches || !event.touches[0]) {
+                    return;
+                }
 
-                    const currentTouchY = event.touches[0].clientY;
-                    const deltaY = previousTouchY - currentTouchY;
-                    previousTouchY = currentTouchY;
-                    isTouchScrollChained = relayScrollToParentAtBoundary(modalBody, deltaY, event, isTouchScrollChained);
-                }, { passive: false });
-
-                modalBody.addEventListener("touchend", () => {
-                    isTouchScrollChained = false;
-                }, { passive: true });
-
-                modalBody.addEventListener("touchcancel", () => {
-                    isTouchScrollChained = false;
-                }, { passive: true });
-            }
+                const currentTouchY = event.touches[0].clientY;
+                const deltaY = previousTouchY - currentTouchY;
+                previousTouchY = currentTouchY;
+                if (Math.abs(deltaY) < 1) {
+                    return;
+                }
+                relayScrollToParentAtBoundary(modalBody, deltaY, event);
+            }, { passive: false });
 
             modalBody.addEventListener("wheel", (event) => {
                 if (modal.classList.contains("open")) {
@@ -1863,20 +1855,38 @@
         });
     }
 
-    function relayScrollToParentAtBoundary(scrollElement, deltaY, event, forceRelay = false) {
+    function queueParentScrollRelay(deltaY) {
+        pendingParentScrollRelayDeltaY += deltaY;
+        if (parentScrollRelayFrameId) {
+            return;
+        }
+        parentScrollRelayFrameId = window.requestAnimationFrame(() => {
+            const nextDeltaY = pendingParentScrollRelayDeltaY;
+            pendingParentScrollRelayDeltaY = 0;
+            parentScrollRelayFrameId = 0;
+            if (!nextDeltaY) {
+                return;
+            }
+            window.parent.postMessage({
+                type: "amargosa-calendar-scroll",
+                deltaY: nextDeltaY
+            }, window.location.origin);
+        });
+    }
+
+    function relayScrollToParentAtBoundary(scrollElement, deltaY, event) {
         if (!deltaY) {
-            return forceRelay;
+            return false;
         }
 
         const atTop = scrollElement.scrollTop <= 0;
         const atBottom = Math.ceil(scrollElement.scrollTop + scrollElement.clientHeight) >= scrollElement.scrollHeight;
-        const shouldRelay = forceRelay || (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
+        const shouldRelay = (deltaY < 0 && atTop) || (deltaY > 0 && atBottom);
         if (shouldRelay) {
-            event.preventDefault();
-            window.parent.postMessage({
-                type: "amargosa-calendar-scroll",
-                deltaY
-            }, window.location.origin);
+            if (event.cancelable) {
+                event.preventDefault();
+            }
+            queueParentScrollRelay(deltaY);
             return true;
         }
 

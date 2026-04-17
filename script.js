@@ -2037,7 +2037,8 @@ function initTooltips() {
 }
 
 function initCalendarIframeScrollBridge() {
-    const scrollMultiplier = 4.4;
+    const scrollMultiplier = 1.25;
+    const maxStep = 160;
     let pendingDeltaY = 0;
     let animationFrameId = 0;
 
@@ -2075,7 +2076,8 @@ function initCalendarIframeScrollBridge() {
             return;
         }
 
-        pendingDeltaY += deltaY * scrollMultiplier;
+        const scaledDeltaY = deltaY * scrollMultiplier;
+        pendingDeltaY += Math.max(-maxStep, Math.min(maxStep, scaledDeltaY));
         if (!animationFrameId) {
             animationFrameId = window.requestAnimationFrame(flushScroll);
         }
