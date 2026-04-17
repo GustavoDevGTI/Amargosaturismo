@@ -716,7 +716,6 @@
     }
 
     function openDayDetailsModal(dateKey) {
-        renderDayDetailsModal(dateKey);
         openModal(refs.dayDetailsModal, refs.dayDetailsCreateButton.hidden ? null : refs.dayDetailsCreateButton);
     }
 
@@ -727,14 +726,16 @@
 
         const detailsEvents = getFilteredEventsForDate(dateKey);
         refs.dayDetailsDateLabel.textContent = formatFullDate(parseDateKey(dateKey));
-        refs.dayDetailsEvents.innerHTML = "";
 
         if (detailsEvents.length) {
             refs.dayDetailsEmpty.hidden = true;
+            const eventsFragment = document.createDocumentFragment();
             detailsEvents.forEach((calendarEvent) => {
-                refs.dayDetailsEvents.appendChild(buildDayDetailsEventCard(calendarEvent, dateKey));
+                eventsFragment.appendChild(buildDayDetailsEventCard(calendarEvent, dateKey));
             });
+            refs.dayDetailsEvents.replaceChildren(eventsFragment);
         } else {
+            refs.dayDetailsEvents.replaceChildren();
             refs.dayDetailsEmpty.hidden = false;
             refs.dayDetailsEmpty.textContent = buildEmptyStateMessage();
         }
@@ -1818,6 +1819,7 @@
         if (!state.isEmbedMode || window.parent === window) {
             return;
         }
+        const shouldRelayTouchScroll = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
         [refs.loginModal, refs.eventModal, refs.dayDetailsModal, refs.imageViewerModal].forEach((modal) => {
             const modalBody = modal.querySelector(".modal-body");
@@ -1827,29 +1829,31 @@
 
             let previousTouchY = 0;
             let isTouchScrollChained = false;
-            modalBody.addEventListener("touchstart", (event) => {
-                previousTouchY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
-                isTouchScrollChained = false;
-            }, { passive: true });
+            if (shouldRelayTouchScroll) {
+                modalBody.addEventListener("touchstart", (event) => {
+                    previousTouchY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
+                    isTouchScrollChained = false;
+                }, { passive: true });
 
-            modalBody.addEventListener("touchmove", (event) => {
-                if (!modal.classList.contains("open") || !event.touches || !event.touches[0]) {
-                    return;
-                }
+                modalBody.addEventListener("touchmove", (event) => {
+                    if (!modal.classList.contains("open") || !event.touches || !event.touches[0]) {
+                        return;
+                    }
 
-                const currentTouchY = event.touches[0].clientY;
-                const deltaY = previousTouchY - currentTouchY;
-                previousTouchY = currentTouchY;
-                isTouchScrollChained = relayScrollToParentAtBoundary(modalBody, deltaY, event, isTouchScrollChained);
-            }, { passive: false });
+                    const currentTouchY = event.touches[0].clientY;
+                    const deltaY = previousTouchY - currentTouchY;
+                    previousTouchY = currentTouchY;
+                    isTouchScrollChained = relayScrollToParentAtBoundary(modalBody, deltaY, event, isTouchScrollChained);
+                }, { passive: false });
 
-            modalBody.addEventListener("touchend", () => {
-                isTouchScrollChained = false;
-            }, { passive: true });
+                modalBody.addEventListener("touchend", () => {
+                    isTouchScrollChained = false;
+                }, { passive: true });
 
-            modalBody.addEventListener("touchcancel", () => {
-                isTouchScrollChained = false;
-            }, { passive: true });
+                modalBody.addEventListener("touchcancel", () => {
+                    isTouchScrollChained = false;
+                }, { passive: true });
+            }
 
             modalBody.addEventListener("wheel", (event) => {
                 if (modal.classList.contains("open")) {
