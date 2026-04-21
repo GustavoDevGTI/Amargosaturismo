@@ -85,6 +85,10 @@ const galleryRuntimeConfig = {
 };
 
 const galleryCollectionCoverMap = {
+    'carnaval-cultural::2018': 'public/images/carnaval-cultural-2018-cover.jpg',
+    'carnaval-cultural::2020': 'public/images/carnaval-cultural-2020-cover.jpg',
+    'carnaval-cultural::2024': 'public/images/carnaval-cultural-2024-cover.jpg',
+    'carnaval-cultural::2025': 'public/images/carnaval-cultural-2025-cover.jpg',
     'carnaval-cultural::2026': 'public/images/carnaval-cultural-2026-cover.png',
     'sao-joao::2026': 'public/images/sao-joao-principais-eventos-2026.jpeg',
     'festival-de-forro::2026': 'public/images/festival-forro/palco.jpg'
