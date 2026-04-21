@@ -2339,6 +2339,11 @@ section h2::after {
     gap: 1rem;
 }
 
+.gallery-modal[data-gallery-theme="festival-de-forro"] .gallery-modal__collections {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 220px));
+    justify-content: start;
+}
+
 .gallery-modal__collections[hidden] {
     display: none;
 }
