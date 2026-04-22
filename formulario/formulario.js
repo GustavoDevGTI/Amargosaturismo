@@ -384,9 +384,14 @@ form.addEventListener("submit", (event) => {
   };
   const guide = buildGuideData(data, selectedType, nomeOriginal, description, addressLine, contacts);
 
+  const createdAt = new Date().toISOString();
+
   const record = {
     id: `cad-${Date.now()}`,
-    createdAt: new Date().toISOString(),
+    createdAt,
+    updatedAt: createdAt,
+    approvalStatus: "pending",
+    approvalUpdatedAt: createdAt,
     category: selectedType,
     pointId,
     mapFocus,
@@ -402,7 +407,7 @@ form.addEventListener("submit", (event) => {
   try {
     const total = saveRecord(record);
     form.reset();
-    showFeedback(`Cadastro enviado com sucesso. Total de estabelecimentos cadastrados: ${total}. Abra a pagina Admin para visualizar os cards.`);
+    showFeedback(`Cadastro enviado com sucesso. Total de estabelecimentos cadastrados: ${total}. Agora ele aguarda validacao no painel Admin.`);
   } catch (error) {
     if (error && (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED")) {
       showFeedback("Nao foi possivel salvar. O armazenamento local do navegador ficou cheio.", true);

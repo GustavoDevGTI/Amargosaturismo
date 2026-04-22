@@ -1,11 +1,52 @@
-﻿const STORAGE_KEY = "guia_turista_cadastros_v1";
+const STORAGE_KEY = "guia_turista_cadastros_v1";
+const VALID_STATUSES = ["pending", "approved", "rejected"];
+
+const STATUS_LABELS = {
+  pending: "Pendente",
+  approved: "Validado",
+  rejected: "Recusado"
+};
+
+const STATUS_FILTER_LABELS = {
+  pending: "pendentes",
+  approved: "validados",
+  rejected: "recusados",
+  todos: "todos os status"
+};
+
+const CATEGORY_FILTER_LABELS = {
+  todos: "todas as categorias",
+  gastronomia: "bares/restaurantes",
+  hotel: "hoteis/pousadas"
+};
 
 const cardsGrid = document.getElementById("cardsGrid");
 const emptyState = document.getElementById("emptyState");
 const statusText = document.getElementById("statusText");
 const refreshBtn = document.getElementById("refreshBtn");
 const clearBtn = document.getElementById("clearBtn");
-const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
+const categoryFilterButtons = Array.from(document.querySelectorAll("[data-filter]"));
+const statusFilterButtons = Array.from(document.querySelectorAll("[data-status-filter]"));
+const editDialog = document.getElementById("editDialog");
+const editForm = document.getElementById("editForm");
+const editHint = document.getElementById("editHint");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+const closeEditBtn = document.getElementById("closeEditBtn");
+const editRecordIdInput = document.getElementById("editRecordId");
+const editCategoryInput = document.getElementById("editCategory");
+const editNameInput = document.getElementById("editName");
+const editDescriptionInput = document.getElementById("editDescription");
+const editAddressLineInput = document.getElementById("editAddressLine");
+const editInstagramInput = document.getElementById("editInstagram");
+const editWhatsappInput = document.getElementById("editWhatsapp");
+const editSubtitleInput = document.getElementById("editSubtitle");
+const editHoursLineInput = document.getElementById("editHoursLine");
+const editStatusLineInput = document.getElementById("editStatusLine");
+const editServiceLineInput = document.getElementById("editServiceLine");
+const editEmailInput = document.getElementById("editEmail");
+const editPhoneInput = document.getElementById("editPhone");
+const editGastronomyFields = document.getElementById("editGastronomyFields");
+const editHotelFields = document.getElementById("editHotelFields");
 
 const ICONS = {
   instagram: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5A3.95 3.95 0 0 0 16.25 3.8Zm8.93 1.35a1.07 1.07 0 1 1 0 2.14 1.07 1.07 0 0 1 0-2.14ZM12 6.85A5.15 5.15 0 1 1 6.85 12 5.16 5.16 0 0 1 12 6.85Zm0 1.8A3.35 3.35 0 1 0 15.35 12 3.35 3.35 0 0 0 12 8.65Z"/></svg>`,
@@ -14,15 +55,93 @@ const ICONS = {
   phone: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 2.93c.3-.3.75-.4 1.14-.25l2.3.86c.52.19.83.73.74 1.28l-.39 2.36a1.35 1.35 0 0 1-.78 1.02l-1.42.68a14.57 14.57 0 0 0 6.91 6.91l.68-1.42c.18-.38.56-.66 1.02-.78l2.36-.39c.55-.09 1.09.22 1.28.74l.86 2.3c.15.39.05.84-.25 1.14l-1.26 1.26c-.77.77-1.9 1.1-2.97.87-2.66-.59-5.2-1.98-7.58-4.35-2.37-2.38-3.76-4.92-4.35-7.58-.23-1.07.1-2.2.87-2.97l1.26-1.26Z"/></svg>`
 };
 
-let activeFilter = "todos";
+let activeCategoryFilter = "todos";
+let activeStatusFilter = "pending";
+
+function normalizeLine(value) {
+  return String(value || "").trim();
+}
+
+function normalizeCategory(value) {
+  return value === "gastronomia" || value === "hotel" ? value : "";
+}
+
+function normalizeStatus(value) {
+  return VALID_STATUSES.includes(value) ? value : "approved";
+}
+
+function digitsOnly(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function buildPhoneUrl(value) {
+  const digits = digitsOnly(value);
+  return digits ? `tel:+${digits}` : "";
+}
+
+function buildMapQuery(name, addressLine) {
+  return [normalizeLine(name), normalizeLine(addressLine), "Amargosa, Bahia, Brasil"]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function buildDirectionsUrl(mapQuery) {
+  return mapQuery ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}` : "";
+}
 
 function readRecords() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeRecord).filter(Boolean) : [];
   } catch (_) {
     return [];
   }
+}
+
+function writeRecords(records) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function normalizeRecord(record) {
+  const category = normalizeCategory(record?.category);
+  const name = normalizeLine(record?.name);
+
+  if (!category || !name) {
+    return null;
+  }
+
+  const contacts = record.contacts || {};
+  const guide = record.guide || {};
+
+  return {
+    ...record,
+    category,
+    name,
+    description: normalizeLine(record.description),
+    createdAt: normalizeLine(record.createdAt),
+    updatedAt: normalizeLine(record.updatedAt || record.createdAt),
+    approvalStatus: normalizeStatus(record.approvalStatus),
+    approvalUpdatedAt: normalizeLine(record.approvalUpdatedAt || record.updatedAt || record.createdAt),
+    metaLines: Array.isArray(record.metaLines) ? record.metaLines.filter(Boolean) : [],
+    contacts: {
+      instagram: normalizeLine(contacts.instagram),
+      whatsapp: normalizeLine(contacts.whatsapp),
+      email: normalizeLine(contacts.email),
+      phone: normalizeLine(contacts.phone),
+      phoneUrl: normalizeLine(contacts.phoneUrl || buildPhoneUrl(contacts.phone))
+    },
+    guide: {
+      subtitle: normalizeLine(guide.subtitle),
+      description: normalizeLine(guide.description),
+      hoursLine: normalizeLine(guide.hoursLine),
+      addressLine: normalizeLine(guide.addressLine),
+      statusLine: normalizeLine(guide.statusLine),
+      serviceLine: normalizeLine(guide.serviceLine),
+      mapQuery: normalizeLine(guide.mapQuery),
+      directionsUrl: normalizeLine(guide.directionsUrl),
+      popupTitleColor: normalizeLine(guide.popupTitleColor) || (category === "hotel" ? "#3568c9" : "#c9642b")
+    }
+  };
 }
 
 function fallbackImage(category) {
@@ -31,8 +150,17 @@ function fallbackImage(category) {
     : "https://placehold.co/1200x800?text=Hotel+ou+Pousada";
 }
 
-function normalizeLine(value) {
-  return String(value || "").trim();
+function formatDateTime(value) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Data nao informada";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short"
+  }).format(parsed);
 }
 
 function findAddressLine(record) {
@@ -108,16 +236,134 @@ function buildGuideUrl(record) {
 }
 
 function iconLink(href, variantClass, label, iconMarkup) {
-  if (!href) return null;
-  const a = document.createElement("a");
-  a.className = `card-link ${variantClass} card-link--icon`;
-  a.href = href;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  a.ariaLabel = label;
-  a.title = label;
-  a.innerHTML = `${iconMarkup}<span class="sr-only">${label}</span>`;
-  return a;
+  if (!href) {
+    return null;
+  }
+
+  const anchor = document.createElement("a");
+  anchor.className = `card-link ${variantClass} card-link--icon`;
+  anchor.href = href;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  anchor.ariaLabel = label;
+  anchor.title = label;
+  anchor.innerHTML = `${iconMarkup}<span class="sr-only">${label}</span>`;
+  return anchor;
+}
+
+function createStatusBadge(status) {
+  const span = document.createElement("span");
+  span.className = `status-badge status-badge--${status}`;
+  span.textContent = STATUS_LABELS[status] || "Status";
+  return span;
+}
+
+function createReviewButton(label, variantClass, onClick, disabled) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `review-btn ${variantClass}`;
+  button.textContent = label;
+  button.disabled = Boolean(disabled);
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function getEditDraft(record) {
+  return {
+    name: record.name || "",
+    description: record.description || "",
+    addressLine: record.guide?.addressLine || findAddressLine(record),
+    instagram: record.contacts?.instagram || "",
+    whatsapp: record.contacts?.whatsapp || "",
+    subtitle: record.category === "gastronomia" ? (record.guide?.subtitle || "") : "",
+    hoursLine: record.category === "gastronomia" ? (record.guide?.hoursLine || "") : "",
+    statusLine: record.category === "hotel" ? (record.guide?.statusLine || "") : "",
+    serviceLine: record.category === "hotel" ? (record.guide?.serviceLine || "") : "",
+    email: record.category === "hotel" ? (record.contacts?.email || "") : "",
+    phone: record.category === "hotel" ? (record.contacts?.phone || "") : ""
+  };
+}
+
+function buildGuideDataFromAdmin(category, values, contacts) {
+  const mapQuery = buildMapQuery(values.name, values.addressLine);
+
+  if (category === "gastronomia") {
+    return {
+      subtitle: values.subtitle,
+      description: values.description,
+      hoursLine: values.hoursLine,
+      addressLine: values.addressLine,
+      mapQuery,
+      directionsUrl: buildDirectionsUrl(mapQuery),
+      popupTitleColor: "#c9642b"
+    };
+  }
+
+  const hotelDescription = [values.serviceLine, values.description]
+    .filter(Boolean)
+    .join(values.serviceLine && values.description ? ". " : "");
+
+  return {
+    subtitle: values.statusLine,
+    description: hotelDescription || values.description || values.serviceLine,
+    statusLine: values.statusLine,
+    serviceLine: values.serviceLine,
+    addressLine: values.addressLine,
+    mapQuery,
+    directionsUrl: buildDirectionsUrl(mapQuery),
+    popupTitleColor: "#3568c9"
+  };
+}
+
+function buildMetaLines(category, guide, contacts) {
+  if (category === "gastronomia") {
+    return [guide.hoursLine, guide.addressLine].filter(Boolean);
+  }
+
+  return [guide.statusLine, guide.serviceLine, guide.addressLine, contacts.email, contacts.phone].filter(Boolean);
+}
+
+function filterRecords(records) {
+  return records.filter((record) => {
+    const matchesCategory = activeCategoryFilter === "todos" || record.category === activeCategoryFilter;
+    const matchesStatus = activeStatusFilter === "todos" || record.approvalStatus === activeStatusFilter;
+    return matchesCategory && matchesStatus;
+  });
+}
+
+function setStatus(records, visibleCount) {
+  if (!records.length) {
+    statusText.textContent = "Nenhum cadastro salvo neste navegador.";
+    return;
+  }
+
+  const counts = records.reduce((accumulator, record) => {
+    accumulator[record.approvalStatus] += 1;
+    return accumulator;
+  }, { pending: 0, approved: 0, rejected: 0 });
+
+  const categoryText = CATEGORY_FILTER_LABELS[activeCategoryFilter] || CATEGORY_FILTER_LABELS.todos;
+  const statusFilterText = STATUS_FILTER_LABELS[activeStatusFilter] || STATUS_FILTER_LABELS.todos;
+
+  statusText.textContent = `Pendentes: ${counts.pending} | Validados: ${counts.approved} | Recusados: ${counts.rejected}. Exibindo ${visibleCount} cadastro(s) em ${categoryText} com filtro ${statusFilterText}.`;
+}
+
+function setEmptyState(records, filtered) {
+  if (filtered.length) {
+    emptyState.hidden = true;
+    return;
+  }
+
+  emptyState.hidden = false;
+
+  if (!records.length) {
+    emptyState.textContent = "Nenhum estabelecimento cadastrado ainda.";
+    return;
+  }
+
+  const categoryText = CATEGORY_FILTER_LABELS[activeCategoryFilter] || CATEGORY_FILTER_LABELS.todos;
+  const statusFilterText = STATUS_FILTER_LABELS[activeStatusFilter] || STATUS_FILTER_LABELS.todos;
+  emptyState.textContent = `Nenhum cadastro encontrado em ${categoryText} com filtro ${statusFilterText}.`;
 }
 
 function createCard(record) {
@@ -126,11 +372,13 @@ function createCard(record) {
   const metaLines = isGastronomy ? getGastronomyMetaLines(record) : getHotelMetaLines(record);
   const subtitleText = getGuideSubtitle(record);
   const descriptionText = mergeGuideDescription(subtitleText, getGuideDescription(record));
+  const isApproved = record.approvalStatus === "approved";
 
   const article = document.createElement("article");
   article.className = "attraction-card";
   article.dataset.category = record.category || "";
   article.dataset.pointId = record.pointId || "";
+  article.dataset.status = record.approvalStatus || "";
 
   const image = document.createElement("img");
   image.src = record.photoSrc || fallbackImage(record.category);
@@ -139,6 +387,15 @@ function createCard(record) {
 
   const content = document.createElement("div");
   content.className = "card-content";
+
+  const topline = document.createElement("div");
+  topline.className = "card-topline";
+  topline.appendChild(createStatusBadge(record.approvalStatus));
+
+  const dateInfo = document.createElement("span");
+  dateInfo.className = "card-date";
+  dateInfo.textContent = `Atualizado em ${formatDateTime(record.updatedAt || record.createdAt)}`;
+  topline.appendChild(dateInfo);
 
   const title = document.createElement("h3");
   title.textContent = record.name || "Sem nome";
@@ -160,33 +417,45 @@ function createCard(record) {
   const mapButton = document.createElement("button");
   mapButton.className = "card-button";
   mapButton.type = "button";
-  mapButton.dataset.mapFocus = record.mapFocus || record.pointId || "";
-  mapButton.textContent = "Ver no mapa";
-  mapButton.addEventListener("click", () => {
-    window.open(buildGuideUrl(record), "_blank", "noopener,noreferrer");
-  });
+  mapButton.textContent = isApproved ? "Ver no mapa" : "Aguardando validacao";
+  mapButton.disabled = !isApproved;
+  if (isApproved) {
+    mapButton.dataset.mapFocus = record.mapFocus || record.pointId || "";
+    mapButton.addEventListener("click", () => {
+      window.open(buildGuideUrl(record), "_blank", "noopener,noreferrer");
+    });
+  }
+  actions.appendChild(mapButton);
 
   const linksInline = document.createElement("div");
   linksInline.className = "card-actions-inline";
 
   const instagramLink = iconLink(contacts.instagram, "card-link--instagram", "Instagram", ICONS.instagram);
   const whatsappLink = iconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", ICONS.whatsapp);
-  const emailHref = contacts.email ? `mailto:${contacts.email}` : "";
-  const emailLink = iconLink(emailHref, "card-link--email", "E-mail", ICONS.email);
+  const emailLink = iconLink(contacts.email ? `mailto:${contacts.email}` : "", "card-link--email", "E-mail", ICONS.email);
   const phoneLink = iconLink(contacts.phoneUrl, "card-link--phone", "Contato", ICONS.phone);
   const actionLinks = isGastronomy
     ? [instagramLink, whatsappLink]
     : [instagramLink, emailLink, whatsappLink, phoneLink];
 
   actionLinks.forEach((link) => {
-    if (link) linksInline.appendChild(link);
+    if (link) {
+      linksInline.appendChild(link);
+    }
   });
 
-  actions.appendChild(mapButton);
-  if (linksInline.children.length > 0) {
+  if (linksInline.children.length) {
     actions.appendChild(linksInline);
   }
 
+  const reviewActions = document.createElement("div");
+  reviewActions.className = "card-review-actions";
+  reviewActions.appendChild(createReviewButton("Editar", "review-btn--edit", () => openEditDialog(record.id), false));
+  reviewActions.appendChild(createReviewButton("Validar", "review-btn--approve", () => setRecordStatus(record.id, "approved"), isApproved));
+  reviewActions.appendChild(createReviewButton("Recusar", "review-btn--reject", () => setRecordStatus(record.id, "rejected"), record.approvalStatus === "rejected"));
+  actions.appendChild(reviewActions);
+
+  content.appendChild(topline);
   content.appendChild(title);
   content.appendChild(description);
   if (metaLines.length > 0) {
@@ -200,24 +469,9 @@ function createCard(record) {
   return article;
 }
 
-function setStatus(records, visibleCount) {
-  if (records.length === 0) {
-    statusText.textContent = "Nenhum cadastro salvo no navegador.";
-    return;
-  }
-
-  const categoryText = activeFilter === "todos"
-    ? "todas as categorias"
-    : (activeFilter === "gastronomia" ? "bares/restaurantes" : "hoteis/pousadas");
-
-  statusText.textContent = `Exibindo ${visibleCount} de ${records.length} cadastro(s) em ${categoryText}.`;
-}
-
 function renderCards() {
   const records = readRecords();
-  const filtered = activeFilter === "todos"
-    ? records
-    : records.filter((item) => item.category === activeFilter);
+  const filtered = filterRecords(records);
 
   cardsGrid.innerHTML = "";
 
@@ -225,21 +479,184 @@ function renderCards() {
     cardsGrid.appendChild(createCard(record));
   });
 
-  emptyState.hidden = filtered.length !== 0;
+  setEmptyState(records, filtered);
   setStatus(records, filtered.length);
 }
 
-function setActiveFilter(filterValue) {
-  activeFilter = filterValue;
-  filterButtons.forEach((btn) => {
-    btn.classList.toggle("is-active", btn.dataset.filter === filterValue);
+function updateCategoryButtons() {
+  categoryFilterButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.filter === activeCategoryFilter);
   });
+}
+
+function updateStatusButtons() {
+  statusFilterButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.statusFilter === activeStatusFilter);
+  });
+}
+
+function setActiveCategoryFilter(value) {
+  activeCategoryFilter = value;
+  updateCategoryButtons();
   renderCards();
 }
 
-filterButtons.forEach((button) => {
+function setActiveStatusFilter(value) {
+  activeStatusFilter = value;
+  updateStatusButtons();
+  renderCards();
+}
+
+function toggleEditCategory(category) {
+  const isGastronomy = category === "gastronomia";
+  editGastronomyFields.hidden = !isGastronomy;
+  editHotelFields.hidden = isGastronomy;
+}
+
+function openEditDialog(recordId) {
+  const record = readRecords().find((item) => item.id === recordId);
+
+  if (!record) {
+    return;
+  }
+
+  const draft = getEditDraft(record);
+
+  editRecordIdInput.value = record.id || "";
+  editCategoryInput.value = record.category || "";
+  editNameInput.value = draft.name;
+  editDescriptionInput.value = draft.description;
+  editAddressLineInput.value = draft.addressLine;
+  editInstagramInput.value = draft.instagram;
+  editWhatsappInput.value = draft.whatsapp;
+  editSubtitleInput.value = draft.subtitle;
+  editHoursLineInput.value = draft.hoursLine;
+  editStatusLineInput.value = draft.statusLine;
+  editServiceLineInput.value = draft.serviceLine;
+  editEmailInput.value = draft.email;
+  editPhoneInput.value = draft.phone;
+  editHint.textContent = `Status atual: ${STATUS_LABELS[record.approvalStatus]}. Salvar a edicao nao publica o card; a publicacao acontece ao validar.`;
+
+  toggleEditCategory(record.category);
+
+  if (typeof editDialog.showModal === "function") {
+    editDialog.showModal();
+  } else {
+    editDialog.setAttribute("open", "open");
+  }
+}
+
+function closeEditDialog() {
+  if (!editDialog.hasAttribute("open")) {
+    return;
+  }
+
+  if (typeof editDialog.close === "function") {
+    editDialog.close();
+    return;
+  }
+
+  editDialog.removeAttribute("open");
+}
+
+function saveEditedRecord(event) {
+  event.preventDefault();
+
+  const recordId = normalizeLine(editRecordIdInput.value);
+  const category = normalizeCategory(editCategoryInput.value);
+  const records = readRecords();
+  const recordIndex = records.findIndex((item) => item.id === recordId);
+
+  if (recordIndex === -1 || !category) {
+    return;
+  }
+
+  const currentRecord = records[recordIndex];
+  const now = new Date().toISOString();
+  const values = {
+    name: normalizeLine(editNameInput.value) || currentRecord.name,
+    description: normalizeLine(editDescriptionInput.value),
+    addressLine: normalizeLine(editAddressLineInput.value),
+    subtitle: normalizeLine(editSubtitleInput.value),
+    hoursLine: normalizeLine(editHoursLineInput.value),
+    statusLine: normalizeLine(editStatusLineInput.value),
+    serviceLine: normalizeLine(editServiceLineInput.value)
+  };
+
+  const contacts = {
+    ...currentRecord.contacts,
+    instagram: normalizeLine(editInstagramInput.value),
+    whatsapp: normalizeLine(editWhatsappInput.value),
+    email: category === "hotel" ? normalizeLine(editEmailInput.value) : "",
+    phone: category === "hotel" ? normalizeLine(editPhoneInput.value) : ""
+  };
+  contacts.phoneUrl = buildPhoneUrl(contacts.phone);
+
+  const guide = buildGuideDataFromAdmin(category, values, contacts);
+  const updatedRecord = {
+    ...currentRecord,
+    name: values.name,
+    description: values.description,
+    contacts,
+    guide,
+    metaLines: buildMetaLines(category, guide, contacts),
+    updatedAt: now
+  };
+
+  records[recordIndex] = updatedRecord;
+  writeRecords(records);
+  closeEditDialog();
+  renderCards();
+}
+
+function setRecordStatus(recordId, nextStatus) {
+  const targetStatus = normalizeStatus(nextStatus);
+  const records = readRecords();
+  const recordIndex = records.findIndex((item) => item.id === recordId);
+
+  if (recordIndex === -1) {
+    return;
+  }
+
+  const currentRecord = records[recordIndex];
+
+  if (currentRecord.approvalStatus === targetStatus) {
+    return;
+  }
+
+  if (targetStatus === "rejected") {
+    const confirmed = window.confirm("Deseja recusar este cadastro? Ele nao aparecera no guia publico enquanto estiver recusado.");
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  const now = new Date().toISOString();
+  records[recordIndex] = {
+    ...currentRecord,
+    approvalStatus: targetStatus,
+    approvalUpdatedAt: now,
+    updatedAt: now
+  };
+
+  writeRecords(records);
+
+  if (normalizeLine(editRecordIdInput.value) === recordId) {
+    closeEditDialog();
+  }
+
+  renderCards();
+}
+
+categoryFilterButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    setActiveFilter(button.dataset.filter || "todos");
+    setActiveCategoryFilter(button.dataset.filter || "todos");
+  });
+});
+
+statusFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setActiveStatusFilter(button.dataset.statusFilter || "todos");
   });
 });
 
@@ -249,9 +666,17 @@ refreshBtn.addEventListener("click", () => {
 
 clearBtn.addEventListener("click", () => {
   const ok = confirm("Deseja realmente apagar todos os estabelecimentos cadastrados neste navegador?");
-  if (!ok) return;
+  if (!ok) {
+    return;
+  }
+
   localStorage.removeItem(STORAGE_KEY);
+  closeEditDialog();
   renderCards();
 });
+
+editForm.addEventListener("submit", saveEditedRecord);
+cancelEditBtn.addEventListener("click", closeEditDialog);
+closeEditBtn.addEventListener("click", closeEditDialog);
 
 renderCards();

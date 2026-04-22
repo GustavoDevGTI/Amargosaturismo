@@ -16,6 +16,7 @@
         <div>
           <h1>Painel Admin - Estabelecimentos Cadastrados</h1>
           <p class="admin-intro">Cadastros enviados pelo formulario publico do portal Amargosa Turismo.</p>
+          <p class="admin-note">Somente cadastros validados aparecem no guia publico.</p>
         </div>
         <div class="admin-header__actions">
           <a class="admin-link admin-link--ghost" href="../">Voltar ao portal</a>
@@ -23,12 +24,23 @@
         </div>
       </header>
 
-      <div class="toolbar" role="toolbar" aria-label="Filtros e acoes">
-        <button class="filter-btn is-active" type="button" data-filter="todos">Todos</button>
-        <button class="filter-btn" type="button" data-filter="gastronomia">Bares/Restaurantes</button>
-        <button class="filter-btn" type="button" data-filter="hotel">Hoteis/Pousadas</button>
-        <button class="neutral-btn" type="button" id="refreshBtn">Atualizar</button>
-        <button class="danger-btn" type="button" id="clearBtn">Limpar todos</button>
+      <div class="toolbar-stack">
+        <div class="toolbar" role="toolbar" aria-label="Filtro por status">
+          <span class="toolbar-label">Status</span>
+          <button class="filter-btn is-active" type="button" data-status-filter="pending">Pendentes</button>
+          <button class="filter-btn" type="button" data-status-filter="approved">Validados</button>
+          <button class="filter-btn" type="button" data-status-filter="rejected">Recusados</button>
+          <button class="filter-btn" type="button" data-status-filter="todos">Todos</button>
+        </div>
+
+        <div class="toolbar" role="toolbar" aria-label="Filtros por categoria e acoes">
+          <span class="toolbar-label">Categoria</span>
+          <button class="filter-btn is-active" type="button" data-filter="todos">Todos</button>
+          <button class="filter-btn" type="button" data-filter="gastronomia">Bares/Restaurantes</button>
+          <button class="filter-btn" type="button" data-filter="hotel">Hoteis/Pousadas</button>
+          <button class="neutral-btn" type="button" id="refreshBtn">Atualizar</button>
+          <button class="danger-btn" type="button" id="clearBtn">Limpar todos</button>
+        </div>
       </div>
 
       <p class="status-text" id="statusText"></p>
@@ -40,6 +52,87 @@
       </div>
     </section>
   </main>
+
+  <dialog class="edit-dialog" id="editDialog">
+    <form class="edit-form" id="editForm">
+      <div class="edit-form__header">
+        <div>
+          <h2>Editar cadastro</h2>
+          <p class="edit-hint" id="editHint">Salvar a edicao nao publica o card. A publicacao acontece ao validar.</p>
+        </div>
+        <button class="dialog-close" type="button" id="cancelEditBtn" aria-label="Fechar edicao">Fechar</button>
+      </div>
+
+      <input type="hidden" id="editRecordId" name="recordId">
+      <input type="hidden" id="editCategory" name="category">
+
+      <div class="edit-grid">
+        <div class="field">
+          <label for="editName">Nome</label>
+          <input id="editName" name="name" required>
+        </div>
+
+        <div class="field field--full">
+          <label for="editDescription">Descricao</label>
+          <textarea id="editDescription" name="description" rows="4" required></textarea>
+        </div>
+
+        <div class="field field--full">
+          <label for="editAddressLine">Endereco completo</label>
+          <input id="editAddressLine" name="addressLine" placeholder="Rua, numero | Bairro | Cidade - UF | CEP">
+        </div>
+
+        <div class="field">
+          <label for="editInstagram">Instagram</label>
+          <input id="editInstagram" name="instagram" placeholder="https://instagram.com/...">
+        </div>
+
+        <div class="field">
+          <label for="editWhatsapp">WhatsApp</label>
+          <input id="editWhatsapp" name="whatsapp" placeholder="https://wa.me/...">
+        </div>
+      </div>
+
+      <div class="edit-grid edit-grid--category" id="editGastronomyFields" hidden>
+        <div class="field">
+          <label for="editSubtitle">Destaque</label>
+          <input id="editSubtitle" name="subtitle" placeholder="Ex: delivery disponivel">
+        </div>
+
+        <div class="field">
+          <label for="editHoursLine">Horario</label>
+          <input id="editHoursLine" name="hoursLine" placeholder="Ex: Todos os dias, das 11h as 15h">
+        </div>
+      </div>
+
+      <div class="edit-grid edit-grid--category" id="editHotelFields" hidden>
+        <div class="field">
+          <label for="editStatusLine">Funcionamento da hospedagem</label>
+          <input id="editStatusLine" name="statusLine" placeholder="Ex: aberto todos os dias">
+        </div>
+
+        <div class="field">
+          <label for="editServiceLine">Servico principal</label>
+          <input id="editServiceLine" name="serviceLine" placeholder="Ex: cafe da manha incluso">
+        </div>
+
+        <div class="field">
+          <label for="editEmail">E-mail</label>
+          <input id="editEmail" name="email" type="email" placeholder="contato@exemplo.com">
+        </div>
+
+        <div class="field">
+          <label for="editPhone">Telefone</label>
+          <input id="editPhone" name="phone" placeholder="(75) 99999-9999">
+        </div>
+      </div>
+
+      <div class="edit-form__footer">
+        <button class="neutral-btn" type="button" id="closeEditBtn">Cancelar</button>
+        <button class="admin-link" type="submit">Salvar edicao</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="./admin.js" defer></script>
 </body>

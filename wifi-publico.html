@@ -2155,6 +2155,10 @@
       return value === "gastronomia" || value === "hotel" ? value : "";
     }
 
+    function normalizeApprovalStatus(value) {
+      return value === "pending" || value === "approved" || value === "rejected" ? value : "approved";
+    }
+
     function buildPhoneUrl(value) {
       const digits = digitsOnly(value);
       return digits ? `tel:+${digits}` : "";
@@ -2230,6 +2234,7 @@
       const contacts = rawRecord.contacts || {};
       const metaLines = Array.isArray(rawRecord.metaLines) ? rawRecord.metaLines : [];
       const guide = rawRecord.guide || {};
+      const approvalStatus = normalizeApprovalStatus(rawRecord.approvalStatus);
       const pointId = normalizeText(rawRecord.pointId || rawRecord.mapFocus)
         || `${category === "gastronomia" ? "gas" : "hotel"}-${toSlug(name) || Date.now()}`;
       const addressLine = normalizeText(guide.addressLine || rawRecord.addressLine || findAddressLine(metaLines));
@@ -2275,6 +2280,7 @@
       return {
         pointId,
         mapFocus: pointId,
+        approvalStatus,
         category,
         name,
         subtitle,
@@ -2304,7 +2310,9 @@
       try {
         const parsed = JSON.parse(localStorage.getItem(GUIDE_STORAGE_KEY) || "[]");
         return Array.isArray(parsed)
-          ? parsed.map(normalizeSubmittedGuideRecord).filter(Boolean)
+          ? parsed
+            .map(normalizeSubmittedGuideRecord)
+            .filter((record) => record && record.approvalStatus === "approved")
           : [];
       } catch (_) {
         return [];
