@@ -78,9 +78,11 @@ p.lead {
 .choice label {
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 14px;
+  padding: 14px 16px;
   cursor: pointer;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: 0.2s ease;
   background: #fff;
 }
@@ -90,8 +92,24 @@ p.lead {
   background: #f9fffd;
 }
 
-.choice input {
-  margin-right: 8px;
+.choice input[type="radio"] {
+  width: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+  accent-color: var(--primary);
+  flex: 0 0 auto;
+}
+
+.choice input[type="radio"]:focus {
+  outline: none;
+}
+
+.choice span {
+  font-weight: 700;
 }
 
 .tip {
@@ -130,7 +148,7 @@ label {
   font-weight: 600;
 }
 
-input,
+input:not([type="radio"]),
 textarea {
   width: 100%;
   border: 1px solid #b8c9c1;
@@ -146,7 +164,7 @@ textarea {
   min-height: 84px;
 }
 
-input:focus,
+input:not([type="radio"]):focus,
 textarea:focus {
   outline: 2px solid #85c5b4;
   border-color: var(--primary);

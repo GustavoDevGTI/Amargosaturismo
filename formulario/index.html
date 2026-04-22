@@ -22,11 +22,11 @@
       <div class="choice" role="radiogroup" aria-label="Tipo de estabelecimento">
         <label>
           <input type="radio" name="tipo" value="gastronomia">
-          Bar / Restaurante
+          <span>Bar / Restaurante</span>
         </label>
         <label>
           <input type="radio" name="tipo" value="hotel">
-          Hotel / Pousada
+          <span>Hotel / Pousada</span>
         </label>
       </div>
       <p class="tip" id="stepTip">Primeiro selecione uma categoria para liberar o formulario.</p>
@@ -68,21 +68,9 @@
               <label for="bairro">Bairro *</label>
               <input id="bairro" name="bairro" placeholder="Ex: Centro" required>
             </div>
-            <div class="field">
-              <label for="cep">CEP *</label>
-              <input id="cep" name="cep" inputmode="numeric" placeholder="Ex: 45300-000" required>
-            </div>
-            <div class="field">
-              <label for="cidade">Cidade *</label>
-              <input id="cidade" name="cidade" placeholder="Ex: Amargosa" required>
-            </div>
-            <div class="field">
-              <label for="estado">Estado *</label>
-              <input id="estado" name="estado" placeholder="Ex: BA" maxlength="2" required>
-            </div>
 
             <div class="field full">
-              <label for="fotoArquivo">Foto do estabelecimento (opcional)</label>
+              <label for="fotoArquivo">Foto do estabelecimento *</label>
               <input id="fotoArquivo" name="fotoArquivo" class="file-input-hidden" type="file" accept="image/*" capture="environment">
               <div class="upload-box">
                 <button type="button" class="secondary upload-trigger" id="fotoBtn">Escolher foto</button>
@@ -135,10 +123,6 @@
             <div class="field">
               <label for="telefone">Telefone (opcional)</label>
               <input id="telefone" name="telefone" placeholder="(75) 99999-9999">
-            </div>
-            <div class="field full">
-              <label for="extrasMeta">Informacoes adicionais (opcional)</label>
-              <textarea id="extrasMeta" name="extrasMeta" placeholder="Uma informacao por linha. Ex: estacionamento proprio"></textarea>
             </div>
           </div>
 

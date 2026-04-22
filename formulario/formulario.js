@@ -8,8 +8,6 @@ const feedback = document.getElementById("formFeedback");
 const horarioField = document.getElementById("horario");
 const statusHotelField = document.getElementById("statusHotel");
 const cnpjInput = document.getElementById("cnpj");
-const cepInput = document.getElementById("cep");
-const estadoInput = document.getElementById("estado");
 
 const fotoInput = document.getElementById("fotoArquivo");
 const fotoBtn = document.getElementById("fotoBtn");
@@ -69,19 +67,6 @@ function applyCnpjMask(value) {
     return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
   }
   return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
-}
-
-function applyCepMask(value) {
-  const digits = digitsOnly(value).slice(0, 8);
-  if (digits.length <= 5) return digits;
-  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
-}
-
-function parseLines(value) {
-  return String(value || "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
 }
 
 function showFeedback(message, isError = false) {
@@ -162,14 +147,10 @@ function buildAddressLine(data) {
   const logradouro = data.get("logradouro").trim();
   const numero = data.get("numero").trim();
   const bairro = data.get("bairro").trim();
-  const cidade = data.get("cidade").trim();
-  const estado = data.get("estado").trim().toUpperCase();
-  const cep = applyCepMask(data.get("cep").trim());
 
   const ruaNumero = [logradouro, numero].filter(Boolean).join(", ");
-  const cidadeEstado = [cidade, estado].filter(Boolean).join(" - ");
 
-  return [ruaNumero, bairro, cidadeEstado, cep ? `CEP ${cep}` : ""]
+  return [ruaNumero, bairro]
     .filter(Boolean)
     .join(" | ");
 }
@@ -180,8 +161,8 @@ function buildMapQuery(name, data) {
     data.get("logradouro").trim(),
     data.get("numero").trim(),
     data.get("bairro").trim(),
-    data.get("cidade").trim(),
-    data.get("estado").trim().toUpperCase(),
+    "Amargosa",
+    "Bahia",
     "Brasil"
   ]
     .filter(Boolean)
@@ -259,8 +240,6 @@ function buildMetaLines(data, category, addressLine, cnpjFormatted) {
     if (telefone) lines.push(telefone);
   }
 
-  lines.push(...parseLines(data.get("extrasMeta")));
-
   return lines.filter(Boolean);
 }
 
@@ -273,17 +252,6 @@ function saveRecord(record) {
 
 cnpjInput.addEventListener("input", () => {
   cnpjInput.value = applyCnpjMask(cnpjInput.value);
-});
-
-cepInput.addEventListener("input", () => {
-  cepInput.value = applyCepMask(cepInput.value);
-});
-
-estadoInput.addEventListener("input", () => {
-  estadoInput.value = String(estadoInput.value || "")
-    .replace(/[^a-zA-Z]/g, "")
-    .toUpperCase()
-    .slice(0, 2);
 });
 
 fotoBtn.addEventListener("click", () => {
@@ -367,9 +335,10 @@ form.addEventListener("submit", (event) => {
   const description = data.get("descricao").trim();
   const addressLine = buildAddressLine(data);
 
-  const fallbackPhoto = selectedType === "gastronomia"
-    ? "https://placehold.co/1200x800?text=Bar+ou+Restaurante"
-    : "https://placehold.co/1200x800?text=Hotel+ou+Pousada";
+  if (!uploadedPhotoDataUrl) {
+    showFeedback("Envie a foto obrigatoria do estabelecimento antes de continuar.", true);
+    return;
+  }
 
   const instagram = normalizeInstagram(data.get("instagram").trim());
   const whatsapp = whatsappUrl(data.get("whatsapp").trim());
@@ -398,7 +367,7 @@ form.addEventListener("submit", (event) => {
     name: nomeOriginal,
     cnpj: cnpjFormatted,
     description,
-    photoSrc: uploadedPhotoDataUrl || fallbackPhoto,
+    photoSrc: uploadedPhotoDataUrl,
     metaLines: buildMetaLines(data, selectedType, addressLine, cnpjFormatted),
     contacts,
     guide
