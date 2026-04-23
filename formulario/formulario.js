@@ -179,6 +179,73 @@ function buildDirectionsUrl(mapQuery) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}`;
 }
 
+function renderAttendanceHoursFromDigits(value) {
+  const digits = digitsOnly(value).slice(0, 4);
+
+  if (!digits) {
+    return "";
+  }
+
+  if (digits.length < 2) {
+    return digits;
+  }
+
+  const startHour = `${digits.slice(0, 2)}:00`;
+  const endDigits = digits.slice(2);
+
+  if (!endDigits) {
+    return `${startHour} ate `;
+  }
+
+  if (endDigits.length < 2) {
+    return `${startHour} ate ${endDigits}`;
+  }
+
+  return `${startHour} ate ${endDigits}:00`;
+}
+
+function extractAttendanceHoursDigits(value) {
+  const raw = String(value || "").trim();
+
+  if (!raw) {
+    return "";
+  }
+
+  if (/^\d{1,4}$/.test(raw)) {
+    return raw;
+  }
+
+  const match = raw.match(/^(\d{1,2})(?::\d{0,2})?\s*(?:ate|até)?\s*(\d{0,2})?(?::\d{0,2})?$/i);
+  if (match) {
+    return `${digitsOnly(match[1])}${digitsOnly(match[2] || "")}`.slice(0, 4);
+  }
+
+  return digitsOnly(raw).slice(0, 4);
+}
+
+function setAttendanceHoursDigits(input, value) {
+  const digits = digitsOnly(value).slice(0, 4);
+  input.dataset.attendanceDigits = digits;
+  input.value = renderAttendanceHoursFromDigits(digits);
+
+  if (document.activeElement === input && typeof input.setSelectionRange === "function") {
+    const cursor = input.value.length;
+    requestAnimationFrame(() => input.setSelectionRange(cursor, cursor));
+  }
+}
+
+function getAttendanceHoursDigits(input) {
+  return input.dataset.attendanceDigits || extractAttendanceHoursDigits(input.value);
+}
+
+function normalizeAttendanceHours(value) {
+  return renderAttendanceHoursFromDigits(extractAttendanceHoursDigits(value));
+}
+
+function isCompleteAttendanceHours(value) {
+  return /^\d{2}:\d{2} ate \d{2}:\d{2}$/.test(String(value || "").trim());
+}
+
 function buildGastronomyScheduleLine(daysLine, hoursLine) {
   return [String(daysLine || "").trim(), String(hoursLine || "").trim()]
     .filter(Boolean)
@@ -188,7 +255,7 @@ function buildGastronomyScheduleLine(daysLine, hoursLine) {
 function buildGuideData(data, category, name, description, addressLine, contacts) {
   const gasExtra = data.get("gasExtra").trim();
   const diaFuncionamento = data.get("diaFuncionamento").trim();
-  const horario = data.get("horario").trim();
+  const horario = normalizeAttendanceHours(data.get("horario").trim());
   const statusHotel = data.get("statusHotel").trim();
   const servicoHotel = data.get("servicoHotel").trim();
   const mapQuery = buildMapQuery(name, data);
@@ -234,7 +301,7 @@ function buildMetaLines(data, category, addressLine, cnpjFormatted) {
   const lines = [];
 
   if (category === "gastronomia") {
-    lines.push(buildGastronomyScheduleLine(data.get("diaFuncionamento").trim(), data.get("horario").trim()));
+    lines.push(buildGastronomyScheduleLine(data.get("diaFuncionamento").trim(), normalizeAttendanceHours(data.get("horario").trim())));
     lines.push(addressLine);
     if (complemento) lines.push(`Complemento: ${complemento}`);
     if (referencia) lines.push(`Referencia: ${referencia}`);
@@ -263,6 +330,80 @@ function saveRecord(record) {
 
 cnpjInput.addEventListener("input", () => {
   cnpjInput.value = applyCnpjMask(cnpjInput.value);
+});
+
+horarioField.addEventListener("focus", () => {
+  if (horarioField.value) {
+    setAttendanceHoursDigits(horarioField, getAttendanceHoursDigits(horarioField));
+  }
+});
+
+horarioField.addEventListener("keydown", (event) => {
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
+
+  const currentDigits = getAttendanceHoursDigits(horarioField);
+  const navigationKeys = ["Tab", "ArrowLeft", "ArrowRight", "Home", "End"];
+
+  if (/^\d$/.test(event.key)) {
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, `${currentDigits}${event.key}`);
+    return;
+  }
+
+  if (event.key === "Backspace") {
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, currentDigits.slice(0, -1));
+    return;
+  }
+
+  if (event.key === "Delete") {
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, "");
+    return;
+  }
+
+  if (!navigationKeys.includes(event.key) && event.key.length === 1) {
+    event.preventDefault();
+  }
+});
+
+horarioField.addEventListener("beforeinput", (event) => {
+  const currentDigits = getAttendanceHoursDigits(horarioField);
+
+  if (event.inputType === "insertText") {
+    const nextDigits = digitsOnly(event.data || "");
+    if (!nextDigits) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, `${currentDigits}${nextDigits}`);
+    return;
+  }
+
+  if (event.inputType === "deleteContentBackward") {
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, currentDigits.slice(0, -1));
+    return;
+  }
+
+  if (event.inputType === "deleteContentForward") {
+    event.preventDefault();
+    setAttendanceHoursDigits(horarioField, "");
+  }
+});
+
+horarioField.addEventListener("paste", (event) => {
+  event.preventDefault();
+  const pastedText = event.clipboardData ? event.clipboardData.getData("text") : "";
+  setAttendanceHoursDigits(horarioField, `${getAttendanceHoursDigits(horarioField)}${pastedText}`);
+});
+
+horarioField.addEventListener("input", () => {
+  setAttendanceHoursDigits(horarioField, extractAttendanceHoursDigits(horarioField.value));
 });
 
 fotoBtn.addEventListener("click", () => {
@@ -317,6 +458,7 @@ form.addEventListener("reset", () => {
     document.querySelectorAll(".category-fields").forEach((block) => {
       block.hidden = true;
     });
+    delete horarioField.dataset.attendanceDigits;
     clearPhotoSelection();
     clearFeedback();
   }, 0);
@@ -328,6 +470,15 @@ form.addEventListener("submit", (event) => {
   if (!selectedType) {
     showFeedback("Selecione primeiro o tipo de estabelecimento.", true);
     return;
+  }
+
+  if (selectedType === "gastronomia") {
+    setAttendanceHoursDigits(horarioField, extractAttendanceHoursDigits(horarioField.value));
+    if (!isCompleteAttendanceHours(horarioField.value)) {
+      showFeedback("Informe o horario completo. Ex: 12:00 ate 14:00.", true);
+      horarioField.focus();
+      return;
+    }
   }
 
   const data = new FormData(form);
