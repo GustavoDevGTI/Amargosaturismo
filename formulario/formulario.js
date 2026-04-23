@@ -180,7 +180,7 @@ function buildDirectionsUrl(mapQuery) {
 }
 
 function renderAttendanceHoursFromDigits(value) {
-  const digits = digitsOnly(value).slice(0, 4);
+  const digits = digitsOnly(value).slice(0, 8);
 
   if (!digits) {
     return "";
@@ -190,18 +190,26 @@ function renderAttendanceHoursFromDigits(value) {
     return digits;
   }
 
-  const startHour = `${digits.slice(0, 2)}:00`;
-  const endDigits = digits.slice(2);
+  if (digits.length === 2) {
+    return digits;
+  }
+
+  if (digits.length === 3) {
+    return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+  }
+
+  const startHour = `${digits.slice(0, 2)}:${digits.slice(2, 4)}`;
+  const endDigits = digits.slice(4);
 
   if (!endDigits) {
     return `${startHour} ate `;
   }
 
-  if (endDigits.length < 2) {
+  if (endDigits.length <= 2) {
     return `${startHour} ate ${endDigits}`;
   }
 
-  return `${startHour} ate ${endDigits}:00`;
+  return `${startHour} ate ${endDigits.slice(0, 2)}:${endDigits.slice(2)}`;
 }
 
 function extractAttendanceHoursDigits(value) {
@@ -211,20 +219,15 @@ function extractAttendanceHoursDigits(value) {
     return "";
   }
 
-  if (/^\d{1,4}$/.test(raw)) {
+  if (/^\d{1,8}$/.test(raw)) {
     return raw;
   }
 
-  const match = raw.match(/^(\d{1,2})(?::\d{0,2})?\s*(?:ate|até)?\s*(\d{0,2})?(?::\d{0,2})?$/i);
-  if (match) {
-    return `${digitsOnly(match[1])}${digitsOnly(match[2] || "")}`.slice(0, 4);
-  }
-
-  return digitsOnly(raw).slice(0, 4);
+  return digitsOnly(raw).slice(0, 8);
 }
 
 function setAttendanceHoursDigits(input, value) {
-  const digits = digitsOnly(value).slice(0, 4);
+  const digits = digitsOnly(value).slice(0, 8);
   input.dataset.attendanceDigits = digits;
   input.value = renderAttendanceHoursFromDigits(digits);
 
