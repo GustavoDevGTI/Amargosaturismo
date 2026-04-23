@@ -5,6 +5,7 @@ const formWrap = document.getElementById("formWrap");
 const stepTip = document.getElementById("stepTip");
 const form = document.getElementById("cadastroForm");
 const feedback = document.getElementById("formFeedback");
+const diaFuncionamentoField = document.getElementById("diaFuncionamento");
 const horarioField = document.getElementById("horario");
 const statusHotelField = document.getElementById("statusHotel");
 const cnpjInput = document.getElementById("cnpj");
@@ -138,6 +139,7 @@ function pickType(type) {
     block.hidden = block.dataset.show !== type;
   });
 
+  diaFuncionamentoField.required = type === "gastronomia";
   horarioField.required = type === "gastronomia";
   statusHotelField.required = type === "hotel";
   clearFeedback();
@@ -177,22 +179,31 @@ function buildDirectionsUrl(mapQuery) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}`;
 }
 
+function buildGastronomyScheduleLine(daysLine, hoursLine) {
+  return [String(daysLine || "").trim(), String(hoursLine || "").trim()]
+    .filter(Boolean)
+    .join(", ");
+}
+
 function buildGuideData(data, category, name, description, addressLine, contacts) {
   const gasExtra = data.get("gasExtra").trim();
+  const diaFuncionamento = data.get("diaFuncionamento").trim();
   const horario = data.get("horario").trim();
   const statusHotel = data.get("statusHotel").trim();
   const servicoHotel = data.get("servicoHotel").trim();
   const mapQuery = buildMapQuery(name, data);
+  const scheduleLine = buildGastronomyScheduleLine(diaFuncionamento, horario);
 
   if (category === "gastronomia") {
     return {
       subtitle: gasExtra,
       description,
+      daysLine: diaFuncionamento,
       hoursLine: horario,
       addressLine,
       mapQuery,
       directionsUrl: buildDirectionsUrl(mapQuery),
-      metaLines: [horario, addressLine].filter(Boolean),
+      metaLines: [scheduleLine, addressLine].filter(Boolean),
       popupTitleColor: "#c9642b"
     };
   }
@@ -217,13 +228,13 @@ function buildGuideData(data, category, name, description, addressLine, contacts
 function buildMetaLines(data, category, addressLine, cnpjFormatted) {
   const complemento = data.get("complemento").trim();
   const referencia = data.get("referencia").trim();
-  const email = data.get("email").trim();
+  const email = String(data.get("email") || "").trim();
   const telefone = data.get("telefone").trim();
 
   const lines = [];
 
   if (category === "gastronomia") {
-    lines.push(data.get("horario").trim());
+    lines.push(buildGastronomyScheduleLine(data.get("diaFuncionamento").trim(), data.get("horario").trim()));
     lines.push(addressLine);
     if (complemento) lines.push(`Complemento: ${complemento}`);
     if (referencia) lines.push(`Referencia: ${referencia}`);
@@ -342,7 +353,7 @@ form.addEventListener("submit", (event) => {
 
   const instagram = normalizeInstagram(data.get("instagram").trim());
   const whatsapp = whatsappUrl(data.get("whatsapp").trim());
-  const email = data.get("email").trim();
+  const email = String(data.get("email") || "").trim();
   const phone = data.get("telefone").trim();
   const contacts = {
     instagram,

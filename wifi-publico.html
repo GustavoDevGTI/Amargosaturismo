@@ -2223,6 +2223,11 @@
       return (metaLines || []).find((line) => /\d{4,}/.test(digitsOnly(line))) || "";
     }
 
+    function buildGastronomyScheduleLine(daysLine, hoursLine, fallbackLine = "") {
+      const parts = [normalizeText(daysLine), normalizeText(hoursLine)].filter(Boolean);
+      return parts.length ? parts.join(", ") : normalizeText(fallbackLine);
+    }
+
     function normalizeSubmittedGuideRecord(rawRecord) {
       const category = normalizeCategory(rawRecord?.category);
       const name = normalizeText(rawRecord?.name);
@@ -2242,7 +2247,9 @@
       const phone = normalizeText(contacts.phone || findPhoneLine(metaLines));
       const phoneUrl = normalizeText(contacts.phoneUrl || buildPhoneUrl(phone));
       const whatsapp = normalizeText(contacts.whatsapp || "");
+      const daysLine = normalizeText(guide.daysLine || "");
       const hoursLine = normalizeText(guide.hoursLine || (category === "gastronomia" ? metaLines[0] : ""));
+      const gastronomyScheduleLine = buildGastronomyScheduleLine(daysLine, hoursLine, category === "gastronomia" ? metaLines[0] : "");
       const statusLine = normalizeText(guide.statusLine || (category === "hotel" ? metaLines[0] : ""));
       const serviceLine = normalizeText(guide.serviceLine || (category === "hotel" ? metaLines[1] : ""));
       let subtitle = normalizeText(guide.subtitle || (category === "hotel" ? statusLine : ""));
@@ -2287,6 +2294,7 @@
         description,
         photoSrc: normalizeText(rawRecord.photoSrc) || "",
         addressLine,
+        daysLine,
         hoursLine,
         statusLine,
         serviceLine,
@@ -2294,7 +2302,7 @@
         directionsUrl: normalizeText(guide.directionsUrl || rawRecord.directionsUrl || buildDirectionsUrl(mapQuery)),
         popupTitleColor: normalizeText(guide.popupTitleColor) || (category === "hotel" ? "#3568c9" : "#c9642b"),
         metaLines: category === "gastronomia"
-          ? [hoursLine, addressLine].filter(Boolean)
+          ? [gastronomyScheduleLine, addressLine].filter(Boolean)
           : [addressLine, email || "E-mail nao informado", phone].filter(Boolean),
         contacts: {
           instagram: normalizeText(contacts.instagram),

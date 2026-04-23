@@ -39,6 +39,7 @@ const editDescriptionInput = document.getElementById("editDescription");
 const editAddressLineInput = document.getElementById("editAddressLine");
 const editInstagramInput = document.getElementById("editInstagram");
 const editWhatsappInput = document.getElementById("editWhatsapp");
+const editDaysLineInput = document.getElementById("editDaysLine");
 const editSubtitleInput = document.getElementById("editSubtitle");
 const editHoursLineInput = document.getElementById("editHoursLine");
 const editStatusLineInput = document.getElementById("editStatusLine");
@@ -89,6 +90,11 @@ function buildDirectionsUrl(mapQuery) {
   return mapQuery ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}` : "";
 }
 
+function buildGastronomyScheduleLine(daysLine, hoursLine, fallbackLine = "") {
+  const parts = [normalizeLine(daysLine), normalizeLine(hoursLine)].filter(Boolean);
+  return parts.length ? parts.join(", ") : normalizeLine(fallbackLine);
+}
+
 function readRecords() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -131,6 +137,7 @@ function normalizeRecord(record) {
       phoneUrl: normalizeLine(contacts.phoneUrl || buildPhoneUrl(contacts.phone))
     },
     guide: {
+      daysLine: normalizeLine(guide.daysLine),
       subtitle: normalizeLine(guide.subtitle),
       description: normalizeLine(guide.description),
       hoursLine: normalizeLine(guide.hoursLine),
@@ -208,9 +215,13 @@ function mergeGuideDescription(subtitle, description) {
 
 function getGastronomyMetaLines(record) {
   const addressLine = findAddressLine(record);
-  const hoursLine = normalizeLine(record.guide?.hoursLine || record.metaLines?.[0]);
+  const scheduleLine = buildGastronomyScheduleLine(
+    record.guide?.daysLine,
+    record.guide?.hoursLine,
+    record.metaLines?.[0]
+  );
 
-  return [hoursLine, addressLine].filter(Boolean);
+  return [scheduleLine, addressLine].filter(Boolean);
 }
 
 function getHotelMetaLines(record) {
@@ -275,6 +286,7 @@ function getEditDraft(record) {
     addressLine: record.guide?.addressLine || findAddressLine(record),
     instagram: record.contacts?.instagram || "",
     whatsapp: record.contacts?.whatsapp || "",
+    daysLine: record.category === "gastronomia" ? (record.guide?.daysLine || "") : "",
     subtitle: record.category === "gastronomia" ? (record.guide?.subtitle || "") : "",
     hoursLine: record.category === "gastronomia" ? (record.guide?.hoursLine || "") : "",
     statusLine: record.category === "hotel" ? (record.guide?.statusLine || "") : "",
@@ -289,6 +301,7 @@ function buildGuideDataFromAdmin(category, values, contacts) {
 
   if (category === "gastronomia") {
     return {
+      daysLine: values.daysLine,
       subtitle: values.subtitle,
       description: values.description,
       hoursLine: values.hoursLine,
@@ -317,7 +330,7 @@ function buildGuideDataFromAdmin(category, values, contacts) {
 
 function buildMetaLines(category, guide, contacts) {
   if (category === "gastronomia") {
-    return [guide.hoursLine, guide.addressLine].filter(Boolean);
+    return [buildGastronomyScheduleLine(guide.daysLine, guide.hoursLine), guide.addressLine].filter(Boolean);
   }
 
   return [guide.statusLine, guide.serviceLine, guide.addressLine, contacts.email, contacts.phone].filter(Boolean);
@@ -529,6 +542,7 @@ function openEditDialog(recordId) {
   editAddressLineInput.value = draft.addressLine;
   editInstagramInput.value = draft.instagram;
   editWhatsappInput.value = draft.whatsapp;
+  editDaysLineInput.value = draft.daysLine;
   editSubtitleInput.value = draft.subtitle;
   editHoursLineInput.value = draft.hoursLine;
   editStatusLineInput.value = draft.statusLine;
@@ -577,6 +591,7 @@ function saveEditedRecord(event) {
     name: normalizeLine(editNameInput.value) || currentRecord.name,
     description: normalizeLine(editDescriptionInput.value),
     addressLine: normalizeLine(editAddressLineInput.value),
+    daysLine: normalizeLine(editDaysLineInput.value),
     subtitle: normalizeLine(editSubtitleInput.value),
     hoursLine: normalizeLine(editHoursLineInput.value),
     statusLine: normalizeLine(editStatusLineInput.value),
