@@ -453,10 +453,6 @@
       background: var(--accent-color);
     }
 
-    .dot.wifi {
-      background: #145844;
-    }
-
     .dot.tourism {
       background: #339a80;
     }
@@ -716,6 +712,16 @@
       color: var(--primary-color);
       border: 1px solid rgba(51, 154, 128, 0.22);
       width: 100%;
+    }
+
+    .card-button--wifi {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .card-button--wifi:hover,
+    .card-button--wifi:focus-visible {
+      transform: none;
     }
 
     .card-actions-inline .card-link {
@@ -1093,7 +1099,6 @@
         <h2>Explore por Categoria</h2>
         <div class="filter-toolbar" aria-label="Categorias de locais">
           <button class="filter-button" type="button" data-filter="todos" aria-pressed="false">Todos</button>
-          <button class="filter-button" type="button" data-filter="wifi" aria-pressed="false">Wi-Fi Gratuito</button>
           <button class="filter-button is-active" type="button" data-filter="turistico" aria-pressed="true">Pontos Tur&iacute;sticos</button>
           <button class="filter-button" type="button" data-filter="gastronomia" aria-pressed="false">Restaurantes/Bares</button>
           <button class="filter-button" type="button" data-filter="hotel" aria-pressed="false">Hoteis/Pousadas</button>
@@ -1106,134 +1111,6 @@
 
           <div class="points-carousel__viewport">
             <div class="attractions-grid">
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-jardim" hidden>
-                <img
-                  src="public/images/hero-amargosa.jpeg"
-                  alt="Wi-Fi na Pra&ccedil;a Lourival Monte" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a Lourival Monte (Jardim)</h3>
-                  <p class="subtitle-card">Ponto central e de maior circula&ccedil;&atilde;o</p>
-                  <p>
-                    Ideal para quem precisa de conectividade no cora&ccedil;&atilde;o da cidade, seja para uma pausa r&aacute;pida, consulta a servi&ccedil;os ou comunica&ccedil;&atilde;o durante o passeio pelo centro
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-jardim">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-bosque" hidden>
-                <img
-                  src="public/images/praca-do-bosque-antiga-estacao.jpg"
-                  alt="Wi-Fi na Pra&ccedil;a do Bosque" loading="lazy">
-                <div class="card-content">
-                  <h3>Quadra de areia da Pra&ccedil;a do Bosque</h3>
-                  <p class="subtitle-card">&Aacute;rea de esporte e conviv&ecirc;ncia</p>
-                  <p>
-                    Funciona como apoio para frequentadores da pra&ccedil;a e da &aacute;rea esportiva, facilitando o uso do celular durante treinos, descanso e encontros no espa&ccedil;o p&uacute;blico
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-bosque">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-barreiros" hidden>
-                <img
-                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
-                  alt="Wi-Fi na Pracinha dos Barreiros" loading="lazy">
-                <div class="card-content">
-                  <h3>Pracinha dos Barreiros</h3>
-                  <p class="subtitle-card">Conectividade com presen&ccedil;a da &Aacute;rvore Digital</p>
-                  <p>
-                    Refor&ccedil;a a proposta de moderniza&ccedil;&atilde;o em espa&ccedil;o p&uacute;blico e serve como apoio para moradores que utilizam a pra&ccedil;a em atividades cotidianas e momentos de conviv&ecirc;ncia
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-barreiros">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-minguara" hidden>
-                <img
-                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
-                  alt="Wi-Fi na Pra&ccedil;a da Minguara" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a da Minguara</h3>
-                  <p class="subtitle-card">Acesso p&uacute;blico em &aacute;rea de perman&ecirc;ncia</p>
-                  <p>
-                    Oferece suporte &agrave; navega&ccedil;&atilde;o em uma pra&ccedil;a importante para o dia a dia local, ajudando em pesquisas, mensagens e uso r&aacute;pido de servi&ccedil;os digitais
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-minguara">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-santa-rita" hidden>
-                <img
-                  src="public/images/catedral-de-amargosa.webp"
-                  alt="Wi-Fi na Pra&ccedil;a da Santa Rita" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a da Santa Rita</h3>
-                  <p class="subtitle-card">Cobertura p&uacute;blica em bairro tradicional</p>
-                  <p>
-                    Fortalece a inclus&atilde;o digital fora da &aacute;rea mais central, ampliando a presen&ccedil;a do servi&ccedil;o para moradores e visitantes que circulam pela regi&atilde;o de Santa Rita
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-santa-rita">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-joao-angelo" hidden>
-                <img
-                  src="public/images/hero-calendario-praca-lourival-monte.jpg"
-                  alt="Wi-Fi na Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a Jo&atilde;o &Acirc;ngelo Pereira</h3>
-                  <p class="subtitle-card">Ponto r&aacute;pido para circula&ccedil;&atilde;o di&aacute;ria</p>
-                  <p>
-                    Serve como apoio para deslocamentos, consultas r&aacute;pidas e comunica&ccedil;&atilde;o em uma &aacute;rea de passagem frequente na malha urbana do munic&iacute;pio
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-joao-angelo">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-duque-caxias" hidden>
-                <img
-                  src="public/images/hero-amargosa.jpeg"
-                  alt="Wi-Fi na Pra&ccedil;a Duque de Caxias" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a Duque de Caxias</h3>
-                  <p class="subtitle-card">Cobertura no entorno comercial</p>
-                  <p>
-                    Ajuda a manter a conex&atilde;o em uma &aacute;rea de servi&ccedil;os e com&eacute;rcio, apoiando quem precisa resolver demandas r&aacute;pidas durante a perman&ecirc;ncia no centro
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-duque-caxias">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
-              <article class="attraction-card" data-category="wifi" data-point-id="wifi-cristo" hidden>
-                <img
-                  src="public/images/praca-iraci-silva-praca-do-cristo.jpg"
-                  alt="Wi-Fi na Pra&ccedil;a do Cristo" loading="lazy">
-                <div class="card-content">
-                  <h3>Pra&ccedil;a do Cristo</h3>
-                  <p class="subtitle-card">Ponto emblem&aacute;tico com vista urbana</p>
-                  <p>
-                    Une paisagem, circula&ccedil;&atilde;o e conectividade em um dos pontos mais conhecidos da cidade, facilitando o uso da internet durante o passeio e o registro da visita
-                  </p>
-                  <div class="card-actions">
-                    <button class="card-button" type="button" data-map-focus="wifi-cristo">Ver no mapa</button>
-                  </div>
-                </div>
-              </article>
-
               <article class="attraction-card" data-category="turistico" data-point-id="tur-jardim">
                 <img
                   src="public/images/hero-amargosa.jpeg"
@@ -2104,7 +1981,6 @@
           </div>
 
           <div class="legend" aria-label="Legenda do mapa">
-            <span><i class="dot wifi" aria-hidden="true"></i> Wi-Fi gratuito</span>
             <span><i class="dot tourism" aria-hidden="true"></i> Ponto Turistico</span>
             <span><i class="dot heritage" aria-hidden="true"></i> Patrim&ocirc;nio hist&oacute;rico</span>
             <span><i class="dot gastronomy" aria-hidden="true"></i> Restaurantes/Bares</span>
@@ -2474,14 +2350,24 @@
       subtitle.remove();
     });
 
+    const TOURISM_POINT_IDS_WITH_WIFI = new Set([
+      "tur-jardim",
+      "tur-bosque",
+      "tur-barreiros",
+      "tur-minguara",
+      "tur-santa-rita",
+      "tur-joao-angelo",
+      "tur-duque-caxias",
+      "tur-cristo"
+    ]);
+
     const filterLabels = {
       todos: "todos os locais",
-      wifi: "wi-fi gratuito",
       turistico: "pontos turisticos",
       gastronomia: "restaurantes/bares",
       hotel: "hoteis/pousadas"
     };
-    const categoryFilters = ["wifi", "turistico", "gastronomia", "hotel"];
+    const categoryFilters = ["turistico", "gastronomia", "hotel"];
     function getInitialGuideRouteTarget() {
       const params = new URLSearchParams(window.location.search);
       const routeTarget = (
@@ -2547,8 +2433,7 @@
       return accumulator;
     }, { todos: 0, gastronomia: 0, hotel: 0 });
     const mapPointCounts = {
-      todos: 40 + extraTourismPoints + submittedGuideCounts.todos,
-      wifi: 8,
+      todos: 32 + extraTourismPoints + submittedGuideCounts.todos,
       turistico: 9 + extraTourismPoints,
       gastronomia: 12 + submittedGuideCounts.gastronomia,
       hotel: 11 + submittedGuideCounts.hotel
@@ -2602,8 +2487,25 @@
     }
 
     function matchesActiveCategory(category) {
-      return areAllCategoriesSelected() || selectedCategories.has(category);
+      return categoryFilters.includes(category) && (areAllCategoriesSelected() || selectedCategories.has(category));
     }
+
+    document.querySelectorAll('.attraction-card[data-category="turistico"]').forEach((card) => {
+      if (!TOURISM_POINT_IDS_WITH_WIFI.has(card.dataset.pointId)) {
+        return;
+      }
+
+      const actions = card.querySelector(".card-actions");
+      if (!actions || actions.querySelector(".card-button--wifi")) {
+        return;
+      }
+
+      const wifiBadge = document.createElement("span");
+      wifiBadge.className = "card-button card-button--wifi";
+      wifiBadge.textContent = "Wifi Gratuito";
+      wifiBadge.setAttribute("aria-label", "Wifi Gratuito");
+      actions.appendChild(wifiBadge);
+    });
 
     function updateFilterButtons() {
       filterButtons.forEach((button) => {
@@ -2904,7 +2806,6 @@
       pageInfoWindow = new google.maps.InfoWindow();
       const geocoder = new google.maps.Geocoder();
 
-      const wifiPath = "M12 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-4.6-5.6 1.4 1.4c1.8-1.8 4.6-1.8 6.4 0l1.4-1.4c-2.6-2.6-6.6-2.6-9.2 0zm-3.5-3.6 1.4 1.5c3.7-3.7 9.7-3.7 13.4 0l1.4-1.5c-4.5-4.5-11.8-4.5-16.2 0zm-3.6-3.5 1.4 1.4c5.7-5.7 14.8-5.7 20.4 0l1.4-1.4c-6.4-6.4-16.8-6.4-23.2 0z";
       const attractionPath = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
       const heritagePath = "M4 10v2h2v6H4v2h16v-2h-2v-6h2v-2L12 4 4 10zm2 0 6-3.18L18 10H6zm2 2h2v6H8v-6zm6 0h2v6h-2v-6zm-3 0h2v6h-2v-6z";
       const gastronomyPath = "M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97L6 22h2l-.75-9.03C9.34 12.84 11 11.12 11 9zm5-3c-1.66 0-3 1.34-3 3v13h2v-5h2v5h2V9c0-1.66-1.34-3-3-3z";
@@ -2915,18 +2816,6 @@
           <path fill="${bgColor}" stroke="#ffffff" stroke-width="1.5" d="M16 0C7.163 0 0 7.163 0 16c0 11 16 24 16 24s16-13 16-24C32 7.163 24.837 0 16 0z"/>
           <path fill="#ffffff" transform="translate(4, 3)" d="${symbolPath}"/>
         </svg>`);
-
-      const wifiIcon = {
-        url: getPinSvg("#145844", wifiPath),
-        scaledSize: new google.maps.Size(38, 48),
-        anchor: new google.maps.Point(19, 48)
-      };
-
-      const wifiReferenceIcon = {
-        url: getPinSvg("#fcc22f", wifiPath),
-        scaledSize: new google.maps.Size(38, 48),
-        anchor: new google.maps.Point(19, 48)
-      };
 
       const attractionIcon = {
         url: getPinSvg("#339a80", attractionPath),
@@ -2973,118 +2862,6 @@
             </div>
           `
         }] : []),
-        {
-          id: "wifi-jardim",
-          name: "Praça Lourival Monte (Jardim)",
-          category: "wifi",
-          coords: { lat: -13.0316825, lng: -39.6035944 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0316825,-39.6035944",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça Lourival Monte</strong>
-              <span style="font-size: 0.92rem;">Ponto central de conectividade pública para moradores, visitantes e circulação no centro de Amargosa</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-bosque",
-          name: "Quadra de areia da Praça do Bosque",
-          category: "wifi",
-          coords: { lat: -13.0320631, lng: -39.6001171 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0320631,-39.6001171",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça do Bosque</strong>
-              <span style="font-size: 0.92rem;">Conectividade em área esportiva e de convivência pública</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-barreiros",
-          name: "Pracinha dos Barreiros",
-          category: "wifi",
-          coords: { lat: -13.0116885, lng: -39.6211379 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.0116885,-39.6211379",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Pracinha dos Barreiros</strong>
-              <span style="font-size: 0.92rem;">Espaço com conectividade pública e referência da Árvore Digital</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-minguara",
-          name: "Praça da Minguara",
-          category: "wifi",
-          coords: { lat: -13.018943, lng: -39.602437 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.018943,-39.602437",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça da Minguara</strong>
-              <span style="font-size: 0.92rem;">Ponto público de conexão em área de permanência da cidade</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-santa-rita",
-          name: "Praça da Santa Rita",
-          category: "wifi",
-          query: "Praça Constantino Sampaio, Santa Rita, Amargosa, Bahia, Brasil",
-          icon: wifiReferenceIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pra%C3%A7a%20Constantino%20Sampaio,%20Santa%20Rita,%20Amargosa,%20Bahia,%20Brasil",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça da Santa Rita</strong>
-              <span style="font-size: 0.92rem;">Cobertura pública em um bairro tradicional de Amargosa</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-joao-angelo",
-          name: "Praça João Ângelo Pereira",
-          category: "wifi",
-          coords: { lat: -13.02608, lng: -39.605009 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.026080,-39.605009",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça João Ângelo Pereira</strong>
-              <span style="font-size: 0.92rem;">Apoio à conexão em área urbana de circulação frequente</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-duque-caxias",
-          name: "Praça Duque de Caxias",
-          category: "wifi",
-          coords: { lat: -13.029283, lng: -39.6048 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029283,-39.604800",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça Duque de Caxias</strong>
-              <span style="font-size: 0.92rem;">Conectividade pública no entorno comercial do centro</span>
-            </div>
-          `
-        },
-        {
-          id: "wifi-cristo",
-          name: "Praça do Cristo",
-          category: "wifi",
-          coords: { lat: -13.02974, lng: -39.602443 },
-          icon: wifiIcon,
-          directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=-13.029740,-39.602443",
-          content: `
-            <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
-              <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Praça do Cristo</strong>
-              <span style="font-size: 0.92rem;">Ponto urbano conhecido que combina paisagem e conectividade pública</span>
-            </div>
-          `
-        },
         {
           id: "tur-jardim",
           name: "PraÃ§a Lourival Monte",
