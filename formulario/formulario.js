@@ -180,7 +180,7 @@ function buildDirectionsUrl(mapQuery) {
 }
 
 function renderAttendanceHoursFromDigits(value) {
-  const digits = digitsOnly(value).slice(0, 8);
+  const digits = filterAttendanceDigits(value);
 
   if (!digits) {
     return "";
@@ -212,6 +212,51 @@ function renderAttendanceHoursFromDigits(value) {
   return `${startHour} ate ${endDigits.slice(0, 2)}:${endDigits.slice(2)}`;
 }
 
+function isValidTimeDigitsFragment(value) {
+  const digits = digitsOnly(value).slice(0, 4);
+
+  if (!digits) {
+    return true;
+  }
+
+  if (digits.length >= 1 && Number(digits[0]) > 2) {
+    return false;
+  }
+
+  if (digits.length >= 2 && Number(digits.slice(0, 2)) > 23) {
+    return false;
+  }
+
+  if (digits.length >= 3 && Number(digits[2]) > 5) {
+    return false;
+  }
+
+  if (digits.length >= 4 && Number(digits.slice(2, 4)) > 59) {
+    return false;
+  }
+
+  return true;
+}
+
+function isValidAttendanceDigitsPartial(value) {
+  const digits = digitsOnly(value).slice(0, 8);
+  return isValidTimeDigitsFragment(digits.slice(0, 4)) && isValidTimeDigitsFragment(digits.slice(4));
+}
+
+function filterAttendanceDigits(value) {
+  const rawDigits = digitsOnly(value).slice(0, 8);
+  let result = "";
+
+  for (const digit of rawDigits) {
+    const candidate = `${result}${digit}`;
+    if (isValidAttendanceDigitsPartial(candidate)) {
+      result = candidate;
+    }
+  }
+
+  return result;
+}
+
 function extractAttendanceHoursDigits(value) {
   const raw = String(value || "").trim();
 
@@ -220,14 +265,14 @@ function extractAttendanceHoursDigits(value) {
   }
 
   if (/^\d{1,8}$/.test(raw)) {
-    return raw;
+    return filterAttendanceDigits(raw);
   }
 
-  return digitsOnly(raw).slice(0, 8);
+  return filterAttendanceDigits(raw);
 }
 
 function setAttendanceHoursDigits(input, value) {
-  const digits = digitsOnly(value).slice(0, 8);
+  const digits = filterAttendanceDigits(value);
   input.dataset.attendanceDigits = digits;
   input.value = renderAttendanceHoursFromDigits(digits);
 
@@ -242,11 +287,11 @@ function getAttendanceHoursDigits(input) {
 }
 
 function normalizeAttendanceHours(value) {
-  return renderAttendanceHoursFromDigits(extractAttendanceHoursDigits(value));
+  return renderAttendanceHoursFromDigits(filterAttendanceDigits(value));
 }
 
 function isCompleteAttendanceHours(value) {
-  return /^\d{2}:\d{2} ate \d{2}:\d{2}$/.test(String(value || "").trim());
+  return /^(?:[01]\d|2[0-3]):[0-5]\d ate (?:[01]\d|2[0-3]):[0-5]\d$/.test(String(value || "").trim());
 }
 
 function buildGastronomyScheduleLine(daysLine, hoursLine) {
