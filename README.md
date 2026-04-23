@@ -42,6 +42,16 @@ Observacoes importantes:
 - o site e estatico, mas depende de acesso externo para Google Maps, Google Fonts e servicos do Supabase
 - a galeria continua dependendo da Edge Function descrita em `supabase/DEPLOY.md`
 
+## Sincronizacao com o clone Portainer
+
+Este repositorio agora possui um workflow para espelhar automaticamente as alteracoes do site para `GustavoDevGTI/Amargosaturismo-Portainer`, preservando os arquivos especificos de infraestrutura do clone Portainer.
+
+Para ativar a sincronizacao automatica no GitHub Actions, adicione neste repositorio o secret:
+
+- `PORTAINER_SYNC_TOKEN`
+
+Esse token precisa ter permissao de escrita no repositorio `GustavoDevGTI/Amargosaturismo-Portainer`.
+
 ## Integracao da galeria
 
 A galeria usa:
