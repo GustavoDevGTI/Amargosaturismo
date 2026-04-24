@@ -24,7 +24,8 @@ Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL pa
 4. O guia publico consome os registros `approved` pela API e adiciona os cards aprovados.
 5. Os cards fixos do guia tambem sao servidos pela API a partir da tabela `tourism_cards`, com fallback seguro para o HTML.
 6. O admin consegue editar os cards oficiais de pontos turisticos, gastronomia e hoteis/pousadas sem alterar o HTML.
-7. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
+7. Os marcadores oficiais do mapa usam a mesma tabela `tourism_cards`, alinhando exibicao do mapa com ativo/inativo dos cards.
+8. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
 
 ## Variaveis de ambiente da API
 

@@ -2227,7 +2227,16 @@
       const email = normalizeText(contacts.email);
       const phone = normalizeText(contacts.phone);
       const phoneUrl = normalizeText(contacts.phoneUrl || buildPhoneUrl(phone));
+      const latitudeValue = Number(rawRecord?.latitude);
+      const longitudeValue = Number(rawRecord?.longitude);
+      const hasCoordinates = Number.isFinite(latitudeValue) && Number.isFinite(longitudeValue);
       const slug = toSlug(name) || String(Date.now());
+      const markerIcon = normalizeText(rawRecord?.markerIcon).toLowerCase()
+        || (category === "hotel" ? "lodging" : category === "gastronomia" ? "gastronomy" : "attraction");
+      const directionsUrl = normalizeText(
+        rawRecord?.directionsUrl
+        || (hasCoordinates ? buildDirectionsUrl(`${latitudeValue},${longitudeValue}`) : "")
+      );
 
       return {
         id: normalizeText(rawRecord?.id) || (category + "-" + slug),
@@ -2242,6 +2251,10 @@
         scheduleLine,
         displayOrder: Number(rawRecord?.displayOrder) || 0,
         isActive: rawRecord?.isActive !== false,
+        latitude: hasCoordinates ? latitudeValue : null,
+        longitude: hasCoordinates ? longitudeValue : null,
+        directionsUrl,
+        markerIcon,
         metaLines: category === "gastronomia"
           ? [scheduleLine, addressLine].filter(Boolean)
           : category === "hotel"
@@ -2513,6 +2526,12 @@
       syncGuideCardsDomState();
       refreshVisibleCards();
       await appendSubmittedGuideCards();
+      syncMapPointCountsFromPublishedRecords();
+      updateFilterFeedback();
+
+      if (pageMap && window.google?.maps) {
+        initMap();
+      }
     }
 
     let allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
@@ -2661,19 +2680,36 @@
     const initialGuideRouteTarget = getInitialGuideRouteTarget();
     const initialMapFocusTarget = getInitialMapFocusTarget();
     const extraTourismPoints = initialGuideRouteTarget === "amargosa" ? 1 : 0;
-    const submittedGuideCounts = submittedGuideRecords.reduce((accumulator, record) => {
-      accumulator.todos += 1;
-      accumulator[record.category] = (accumulator[record.category] || 0) + 1;
-      return accumulator;
-    }, { todos: 0, gastronomia: 0, hotel: 0 });
-    const mapPointCounts = {
-      todos: 32 + extraTourismPoints + submittedGuideCounts.todos,
-      turistico: 9 + extraTourismPoints,
-      gastronomia: 12 + submittedGuideCounts.gastronomia,
-      hotel: 11 + submittedGuideCounts.hotel
-    };
     const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
     const defaultMapZoom = 14;
+
+    function createEmptyMapCounts() {
+      return { todos: 0, turistico: 0, gastronomia: 0, hotel: 0 };
+    }
+
+    function buildMapCountsFromCards(cards, includeRoute = false) {
+      const counts = createEmptyMapCounts();
+
+      cards.forEach((card) => {
+        const category = card?.dataset?.category;
+
+        if (!categoryFilters.includes(category)) {
+          return;
+        }
+
+        counts.todos += 1;
+        counts[category] += 1;
+      });
+
+      if (includeRoute) {
+        counts.todos += 1;
+        counts.turistico += 1;
+      }
+
+      return counts;
+    }
+
+    let mapPointCounts = buildMapCountsFromCards(allCarouselCards, extraTourismPoints === 1);
     let visibleCarouselCards = [...allCarouselCards];
     let selectedCategories = getInitialSelectedCategories();
     let carouselIndex = 0;
@@ -2681,6 +2717,121 @@
     let pendingMapFocusId = initialMapFocusTarget || (initialGuideRouteTarget === "amargosa" ? "route-amargosa" : null);
     let pageMap = null;
     let pageInfoWindow = null;
+
+    function syncMapPointCountsFromPoints(points) {
+      const counts = createEmptyMapCounts();
+
+      points.forEach((point) => {
+        if (!categoryFilters.includes(point.category)) {
+          return;
+        }
+
+        counts.todos += 1;
+        counts[point.category] += 1;
+      });
+
+      mapPointCounts = counts;
+    }
+
+    function syncMapPointCountsFromPublishedRecords() {
+      if (!publishedGuideRecords.length) {
+        mapPointCounts = buildMapCountsFromCards(allCarouselCards, extraTourismPoints === 1);
+        return;
+      }
+
+      const counts = createEmptyMapCounts();
+
+      if (initialGuideRouteTarget === "amargosa") {
+        counts.todos += 1;
+        counts.turistico += 1;
+      }
+
+      publishedGuideRecords.forEach((record) => {
+        if (!categoryFilters.includes(record.category)) {
+          return;
+        }
+
+        counts.todos += 1;
+        counts[record.category] += 1;
+      });
+
+      if (SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP) {
+        submittedGuideRecords.forEach((record) => {
+          if (!categoryFilters.includes(record.category)) {
+            return;
+          }
+
+          counts.todos += 1;
+          counts[record.category] += 1;
+        });
+      }
+
+      mapPointCounts = counts;
+    }
+
+    function resolveGuideMarkerIcon(markerIcon, attractionIcon, heritageIcon, gastronomyIcon, lodgingIcon, category) {
+      const normalized = normalizeText(markerIcon).toLowerCase();
+
+      if (normalized === "heritage") {
+        return heritageIcon;
+      }
+
+      if (normalized === "gastronomy") {
+        return gastronomyIcon;
+      }
+
+      if (normalized === "lodging") {
+        return lodgingIcon;
+      }
+
+      if (normalized === "attraction") {
+        return attractionIcon;
+      }
+
+      return category === "hotel"
+        ? lodgingIcon
+        : category === "gastronomia"
+          ? gastronomyIcon
+          : attractionIcon;
+    }
+
+    function buildGuideMarkerSummary(record) {
+      return normalizeText(record.subtitle || record.description) || "Ponto do Guia do Turista.";
+    }
+
+    function buildPublishedGuidePoint(record, attractionIcon, heritageIcon, gastronomyIcon, lodgingIcon) {
+      if (!Number.isFinite(record.latitude) || !Number.isFinite(record.longitude)) {
+        return null;
+      }
+
+      const titleColor = record.category === "hotel"
+        ? "#3568c9"
+        : record.category === "gastronomia"
+          ? "#c9642b"
+          : "#157c62";
+
+      return {
+        id: record.pointId,
+        name: record.name,
+        category: record.category,
+        coords: { lat: record.latitude, lng: record.longitude },
+        icon: resolveGuideMarkerIcon(
+          record.markerIcon,
+          attractionIcon,
+          heritageIcon,
+          gastronomyIcon,
+          lodgingIcon,
+          record.category
+        ),
+        directionsUrl: normalizeText(record.directionsUrl || buildDirectionsUrl(`${record.latitude},${record.longitude}`)),
+        content: `
+          <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+            <strong style="display: block; margin-bottom: 8px; color: ${titleColor}; font-size: 1.05rem;">${escapeHtml(record.name)}</strong>
+            <span style="font-size: 0.92rem;">${escapeHtml(buildGuideMarkerSummary(record))}</span>
+          </div>
+        `
+      };
+    }
 
     function areAllCategoriesSelected() {
       return categoryFilters.every((category) => selectedCategories.has(category));
@@ -3022,6 +3173,10 @@
           }
         ]
       };
+
+      pointMarkers.forEach((marker) => marker.setMap(null));
+      pointMarkers.clear();
+      pointCategories.clear();
 
       pageMap = new google.maps.Map(document.getElementById("map"), mapOptions);
       pageInfoWindow = new google.maps.InfoWindow();
@@ -3533,6 +3688,38 @@
         ...submittedGuidePoints
       ];
 
+      const publishedGuidePoints = publishedGuideRecords
+        .map((record) => buildPublishedGuidePoint(record, attractionIcon, heritageIcon, gastronomyIcon, lodgingIcon))
+        .filter(Boolean);
+
+      const dynamicRoutePoint = initialGuideRouteTarget === "amargosa"
+        ? {
+            id: "route-amargosa",
+            name: "Amargosa",
+            category: "turistico",
+            coords: defaultMapCenter,
+            icon: attractionIcon,
+            directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Amargosa%2C%20Bahia%2C%20Brasil&travelmode=driving",
+            content: `
+              <div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">
+                <strong style="display: block; margin-bottom: 8px; color: #157c62; font-size: 1.05rem;">Amargosa</strong>
+                <span style="font-size: 0.92rem;">Abra a rota para chegar &agrave; cidade pelo bot&atilde;o abaixo</span>
+              </div>
+            `
+          }
+        : null;
+
+      const activePoints = publishedGuidePoints.length
+        ? [
+            ...(dynamicRoutePoint ? [dynamicRoutePoint] : []),
+            ...publishedGuidePoints,
+            ...submittedGuidePoints
+          ]
+        : points;
+
+      syncMapPointCountsFromPoints(activePoints);
+      updateFilterFeedback();
+
       function getPopupContent(point) {
         const template = document.createElement("template");
         template.innerHTML = point.content.trim();
@@ -3550,15 +3737,15 @@
         return `<div style="font-family: Cabin, sans-serif; color: #243834; max-width: 260px; line-height: 1.45;">${title}${directionsButton}</div>`;
       }
 
-      points.forEach((point) => {
+      activePoints.forEach((point) => {
         pointCategories.set(point.id, point.category);
       });
 
-      const geocoder = points.some((point) => !point.coords && point.query)
+      const geocoder = activePoints.some((point) => !point.coords && point.query)
         ? new google.maps.Geocoder()
         : null;
       let mappedPoints = 0;
-      let pendingLookups = points.length;
+      let pendingLookups = activePoints.length;
 
       function finalizeMap() {
         pendingLookups -= 1;
@@ -3595,7 +3782,7 @@
         mappedPoints += 1;
       }
 
-      points.forEach((point) => {
+      activePoints.forEach((point) => {
         if (point.coords) {
           addMarker(point, point.coords);
           finalizeMap();
@@ -3629,4 +3816,3 @@
 </body>
 
 </html>
-
