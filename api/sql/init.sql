@@ -34,3 +34,30 @@ CREATE TABLE IF NOT EXISTS tourism_submissions (
   KEY idx_tourism_submissions_category (category),
   KEY idx_tourism_submissions_point (point_id)
 );
+
+CREATE TABLE IF NOT EXISTS tourism_cards (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  public_id VARCHAR(64) NOT NULL,
+  point_id VARCHAR(128) NOT NULL,
+  category ENUM('turistico', 'gastronomia', 'hotel') NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  subtitle VARCHAR(255) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  image_url VARCHAR(500) NOT NULL,
+  image_alt VARCHAR(255) NOT NULL DEFAULT '',
+  address_line VARCHAR(255) NOT NULL DEFAULT '',
+  schedule_line VARCHAR(255) NOT NULL DEFAULT '',
+  instagram_url VARCHAR(500) NOT NULL DEFAULT '',
+  whatsapp_url VARCHAR(500) NOT NULL DEFAULT '',
+  email VARCHAR(255) NOT NULL DEFAULT '',
+  phone VARCHAR(64) NOT NULL DEFAULT '',
+  display_order INT NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_tourism_cards_public_id (public_id),
+  UNIQUE KEY uk_tourism_cards_point_id (point_id),
+  KEY idx_tourism_cards_category (category),
+  KEY idx_tourism_cards_active_order (is_active, display_order)
+);

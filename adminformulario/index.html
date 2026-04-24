@@ -51,6 +51,35 @@
         Nenhum estabelecimento cadastrado ainda.
       </div>
     </section>
+
+    <section class="panel panel--catalog">
+      <header class="admin-header admin-header--catalog">
+        <div>
+          <h2>Cards Publicados do Guia</h2>
+          <p class="admin-intro">Edite os cards oficiais de pontos turisticos, gastronomia e hospedagem sem mexer no HTML.</p>
+          <p class="admin-note">Esses cards alimentam diretamente a vitrine do Guia do Turista.</p>
+        </div>
+        <div class="admin-header__actions">
+          <button class="neutral-btn" type="button" id="catalogRefreshBtn">Atualizar cards</button>
+        </div>
+      </header>
+
+      <div class="toolbar" role="toolbar" aria-label="Filtro de cards publicados">
+        <span class="toolbar-label">Categoria</span>
+        <button class="filter-btn is-active" type="button" data-catalog-filter="todos">Todos</button>
+        <button class="filter-btn" type="button" data-catalog-filter="turistico">Pontos Turisticos</button>
+        <button class="filter-btn" type="button" data-catalog-filter="gastronomia">Gastronomia</button>
+        <button class="filter-btn" type="button" data-catalog-filter="hotel">Hoteis/Pousadas</button>
+      </div>
+
+      <p class="status-text" id="catalogStatusText"></p>
+
+      <div class="cards-grid" id="catalogCardsGrid"></div>
+
+      <div class="empty-state" id="catalogEmptyState" hidden>
+        Nenhum card publicado encontrado.
+      </div>
+    </section>
   </main>
 
   <dialog class="edit-dialog" id="editDialog">
@@ -145,6 +174,104 @@
       <div class="edit-form__footer">
         <button class="neutral-btn" type="button" id="closeEditBtn">Cancelar</button>
         <button class="admin-link" type="submit">Salvar edicao</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="edit-dialog" id="catalogEditDialog">
+    <form class="edit-form" id="catalogEditForm">
+      <div class="edit-form__header">
+        <div>
+          <h2>Editar card publicado</h2>
+          <p class="edit-hint" id="catalogEditHint">Esse card aparece no Guia do Turista assim que a alteracao for salva.</p>
+        </div>
+        <button class="dialog-close" type="button" id="catalogCancelEditBtn" aria-label="Fechar edicao do card">Fechar</button>
+      </div>
+
+      <input type="hidden" id="catalogEditRecordId" name="recordId">
+      <input type="hidden" id="catalogEditCategory" name="category">
+      <input type="hidden" id="catalogEditCurrentPhotoUrl" name="currentPhotoUrl">
+
+      <div class="edit-grid">
+        <div class="field">
+          <label for="catalogEditPointId">Ponto vinculado</label>
+          <input id="catalogEditPointId" name="pointId" readonly>
+        </div>
+
+        <div class="field">
+          <label for="catalogEditDisplayOrder">Ordem de exibicao</label>
+          <input id="catalogEditDisplayOrder" name="displayOrder" type="number" min="1" step="1">
+        </div>
+
+        <div class="field field--checkbox">
+          <label class="checkbox-inline" for="catalogEditIsActive">
+            <input id="catalogEditIsActive" name="isActive" type="checkbox">
+            <span>Card ativo no guia</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="catalogEditName">Nome</label>
+          <input id="catalogEditName" name="name" required>
+        </div>
+
+        <div class="field field--full">
+          <label for="catalogEditSubtitle">Subtitulo</label>
+          <input id="catalogEditSubtitle" name="subtitle" placeholder="Texto de destaque do card">
+        </div>
+
+        <div class="field field--full">
+          <label for="catalogEditDescription">Descricao</label>
+          <textarea id="catalogEditDescription" name="description" rows="4" required></textarea>
+        </div>
+
+        <div class="field field--full">
+          <label for="catalogEditAddressLine">Endereco</label>
+          <input id="catalogEditAddressLine" name="addressLine" placeholder="Rua, numero, bairro ou referencia principal">
+        </div>
+
+        <div class="field field--full" id="catalogScheduleFieldWrap">
+          <label for="catalogEditScheduleLine">Horario / agenda exibida</label>
+          <input id="catalogEditScheduleLine" name="scheduleLine" placeholder="Ex: Todos os dias, das 11h as 15h">
+        </div>
+
+        <div class="field field--full">
+          <label for="catalogEditPhoto">Imagem do card</label>
+          <input id="catalogEditPhoto" name="photo" type="file" accept="image/*">
+          <p class="edit-photo-note">Envie uma nova imagem apenas se quiser substituir a atual.</p>
+          <div class="edit-photo-preview" id="catalogEditPhotoPreviewWrap" hidden>
+            <img id="catalogEditPhotoPreview" alt="Preview da imagem do card publicado">
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-grid" id="catalogSocialFields">
+        <div class="field">
+          <label for="catalogEditInstagram">Instagram</label>
+          <input id="catalogEditInstagram" name="instagram" placeholder="https://instagram.com/...">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditWhatsapp">WhatsApp</label>
+          <input id="catalogEditWhatsapp" name="whatsapp" placeholder="https://wa.me/...">
+        </div>
+      </div>
+
+      <div class="edit-grid" id="catalogHotelContactFields">
+        <div class="field">
+          <label for="catalogEditEmail">E-mail</label>
+          <input id="catalogEditEmail" name="email" type="email" placeholder="contato@exemplo.com">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditPhone">Telefone</label>
+          <input id="catalogEditPhone" name="phone" placeholder="(75) 99999-9999">
+        </div>
+      </div>
+
+      <div class="edit-form__footer">
+        <button class="neutral-btn" type="button" id="catalogCloseEditBtn">Cancelar</button>
+        <button class="admin-link" type="submit">Salvar card</button>
       </div>
     </form>
   </dialog>

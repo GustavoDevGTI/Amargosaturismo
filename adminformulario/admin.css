@@ -612,3 +612,68 @@ img {
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
+.panel--catalog {
+  margin-top: 24px;
+}
+
+.admin-header--catalog h2 {
+  font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+  line-height: 1.15;
+}
+
+.field--checkbox {
+  display: flex;
+  align-items: end;
+}
+
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 48px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.checkbox-inline input {
+  width: 18px;
+  height: 18px;
+}
+
+.catalog-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.category-badge--turistico {
+  background: rgba(21, 124, 98, 0.12);
+  border-color: rgba(21, 124, 98, 0.24);
+  color: var(--primary-color);
+}
+
+.category-badge--gastronomia {
+  background: rgba(201, 100, 43, 0.12);
+  border-color: rgba(201, 100, 43, 0.24);
+  color: #b25523;
+}
+
+.category-badge--hotel {
+  background: rgba(53, 104, 201, 0.12);
+  border-color: rgba(53, 104, 201, 0.24);
+  color: #3568c9;
+}

@@ -2001,7 +2001,9 @@
     const carouselViewport = carouselRoot?.querySelector(".points-carousel__viewport");
     const carouselTrack = carouselRoot?.querySelector(".attractions-grid");
     const GUIDE_PUBLIC_API_URL = "/api/public/submissions";
+    const GUIDE_CARDS_API_URL = "/api/public/cards";
     const SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false;
+    let publishedGuideRecords = [];
     let submittedGuideRecords = [];
 
     const GUIDE_ICONS = {
@@ -2211,6 +2213,69 @@
       }
     }
 
+    function normalizePublishedGuideRecord(rawRecord) {
+      const category = normalizeText(rawRecord?.category).toLowerCase();
+      const name = normalizeText(rawRecord?.name);
+
+      if (!name || !["turistico", "gastronomia", "hotel"].includes(category)) {
+        return null;
+      }
+
+      const contacts = rawRecord?.contacts || {};
+      const addressLine = normalizeText(rawRecord?.addressLine);
+      const scheduleLine = normalizeText(rawRecord?.scheduleLine);
+      const email = normalizeText(contacts.email);
+      const phone = normalizeText(contacts.phone);
+      const phoneUrl = normalizeText(contacts.phoneUrl || buildPhoneUrl(phone));
+      const slug = toSlug(name) || String(Date.now());
+
+      return {
+        id: normalizeText(rawRecord?.id) || (category + "-" + slug),
+        pointId: normalizeText(rawRecord?.pointId) || (category + "-" + slug),
+        category,
+        name,
+        subtitle: normalizeText(rawRecord?.subtitle),
+        description: normalizeText(rawRecord?.description) || "Sem descricao informada.",
+        photoSrc: normalizeText(rawRecord?.photoSrc),
+        imageAlt: normalizeText(rawRecord?.imageAlt || name),
+        addressLine,
+        scheduleLine,
+        displayOrder: Number(rawRecord?.displayOrder) || 0,
+        isActive: rawRecord?.isActive !== false,
+        metaLines: category === "gastronomia"
+          ? [scheduleLine, addressLine].filter(Boolean)
+          : category === "hotel"
+            ? [addressLine, email || "E-mail nao informado", phone].filter(Boolean)
+            : [addressLine].filter(Boolean),
+        contacts: {
+          instagram: normalizeText(contacts.instagram),
+          whatsapp: normalizeText(contacts.whatsapp),
+          email,
+          phone,
+          phoneUrl
+        }
+      };
+    }
+
+    async function fetchPublishedGuideCards() {
+      try {
+        const response = await fetch(GUIDE_CARDS_API_URL);
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.message || "Nao foi possivel carregar os cards oficiais.");
+        }
+
+        return Array.isArray(result.records)
+          ? result.records
+            .map(normalizePublishedGuideRecord)
+            .filter((record) => record && record.isActive !== false)
+          : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
     function createGuideIconLink(href, variantClass, label, iconMarkup) {
       if (!href) {
         return null;
@@ -2233,6 +2298,7 @@
       article.dataset.category = record.category;
       article.dataset.pointId = record.pointId;
       article.hidden = true;
+      article.dataset.submittedCard = "true";
 
       const image = document.createElement("img");
       image.src = record.photoSrc || (record.category === "gastronomia"
@@ -2315,20 +2381,138 @@
       return article;
     }
 
+    function buildPublishedGuideCard(record) {
+      const article = document.createElement("article");
+      article.className = "attraction-card";
+      article.dataset.category = record.category;
+      article.dataset.pointId = record.pointId;
+      article.hidden = true;
+
+      const image = document.createElement("img");
+      image.src = record.photoSrc || (record.category === "hotel"
+        ? "https://placehold.co/1200x800?text=Hotel+ou+Pousada"
+        : record.category === "gastronomia"
+          ? "https://placehold.co/1200x800?text=Bar+ou+Restaurante"
+          : "https://placehold.co/1200x800?text=Ponto+Turistico");
+      image.alt = record.imageAlt || record.name;
+      image.loading = "lazy";
+      image.decoding = "async";
+
+      const content = document.createElement("div");
+      content.className = "card-content";
+
+      const title = document.createElement("h3");
+      title.textContent = record.name;
+      content.appendChild(title);
+
+      if (record.subtitle) {
+        const subtitle = document.createElement("p");
+        subtitle.className = "subtitle-card";
+        subtitle.textContent = record.subtitle;
+        content.appendChild(subtitle);
+      }
+
+      const description = document.createElement("p");
+      description.textContent = record.description;
+      content.appendChild(description);
+
+      if (record.metaLines.length) {
+        const meta = document.createElement("div");
+        meta.className = "card-meta";
+        record.metaLines.forEach((line) => {
+          const span = document.createElement("span");
+          span.textContent = line;
+          meta.appendChild(span);
+        });
+        content.appendChild(meta);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      if (record.pointId) {
+        const mapButton = document.createElement("button");
+        mapButton.className = "card-button";
+        mapButton.type = "button";
+        mapButton.dataset.mapFocus = record.pointId;
+        mapButton.textContent = "Ver no mapa";
+        actions.appendChild(mapButton);
+      }
+
+      const linksInline = document.createElement("div");
+      linksInline.className = "card-actions-inline";
+      const contacts = record.contacts || {};
+      const contactLinks = record.category === "turistico"
+        ? []
+        : record.category === "gastronomia"
+          ? [
+              createGuideIconLink(contacts.instagram, "card-link--instagram", "Instagram", GUIDE_ICONS.instagram),
+              createGuideIconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", GUIDE_ICONS.whatsapp)
+            ]
+          : [
+              createGuideIconLink(contacts.instagram, "card-link--instagram", "Instagram", GUIDE_ICONS.instagram),
+              createGuideIconLink(contacts.email ? ("mailto:" + contacts.email) : "", "card-link--email", "E-mail", GUIDE_ICONS.email),
+              createGuideIconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", GUIDE_ICONS.whatsapp),
+              createGuideIconLink(contacts.phoneUrl, "card-link--phone", "Contato", GUIDE_ICONS.phone)
+            ];
+
+      contactLinks.forEach((link) => {
+        if (link) {
+          linksInline.appendChild(link);
+        }
+      });
+
+      if (linksInline.children.length) {
+        actions.appendChild(linksInline);
+      }
+
+      content.appendChild(actions);
+      article.appendChild(image);
+      article.appendChild(content);
+      return article;
+    }
+
     async function appendSubmittedGuideCards() {
       submittedGuideRecords = await fetchSubmittedGuideRecords();
 
-      if (!carouselTrack || !submittedGuideRecords.length) {
+      if (!carouselTrack) {
         return;
       }
 
-      const fragment = document.createDocumentFragment();
-      submittedGuideRecords.forEach((record) => {
-        fragment.appendChild(buildSubmittedGuideCard(record));
+      carouselTrack.querySelectorAll('[data-submitted-card="true"]').forEach((card) => {
+        card.remove();
       });
-      carouselTrack.appendChild(fragment);
-      allCarouselCards = Array.from(carouselTrack.children);
+
+      if (submittedGuideRecords.length) {
+        const fragment = document.createDocumentFragment();
+        submittedGuideRecords.forEach((record) => {
+          fragment.appendChild(buildSubmittedGuideCard(record));
+        });
+        carouselTrack.appendChild(fragment);
+      }
+
+      syncGuideCardsDomState();
       refreshVisibleCards();
+    }
+
+    async function loadGuideCards() {
+      if (!carouselTrack) {
+        return;
+      }
+
+      publishedGuideRecords = await fetchPublishedGuideCards();
+
+      if (publishedGuideRecords.length) {
+        const fragment = document.createDocumentFragment();
+        publishedGuideRecords.forEach((record) => {
+          fragment.appendChild(buildPublishedGuideCard(record));
+        });
+        carouselTrack.replaceChildren(fragment);
+      }
+
+      syncGuideCardsDomState();
+      refreshVisibleCards();
+      await appendSubmittedGuideCards();
     }
 
     let allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
@@ -2337,31 +2521,8 @@
     const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
     const filterFeedback = document.querySelector("[data-filter-feedback]");
     const filterEmpty = document.querySelector("[data-filter-empty]");
-    const mapFocusButtons = document.querySelectorAll("[data-map-focus]");
     const pointMarkers = new Map();
     const pointCategories = new Map();
-
-    document.querySelectorAll('img[loading="lazy"]').forEach((image) => {
-      image.decoding = "async";
-    });
-
-    document.querySelectorAll(".subtitle-card").forEach((subtitle) => {
-      const description = subtitle.nextElementSibling;
-      const subtitleText = subtitle.textContent.trim().replace(/\s+/g, " ");
-
-      if (description && description.tagName === "P" && subtitleText) {
-        const descriptionText = description.textContent.trim().replace(/\s+/g, " ");
-        const normalizedDescription = descriptionText
-          ? `${descriptionText.charAt(0).toLocaleLowerCase("pt-BR")}${descriptionText.slice(1)}`
-          : "";
-
-        description.textContent = normalizedDescription
-          ? `${subtitleText}, ${normalizedDescription}`
-          : subtitleText;
-      }
-
-      subtitle.remove();
-    });
 
     const TOURISM_POINT_IDS_WITH_WIFI = new Set([
       "tur-jardim",
@@ -2373,6 +2534,66 @@
       "tur-duque-caxias",
       "tur-cristo"
     ]);
+
+    function setLazyImageDecoding(cards = allCarouselCards) {
+      cards.forEach((card) => {
+        card.querySelectorAll('img[loading="lazy"]').forEach((image) => {
+          image.decoding = "async";
+        });
+      });
+    }
+
+    function mergeCardSubtitles(cards = allCarouselCards) {
+      cards.forEach((card) => {
+        const subtitle = card.querySelector(".subtitle-card");
+
+        if (!subtitle) {
+          return;
+        }
+
+        const description = subtitle.nextElementSibling;
+        const subtitleText = subtitle.textContent.trim().replace(/\s+/g, " ");
+
+        if (description && description.tagName === "P" && subtitleText) {
+          const descriptionText = description.textContent.trim().replace(/\s+/g, " ");
+          const normalizedDescription = descriptionText
+            ? (descriptionText.charAt(0).toLocaleLowerCase("pt-BR") + descriptionText.slice(1))
+            : "";
+
+          description.textContent = normalizedDescription
+            ? (subtitleText + ", " + normalizedDescription)
+            : subtitleText;
+        }
+
+        subtitle.remove();
+      });
+    }
+
+    function applyTourismWifiBadges(cards = allCarouselCards) {
+      cards.forEach((card) => {
+        if (card.dataset.category !== "turistico" || !TOURISM_POINT_IDS_WITH_WIFI.has(card.dataset.pointId)) {
+          return;
+        }
+
+        const actions = card.querySelector(".card-actions");
+        if (!actions || actions.querySelector(".card-button--wifi")) {
+          return;
+        }
+
+        const wifiBadge = document.createElement("span");
+        wifiBadge.className = "card-button card-button--wifi";
+        wifiBadge.textContent = "Wifi Gratuito";
+        wifiBadge.setAttribute("aria-label", "Wifi Gratuito");
+        actions.appendChild(wifiBadge);
+      });
+    }
+
+    function syncGuideCardsDomState() {
+      allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
+      setLazyImageDecoding(allCarouselCards);
+      mergeCardSubtitles(allCarouselCards);
+      applyTourismWifiBadges(allCarouselCards);
+    }
 
     const filterLabels = {
       todos: "todos os locais",
@@ -2502,23 +2723,6 @@
     function matchesActiveCategory(category) {
       return categoryFilters.includes(category) && (areAllCategoriesSelected() || selectedCategories.has(category));
     }
-
-    document.querySelectorAll('.attraction-card[data-category="turistico"]').forEach((card) => {
-      if (!TOURISM_POINT_IDS_WITH_WIFI.has(card.dataset.pointId)) {
-        return;
-      }
-
-      const actions = card.querySelector(".card-actions");
-      if (!actions || actions.querySelector(".card-button--wifi")) {
-        return;
-      }
-
-      const wifiBadge = document.createElement("span");
-      wifiBadge.className = "card-button card-button--wifi";
-      wifiBadge.textContent = "Wifi Gratuito";
-      wifiBadge.setAttribute("aria-label", "Wifi Gratuito");
-      actions.appendChild(wifiBadge);
-    });
 
     function updateFilterButtons() {
       filterButtons.forEach((button) => {
@@ -2763,10 +2967,14 @@
       pageInfoWindow.open(pageMap, marker);
     }
 
-    mapFocusButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        focusPointOnMap(button.dataset.mapFocus);
-      });
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-map-focus]");
+
+      if (!button) {
+        return;
+      }
+
+      focusPointOnMap(button.dataset.mapFocus);
     });
 
     filterButtons.forEach((button) => {
@@ -3412,8 +3620,9 @@
       });
     }
 
+    syncGuideCardsDomState();
     refreshVisibleCards();
-    appendSubmittedGuideCards();
+    loadGuideCards();
   </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc&callback=initMap"></script>

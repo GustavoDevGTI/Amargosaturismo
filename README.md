@@ -9,9 +9,9 @@ Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL pa
 - `styles.css`: estilos globais do portal
 - `script.js`: interacoes, acessibilidade, carrossel e integracao da galeria
 - `formulario/`: formulario publico de novos estabelecimentos
-- `adminformulario/`: painel de validacao e edicao dos cadastros
+- `adminformulario/`: painel de validacao dos cadastros e edicao dos cards oficiais
 - `api/`: backend Express + MySQL para formulario/admin
-- `api/sql/init.sql`: schema inicial do banco
+- `api/sql/init.sql`: schema inicial do banco com `tourism_submissions` e `tourism_cards`
 - `public/images/`: imagens locais usadas no layout
 - `supabase/functions/tourism-gallery/`: Edge Function usada para carregar galerias externas
 - `supabase/DEPLOY.md`: passos para publicar a funcao no Supabase
@@ -22,7 +22,9 @@ Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL pa
 2. A API salva o cadastro no MySQL com status `pending`.
 3. O painel admin lista, edita, valida ou recusa os cadastros.
 4. O guia publico consome os registros `approved` pela API e adiciona os cards aprovados.
-5. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
+5. Os cards fixos do guia tambem sao servidos pela API a partir da tabela `tourism_cards`, com fallback seguro para o HTML.
+6. O admin consegue editar os cards oficiais de pontos turisticos, gastronomia e hoteis/pousadas sem alterar o HTML.
+7. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
 
 ## Variaveis de ambiente da API
 

@@ -17,6 +17,11 @@ const {
   updateSubmission,
   updateSubmissionStatus
 } = require("./submissions");
+const {
+  listAdminCards,
+  listPublicCards,
+  updateCard
+} = require("./cards");
 const { getPool } = require("./db");
 
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -71,6 +76,7 @@ function buildPayloadFromRequest(req) {
     cnpj: body.cnpj,
     description: body.description,
     photoUrl: req.file ? fileNameToUrl(req.file.filename) : body.photoUrl,
+    imageAlt: body.imageAlt,
     instagram: body.instagram,
     whatsapp: body.whatsapp,
     email: body.email,
@@ -78,6 +84,7 @@ function buildPayloadFromRequest(req) {
     addressLine: body.addressLine,
     daysLine: body.daysLine,
     hoursLine: body.hoursLine,
+    scheduleLine: body.scheduleLine,
     subtitle: body.subtitle,
     statusLine: body.statusLine,
     serviceLine: body.serviceLine,
@@ -85,7 +92,9 @@ function buildPayloadFromRequest(req) {
     directionsUrl: body.directionsUrl,
     popupTitleColor: body.popupTitleColor,
     latitude: body.latitude,
-    longitude: body.longitude
+    longitude: body.longitude,
+    displayOrder: body.displayOrder,
+    isActive: body.isActive
   };
 }
 
@@ -112,10 +121,30 @@ app.get("/api/public/submissions", async (req, res, next) => {
   }
 });
 
+app.get("/api/public/cards", async (_req, res, next) => {
+  try {
+    const records = await listPublicCards();
+    res.json({ records });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/admin/submissions", async (req, res, next) => {
   try {
     const records = await listAdminSubmissions({
       status: req.query.status,
+      category: req.query.category
+    });
+    res.json({ records });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/cards", async (req, res, next) => {
+  try {
+    const records = await listAdminCards({
       category: req.query.category
     });
     res.json({ records });
@@ -148,6 +177,25 @@ app.patch("/api/admin/submissions/:id", upload.single("photo"), async (req, res,
     }
     res.json({
       message: "Cadastro atualizado com sucesso.",
+      record
+    });
+  } catch (error) {
+    if (req.file) {
+      await maybeDeleteUpload(fileNameToUrl(req.file.filename));
+    }
+    next(error);
+  }
+});
+
+app.patch("/api/admin/cards/:id", upload.single("photo"), async (req, res, next) => {
+  try {
+    const currentPhotoUrl = req.body.currentPhotoUrl || "";
+    const record = await updateCard(req.params.id, buildPayloadFromRequest(req));
+    if (req.file && currentPhotoUrl && currentPhotoUrl !== record.photoSrc) {
+      await maybeDeleteUpload(currentPhotoUrl);
+    }
+    res.json({
+      message: "Card atualizado com sucesso.",
       record
     });
   } catch (error) {

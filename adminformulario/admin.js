@@ -102,9 +102,15 @@ function buildGastronomyScheduleLine(daysLine, hoursLine, fallbackLine = "") {
 }
 
 function fallbackImage(category) {
-  return category === "gastronomia"
-    ? "https://placehold.co/1200x800?text=Bar+ou+Restaurante"
-    : "https://placehold.co/1200x800?text=Hotel+ou+Pousada";
+  if (category === "gastronomia") {
+    return "https://placehold.co/1200x800?text=Bar+ou+Restaurante";
+  }
+
+  if (category === "hotel") {
+    return "https://placehold.co/1200x800?text=Hotel+ou+Pousada";
+  }
+
+  return "https://placehold.co/1200x800?text=Ponto+Turistico";
 }
 
 function formatDateTime(value) {
@@ -663,4 +669,472 @@ loadRecords().catch((error) => {
   statusText.textContent = error.message || "Nao foi possivel carregar os cadastros do servidor.";
   emptyState.hidden = false;
   emptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
+});
+
+const CATALOG_FILTER_LABELS = {
+  todos: "todos os cards oficiais",
+  turistico: "pontos turisticos",
+  gastronomia: "gastronomia",
+  hotel: "hoteis/pousadas"
+};
+
+const CATALOG_CATEGORY_BADGES = {
+  turistico: "Ponto turistico",
+  gastronomia: "Gastronomia",
+  hotel: "Hotel/Pousada"
+};
+
+const catalogCardsGrid = document.getElementById("catalogCardsGrid");
+const catalogEmptyState = document.getElementById("catalogEmptyState");
+const catalogStatusText = document.getElementById("catalogStatusText");
+const catalogRefreshBtn = document.getElementById("catalogRefreshBtn");
+const catalogFilterButtons = Array.from(document.querySelectorAll("[data-catalog-filter]"));
+const catalogEditDialog = document.getElementById("catalogEditDialog");
+const catalogEditForm = document.getElementById("catalogEditForm");
+const catalogEditHint = document.getElementById("catalogEditHint");
+const catalogCancelEditBtn = document.getElementById("catalogCancelEditBtn");
+const catalogCloseEditBtn = document.getElementById("catalogCloseEditBtn");
+const catalogEditRecordIdInput = document.getElementById("catalogEditRecordId");
+const catalogEditCategoryInput = document.getElementById("catalogEditCategory");
+const catalogEditCurrentPhotoUrlInput = document.getElementById("catalogEditCurrentPhotoUrl");
+const catalogEditPointIdInput = document.getElementById("catalogEditPointId");
+const catalogEditDisplayOrderInput = document.getElementById("catalogEditDisplayOrder");
+const catalogEditIsActiveInput = document.getElementById("catalogEditIsActive");
+const catalogEditNameInput = document.getElementById("catalogEditName");
+const catalogEditSubtitleInput = document.getElementById("catalogEditSubtitle");
+const catalogEditDescriptionInput = document.getElementById("catalogEditDescription");
+const catalogEditAddressLineInput = document.getElementById("catalogEditAddressLine");
+const catalogEditScheduleLineInput = document.getElementById("catalogEditScheduleLine");
+const catalogEditPhotoInput = document.getElementById("catalogEditPhoto");
+const catalogEditPhotoPreviewWrap = document.getElementById("catalogEditPhotoPreviewWrap");
+const catalogEditPhotoPreview = document.getElementById("catalogEditPhotoPreview");
+const catalogEditInstagramInput = document.getElementById("catalogEditInstagram");
+const catalogEditWhatsappInput = document.getElementById("catalogEditWhatsapp");
+const catalogEditEmailInput = document.getElementById("catalogEditEmail");
+const catalogEditPhoneInput = document.getElementById("catalogEditPhone");
+const catalogScheduleFieldWrap = document.getElementById("catalogScheduleFieldWrap");
+const catalogSocialFields = document.getElementById("catalogSocialFields");
+const catalogHotelContactFields = document.getElementById("catalogHotelContactFields");
+
+let catalogActiveCategoryFilter = "todos";
+let catalogRecordsState = [];
+let selectedCatalogPhotoFile = null;
+
+function normalizeCatalogCategory(value) {
+  return ["turistico", "gastronomia", "hotel"].includes(value) ? value : "turistico";
+}
+
+function categoryBadgeLabel(category) {
+  return CATALOG_CATEGORY_BADGES[normalizeCatalogCategory(category)] || "Card";
+}
+
+function createCategoryBadge(category) {
+  const normalized = normalizeCatalogCategory(category);
+  const badge = document.createElement("span");
+  badge.className = `category-badge category-badge--${normalized}`;
+  badge.textContent = categoryBadgeLabel(normalized);
+  return badge;
+}
+
+function buildCatalogMetaLines(record) {
+  const contacts = record.contacts || {};
+
+  if (record.category === "gastronomia") {
+    return [normalizeLine(record.scheduleLine), normalizeLine(record.addressLine)].filter(Boolean);
+  }
+
+  if (record.category === "hotel") {
+    return [
+      normalizeLine(record.addressLine),
+      normalizeLine(contacts.email) || "E-mail nao informado",
+      normalizeLine(contacts.phone)
+    ].filter(Boolean);
+  }
+
+  return [normalizeLine(record.addressLine)].filter(Boolean);
+}
+
+function filterCatalogRecords(records) {
+  return records.filter((record) => {
+    return catalogActiveCategoryFilter === "todos" || record.category === catalogActiveCategoryFilter;
+  });
+}
+
+function setCatalogStatus(records, visibleCount) {
+  if (!records.length) {
+    catalogStatusText.textContent = "Nenhum card oficial sincronizado com o servidor ainda.";
+    return;
+  }
+
+  const counts = records.reduce((accumulator, record) => {
+    const key = normalizeCatalogCategory(record.category);
+    accumulator[key] += 1;
+    accumulator.total += 1;
+    accumulator.active += record.isActive ? 1 : 0;
+    return accumulator;
+  }, {
+    total: 0,
+    active: 0,
+    turistico: 0,
+    gastronomia: 0,
+    hotel: 0
+  });
+
+  const inactiveCount = counts.total - counts.active;
+  const label = CATALOG_FILTER_LABELS[catalogActiveCategoryFilter] || CATALOG_FILTER_LABELS.todos;
+
+  catalogStatusText.textContent = `Cards oficiais: ${counts.total} | Ativos: ${counts.active} | Inativos: ${inactiveCount}. Exibindo ${visibleCount} card(s) em ${label}.`;
+}
+
+function setCatalogEmptyState(records, filtered) {
+  if (filtered.length) {
+    catalogEmptyState.hidden = true;
+    return;
+  }
+
+  catalogEmptyState.hidden = false;
+
+  if (!records.length) {
+    catalogEmptyState.textContent = "Nenhum card oficial encontrado na base ainda.";
+    return;
+  }
+
+  const label = CATALOG_FILTER_LABELS[catalogActiveCategoryFilter] || CATALOG_FILTER_LABELS.todos;
+  catalogEmptyState.textContent = `Nenhum card oficial encontrado em ${label}.`;
+}
+
+function createCatalogCard(record) {
+  const article = document.createElement("article");
+  article.className = "attraction-card";
+  article.dataset.category = record.category || "";
+  article.dataset.pointId = record.pointId || "";
+  article.dataset.cardId = record.id || "";
+
+  const image = document.createElement("img");
+  image.src = record.photoSrc || fallbackImage(record.category);
+  image.alt = record.imageAlt || record.name || "Card oficial";
+  image.loading = "lazy";
+
+  const content = document.createElement("div");
+  content.className = "card-content";
+
+  const topline = document.createElement("div");
+  topline.className = "catalog-card-topline";
+  topline.appendChild(createCategoryBadge(record.category));
+  topline.appendChild(createStatusBadge(record.isActive ? "approved" : "rejected"));
+
+  const title = document.createElement("h3");
+  title.textContent = record.name || "Sem nome";
+
+  const subtitle = normalizeLine(record.subtitle);
+  const description = document.createElement("p");
+  description.textContent = subtitle
+    ? mergeGuideDescription(subtitle, record.description || "")
+    : normalizeLine(record.description) || "Sem descricao informada.";
+
+  const metaLines = buildCatalogMetaLines(record);
+  const meta = document.createElement("div");
+  meta.className = "card-meta";
+  metaLines.forEach((line) => {
+    const span = document.createElement("span");
+    span.textContent = line;
+    meta.appendChild(span);
+  });
+
+  const actions = document.createElement("div");
+  actions.className = "card-actions";
+
+  const editButton = document.createElement("button");
+  editButton.className = "card-button";
+  editButton.type = "button";
+  editButton.textContent = "Editar card";
+  editButton.addEventListener("click", () => openCatalogEditDialog(record.id));
+  actions.appendChild(editButton);
+
+  const linksInline = document.createElement("div");
+  linksInline.className = "card-actions-inline";
+  const contacts = record.contacts || {};
+  const actionLinks = record.category === "turistico"
+    ? []
+    : record.category === "gastronomia"
+      ? [
+          iconLink(contacts.instagram, "card-link--instagram", "Instagram", ICONS.instagram),
+          iconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", ICONS.whatsapp)
+        ]
+      : [
+          iconLink(contacts.instagram, "card-link--instagram", "Instagram", ICONS.instagram),
+          iconLink(contacts.email ? `mailto:${contacts.email}` : "", "card-link--email", "E-mail", ICONS.email),
+          iconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", ICONS.whatsapp),
+          iconLink(contacts.phoneUrl || buildPhoneUrl(contacts.phone), "card-link--phone", "Contato", ICONS.phone)
+        ];
+
+  actionLinks.forEach((link) => {
+    if (link) {
+      linksInline.appendChild(link);
+    }
+  });
+
+  if (linksInline.children.length) {
+    actions.appendChild(linksInline);
+  }
+
+  const footerNote = document.createElement("p");
+  footerNote.className = "card-date";
+  footerNote.textContent = `Ordem ${Number(record.displayOrder || 0)} | Atualizado em ${formatDateTime(record.updatedAt)}`;
+
+  content.appendChild(topline);
+  content.appendChild(title);
+  content.appendChild(description);
+  if (metaLines.length) {
+    content.appendChild(meta);
+  }
+  content.appendChild(actions);
+  content.appendChild(footerNote);
+
+  article.appendChild(image);
+  article.appendChild(content);
+  return article;
+}
+
+function renderCatalogCards() {
+  const filtered = filterCatalogRecords(catalogRecordsState);
+
+  catalogCardsGrid.innerHTML = "";
+  filtered.forEach((record) => {
+    catalogCardsGrid.appendChild(createCatalogCard(record));
+  });
+
+  setCatalogEmptyState(catalogRecordsState, filtered);
+  setCatalogStatus(catalogRecordsState, filtered.length);
+}
+
+function updateCatalogFilterButtons() {
+  catalogFilterButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.catalogFilter === catalogActiveCategoryFilter);
+  });
+}
+
+function setCatalogActiveCategoryFilter(value) {
+  catalogActiveCategoryFilter = ["todos", "turistico", "gastronomia", "hotel"].includes(value) ? value : "todos";
+  updateCatalogFilterButtons();
+  renderCatalogCards();
+}
+
+function resetCatalogPhotoSelection() {
+  selectedCatalogPhotoFile = null;
+  if (catalogEditPhotoInput) {
+    catalogEditPhotoInput.value = "";
+  }
+}
+
+function setCatalogPhotoPreview(url) {
+  const normalized = normalizeLine(url);
+  if (!normalized) {
+    catalogEditPhotoPreviewWrap.hidden = true;
+    catalogEditPhotoPreview.src = "";
+    return;
+  }
+
+  catalogEditPhotoPreviewWrap.hidden = false;
+  catalogEditPhotoPreview.src = normalized;
+}
+
+function toggleCatalogDialogFields(category) {
+  const normalized = normalizeCatalogCategory(category);
+  const isTourism = normalized === "turistico";
+  const isHotel = normalized === "hotel";
+  const isGastronomy = normalized === "gastronomia";
+
+  catalogScheduleFieldWrap.hidden = !isGastronomy;
+  catalogSocialFields.hidden = isTourism;
+  catalogHotelContactFields.hidden = !isHotel;
+
+  if (catalogEditHint) {
+    catalogEditHint.textContent = isTourism
+      ? "Esse card turistico aparece no Guia do Turista assim que a alteracao for salva."
+      : isHotel
+        ? "Os dados de contato e hospedagem serao publicados no guia logo apos salvar."
+        : "Esse card de gastronomia sera atualizado no guia assim que a alteracao for salva.";
+  }
+}
+
+function getCatalogEditDraft(record) {
+  const contacts = record.contacts || {};
+  return {
+    id: record.id || "",
+    pointId: record.pointId || "",
+    category: normalizeCatalogCategory(record.category),
+    displayOrder: Number(record.displayOrder || 0),
+    isActive: Boolean(record.isActive),
+    name: record.name || "",
+    subtitle: record.subtitle || "",
+    description: record.description || "",
+    addressLine: record.addressLine || "",
+    scheduleLine: record.scheduleLine || "",
+    photoSrc: record.photoSrc || "",
+    instagram: contacts.instagram || "",
+    whatsapp: contacts.whatsapp || "",
+    email: contacts.email || "",
+    phone: contacts.phone || ""
+  };
+}
+
+function openCatalogEditDialog(recordId) {
+  const record = catalogRecordsState.find((item) => item.id === recordId);
+
+  if (!record) {
+    return;
+  }
+
+  const draft = getCatalogEditDraft(record);
+  catalogEditRecordIdInput.value = draft.id;
+  catalogEditCategoryInput.value = draft.category;
+  catalogEditCurrentPhotoUrlInput.value = draft.photoSrc;
+  catalogEditPointIdInput.value = draft.pointId;
+  catalogEditDisplayOrderInput.value = draft.displayOrder || 0;
+  catalogEditIsActiveInput.checked = draft.isActive;
+  catalogEditNameInput.value = draft.name;
+  catalogEditSubtitleInput.value = draft.subtitle;
+  catalogEditDescriptionInput.value = draft.description;
+  catalogEditAddressLineInput.value = draft.addressLine;
+  catalogEditScheduleLineInput.value = draft.scheduleLine;
+  catalogEditInstagramInput.value = draft.instagram;
+  catalogEditWhatsappInput.value = draft.whatsapp;
+  catalogEditEmailInput.value = draft.email;
+  catalogEditPhoneInput.value = draft.phone;
+  resetCatalogPhotoSelection();
+  setCatalogPhotoPreview(draft.photoSrc);
+  toggleCatalogDialogFields(draft.category);
+
+  if (typeof catalogEditDialog.showModal === "function") {
+    catalogEditDialog.showModal();
+  } else {
+    catalogEditDialog.setAttribute("open", "open");
+  }
+}
+
+function closeCatalogEditDialog() {
+  if (!catalogEditDialog.hasAttribute("open")) {
+    return;
+  }
+
+  resetCatalogPhotoSelection();
+
+  if (typeof catalogEditDialog.close === "function") {
+    catalogEditDialog.close();
+    return;
+  }
+
+  catalogEditDialog.removeAttribute("open");
+}
+
+function buildCatalogPayload() {
+  const category = normalizeCatalogCategory(catalogEditCategoryInput.value);
+  const isTourism = category === "turistico";
+  const isHotel = category === "hotel";
+  const isGastronomy = category === "gastronomia";
+
+  return {
+    category,
+    name: normalizeLine(catalogEditNameInput.value),
+    subtitle: normalizeLine(catalogEditSubtitleInput.value),
+    description: normalizeLine(catalogEditDescriptionInput.value),
+    addressLine: normalizeLine(catalogEditAddressLineInput.value),
+    scheduleLine: isGastronomy ? normalizeLine(catalogEditScheduleLineInput.value) : "",
+    instagram: isTourism ? "" : normalizeLine(catalogEditInstagramInput.value),
+    whatsapp: isTourism ? "" : normalizeLine(catalogEditWhatsappInput.value),
+    email: isHotel ? normalizeLine(catalogEditEmailInput.value) : "",
+    phone: isHotel ? normalizeLine(catalogEditPhoneInput.value) : "",
+    imageAlt: normalizeLine(catalogEditNameInput.value),
+    photoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
+    currentPhotoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
+    displayOrder: normalizeLine(catalogEditDisplayOrderInput.value) || "0",
+    isActive: catalogEditIsActiveInput.checked ? "true" : "false"
+  };
+}
+
+async function saveCatalogCard(event) {
+  event.preventDefault();
+
+  const recordId = normalizeLine(catalogEditRecordIdInput.value);
+  const payload = buildCatalogPayload();
+
+  if (!recordId || !payload.name || !payload.description) {
+    window.alert("Preencha pelo menos nome e descricao do card.");
+    return;
+  }
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, value || "");
+  });
+
+  if (selectedCatalogPhotoFile) {
+    formData.append("photo", selectedCatalogPhotoFile);
+  }
+
+  try {
+    await apiRequest(`/admin/cards/${encodeURIComponent(recordId)}`, {
+      method: "PATCH",
+      body: formData
+    });
+    closeCatalogEditDialog();
+    await loadCatalogCards();
+  } catch (error) {
+    window.alert(error.message || "Nao foi possivel salvar o card oficial.");
+  }
+}
+
+async function loadCatalogCards() {
+  if (!catalogCardsGrid) {
+    return;
+  }
+
+  catalogStatusText.textContent = "Sincronizando cards oficiais com o servidor...";
+  const result = await apiRequest("/admin/cards");
+  catalogRecordsState = Array.isArray(result.records) ? result.records : [];
+  renderCatalogCards();
+}
+
+catalogFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setCatalogActiveCategoryFilter(button.dataset.catalogFilter || "todos");
+  });
+});
+
+catalogRefreshBtn?.addEventListener("click", async () => {
+  try {
+    await loadCatalogCards();
+  } catch (error) {
+    catalogStatusText.textContent = error.message || "Nao foi possivel atualizar os cards oficiais.";
+  }
+});
+
+catalogEditPhotoInput?.addEventListener("change", () => {
+  const file = catalogEditPhotoInput.files && catalogEditPhotoInput.files[0];
+  if (!file) {
+    selectedCatalogPhotoFile = null;
+    setCatalogPhotoPreview(catalogEditCurrentPhotoUrlInput.value);
+    return;
+  }
+
+  selectedCatalogPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = () => setCatalogPhotoPreview(reader.result);
+  reader.onerror = () => {
+    selectedCatalogPhotoFile = null;
+    setCatalogPhotoPreview(catalogEditCurrentPhotoUrlInput.value);
+    window.alert("Nao foi possivel carregar a nova imagem do card.");
+  };
+  reader.readAsDataURL(file);
+});
+
+catalogEditForm?.addEventListener("submit", saveCatalogCard);
+catalogCancelEditBtn?.addEventListener("click", closeCatalogEditDialog);
+catalogCloseEditBtn?.addEventListener("click", closeCatalogEditDialog);
+
+loadCatalogCards().catch((error) => {
+  catalogStatusText.textContent = error.message || "Nao foi possivel carregar os cards oficiais.";
+  catalogEmptyState.hidden = false;
+  catalogEmptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
 });
