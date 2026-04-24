@@ -56,6 +56,11 @@ img {
   padding: 20px;
 }
 
+.auth-panel {
+  max-width: 780px;
+  margin: 0 auto 24px;
+}
+
 .admin-header {
   display: flex;
   align-items: center;
@@ -64,10 +69,27 @@ img {
   margin-bottom: 16px;
 }
 
+.admin-header--auth {
+  margin-bottom: 20px;
+}
+
 .admin-header__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem;
+}
+
+.session-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(21, 124, 98, 0.12);
+  border: 1px solid rgba(21, 124, 98, 0.22);
+  color: var(--primary-color);
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .admin-header h1 {
@@ -530,6 +552,33 @@ img {
   gap: 0.8rem;
 }
 
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-actions {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-feedback {
+  color: var(--muted-text);
+  font-size: 0.95rem;
+}
+
+.auth-feedback[data-tone="error"] {
+  color: #9c2f23;
+}
+
+.auth-feedback[data-tone="success"] {
+  color: var(--primary-color);
+}
+
 @media (max-width: 1100px) {
   .cards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -548,6 +597,11 @@ img {
 
   .admin-header__actions {
     width: 100%;
+  }
+
+  .session-pill {
+    width: 100%;
+    justify-content: center;
   }
 
   .cards-grid {
@@ -571,7 +625,8 @@ img {
 
   .card-review-actions,
   .edit-grid,
-  .edit-form__footer {
+  .edit-form__footer,
+  .auth-grid {
     grid-template-columns: 1fr;
     flex-direction: column;
   }

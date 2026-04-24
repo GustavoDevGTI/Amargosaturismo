@@ -11,75 +11,112 @@
 </head>
 <body>
   <main class="admin-page">
-    <section class="panel">
-      <header class="admin-header">
+    <section class="panel auth-panel" id="authPanel">
+      <header class="admin-header admin-header--auth">
         <div>
-          <h1>Painel Admin - Estabelecimentos Cadastrados</h1>
-          <p class="admin-intro">Cadastros enviados pelo formulario publico do portal Amargosa Turismo.</p>
-          <p class="admin-note">Somente cadastros validados aparecem no guia publico.</p>
+          <h1>Painel Admin - Acesso Restrito</h1>
+          <p class="admin-intro">Entre com as credenciais de administracao para validar cadastros e editar os cards do Guia do Turista.</p>
+          <p class="admin-note">As credenciais ficam no backend e a sessao e protegida por cookie HTTP-only.</p>
         </div>
         <div class="admin-header__actions">
           <a class="admin-link admin-link--ghost" href="../">Voltar ao portal</a>
-          <a class="admin-link" href="../formulario/">Novo cadastro</a>
+          <a class="admin-link" href="../formulario/">Novo cadastro publico</a>
         </div>
       </header>
 
-      <div class="toolbar-stack">
-        <div class="toolbar" role="toolbar" aria-label="Filtro por status">
-          <span class="toolbar-label">Status</span>
-          <button class="filter-btn is-active" type="button" data-status-filter="pending">Pendentes</button>
-          <button class="filter-btn" type="button" data-status-filter="approved">Validados</button>
-          <button class="filter-btn" type="button" data-status-filter="rejected">Recusados</button>
-          <button class="filter-btn" type="button" data-status-filter="todos">Todos</button>
+      <form class="auth-form" id="loginForm">
+        <div class="edit-grid auth-grid">
+          <div class="field">
+            <label for="loginUsername">Usuario</label>
+            <input id="loginUsername" name="username" autocomplete="username" required>
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Senha</label>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+          </div>
         </div>
 
-        <div class="toolbar" role="toolbar" aria-label="Filtros por categoria e acoes">
+        <div class="edit-form__footer auth-actions">
+          <p class="auth-feedback" id="loginFeedback">Faca login para liberar o painel.</p>
+          <button class="admin-link" type="submit" id="loginSubmitBtn">Entrar no painel</button>
+        </div>
+      </form>
+    </section>
+
+    <div id="adminApp" hidden>
+      <section class="panel">
+        <header class="admin-header">
+          <div>
+            <h1>Painel Admin - Estabelecimentos Cadastrados</h1>
+            <p class="admin-intro">Cadastros enviados pelo formulario publico do portal Amargosa Turismo.</p>
+            <p class="admin-note">Somente cadastros validados aparecem no guia publico.</p>
+          </div>
+          <div class="admin-header__actions">
+            <span class="session-pill" id="sessionPill">Sessao admin ativa</span>
+            <a class="admin-link admin-link--ghost" href="../">Voltar ao portal</a>
+            <a class="admin-link" href="../formulario/">Novo cadastro</a>
+            <button class="danger-btn" type="button" id="logoutBtn">Sair</button>
+          </div>
+        </header>
+
+        <div class="toolbar-stack">
+          <div class="toolbar" role="toolbar" aria-label="Filtro por status">
+            <span class="toolbar-label">Status</span>
+            <button class="filter-btn is-active" type="button" data-status-filter="pending">Pendentes</button>
+            <button class="filter-btn" type="button" data-status-filter="approved">Validados</button>
+            <button class="filter-btn" type="button" data-status-filter="rejected">Recusados</button>
+            <button class="filter-btn" type="button" data-status-filter="todos">Todos</button>
+          </div>
+
+          <div class="toolbar" role="toolbar" aria-label="Filtros por categoria e acoes">
+            <span class="toolbar-label">Categoria</span>
+            <button class="filter-btn is-active" type="button" data-filter="todos">Todos</button>
+            <button class="filter-btn" type="button" data-filter="gastronomia">Bares/Restaurantes</button>
+            <button class="filter-btn" type="button" data-filter="hotel">Hoteis/Pousadas</button>
+            <button class="neutral-btn" type="button" id="refreshBtn">Atualizar</button>
+            <button class="danger-btn" type="button" id="clearBtn">Limpar todos</button>
+          </div>
+        </div>
+
+        <p class="status-text" id="statusText"></p>
+
+        <div class="cards-grid" id="cardsGrid"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          Nenhum estabelecimento cadastrado ainda.
+        </div>
+      </section>
+
+      <section class="panel panel--catalog">
+        <header class="admin-header admin-header--catalog">
+          <div>
+            <h2>Cards Publicados do Guia</h2>
+            <p class="admin-intro">Edite os cards oficiais de pontos turisticos, gastronomia e hospedagem sem mexer no HTML.</p>
+            <p class="admin-note">Esses cards alimentam diretamente a vitrine do Guia do Turista.</p>
+          </div>
+          <div class="admin-header__actions">
+            <button class="neutral-btn" type="button" id="catalogRefreshBtn">Atualizar cards</button>
+          </div>
+        </header>
+
+        <div class="toolbar" role="toolbar" aria-label="Filtro de cards publicados">
           <span class="toolbar-label">Categoria</span>
-          <button class="filter-btn is-active" type="button" data-filter="todos">Todos</button>
-          <button class="filter-btn" type="button" data-filter="gastronomia">Bares/Restaurantes</button>
-          <button class="filter-btn" type="button" data-filter="hotel">Hoteis/Pousadas</button>
-          <button class="neutral-btn" type="button" id="refreshBtn">Atualizar</button>
-          <button class="danger-btn" type="button" id="clearBtn">Limpar todos</button>
+          <button class="filter-btn is-active" type="button" data-catalog-filter="todos">Todos</button>
+          <button class="filter-btn" type="button" data-catalog-filter="turistico">Pontos Turisticos</button>
+          <button class="filter-btn" type="button" data-catalog-filter="gastronomia">Gastronomia</button>
+          <button class="filter-btn" type="button" data-catalog-filter="hotel">Hoteis/Pousadas</button>
         </div>
-      </div>
 
-      <p class="status-text" id="statusText"></p>
+        <p class="status-text" id="catalogStatusText"></p>
 
-      <div class="cards-grid" id="cardsGrid"></div>
+        <div class="cards-grid" id="catalogCardsGrid"></div>
 
-      <div class="empty-state" id="emptyState" hidden>
-        Nenhum estabelecimento cadastrado ainda.
-      </div>
-    </section>
-
-    <section class="panel panel--catalog">
-      <header class="admin-header admin-header--catalog">
-        <div>
-          <h2>Cards Publicados do Guia</h2>
-          <p class="admin-intro">Edite os cards oficiais de pontos turisticos, gastronomia e hospedagem sem mexer no HTML.</p>
-          <p class="admin-note">Esses cards alimentam diretamente a vitrine do Guia do Turista.</p>
+        <div class="empty-state" id="catalogEmptyState" hidden>
+          Nenhum card publicado encontrado.
         </div>
-        <div class="admin-header__actions">
-          <button class="neutral-btn" type="button" id="catalogRefreshBtn">Atualizar cards</button>
-        </div>
-      </header>
-
-      <div class="toolbar" role="toolbar" aria-label="Filtro de cards publicados">
-        <span class="toolbar-label">Categoria</span>
-        <button class="filter-btn is-active" type="button" data-catalog-filter="todos">Todos</button>
-        <button class="filter-btn" type="button" data-catalog-filter="turistico">Pontos Turisticos</button>
-        <button class="filter-btn" type="button" data-catalog-filter="gastronomia">Gastronomia</button>
-        <button class="filter-btn" type="button" data-catalog-filter="hotel">Hoteis/Pousadas</button>
-      </div>
-
-      <p class="status-text" id="catalogStatusText"></p>
-
-      <div class="cards-grid" id="catalogCardsGrid"></div>
-
-      <div class="empty-state" id="catalogEmptyState" hidden>
-        Nenhum card publicado encontrado.
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <dialog class="edit-dialog" id="editDialog">

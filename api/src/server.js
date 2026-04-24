@@ -6,7 +6,14 @@ const path = require("path");
 const multer = require("multer");
 const helmet = require("helmet");
 
-const { port, uploadDir, maxUploadBytes } = require("./config");
+const { admin, port, uploadDir, maxUploadBytes } = require("./config");
+const {
+  clearSessionCookie,
+  getSessionFromRequest,
+  requireAdminAuth,
+  setSessionCookie,
+  validateAdminCredentials
+} = require("./adminAuth");
 const {
   createSubmission,
   deleteAllSubmissions,
@@ -129,6 +136,49 @@ app.get("/api/public/cards", async (_req, res, next) => {
     next(error);
   }
 });
+
+app.get("/api/admin/session", (req, res) => {
+  const session = getSessionFromRequest(req);
+
+  if (!session) {
+    clearSessionCookie(res);
+    res.json({ authenticated: false });
+    return;
+  }
+
+  res.json({
+    authenticated: true,
+    username: session.username
+  });
+});
+
+app.post("/api/admin/login", (req, res) => {
+  const username = String(req.body?.username || "").trim();
+  const password = String(req.body?.password || "");
+
+  if (!validateAdminCredentials(username, password)) {
+    clearSessionCookie(res);
+    res.status(401).json({
+      message: "Usuario ou senha invalidos."
+    });
+    return;
+  }
+
+  setSessionCookie(res, admin.username);
+  res.json({
+    message: "Login realizado com sucesso.",
+    username: admin.username
+  });
+});
+
+app.post("/api/admin/logout", (_req, res) => {
+  clearSessionCookie(res);
+  res.json({
+    message: "Sessao encerrada com sucesso."
+  });
+});
+
+app.use("/api/admin", requireAdminAuth);
 
 app.get("/api/admin/submissions", async (req, res, next) => {
   try {

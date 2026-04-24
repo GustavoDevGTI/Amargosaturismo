@@ -27,6 +27,18 @@ const ICONS = {
   phone: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 2.93c.3-.3.75-.4 1.14-.25l2.3.86c.52.19.83.73.74 1.28l-.39 2.36a1.35 1.35 0 0 1-.78 1.02l-1.42.68a14.57 14.57 0 0 0 6.91 6.91l.68-1.42c.18-.38.56-.66 1.02-.78l2.36-.39c.55-.09 1.09.22 1.28.74l.86 2.3c.15.39.05.84-.25 1.14l-1.26 1.26c-.77.77-1.9 1.1-2.97.87-2.66-.59-5.2-1.98-7.58-4.35-2.37-2.38-3.76-4.92-4.35-7.58-.23-1.07.1-2.2.87-2.97l1.26-1.26Z"/></svg>`
 };
 
+class UnauthorizedError extends Error {}
+
+const authPanel = document.getElementById("authPanel");
+const adminApp = document.getElementById("adminApp");
+const loginForm = document.getElementById("loginForm");
+const loginUsernameInput = document.getElementById("loginUsername");
+const loginPasswordInput = document.getElementById("loginPassword");
+const loginFeedback = document.getElementById("loginFeedback");
+const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const sessionPill = document.getElementById("sessionPill");
+
 const cardsGrid = document.getElementById("cardsGrid");
 const emptyState = document.getElementById("emptyState");
 const statusText = document.getElementById("statusText");
@@ -64,6 +76,7 @@ let activeCategoryFilter = "todos";
 let activeStatusFilter = "pending";
 let recordsState = [];
 let selectedEditPhotoFile = null;
+let adminAuthenticated = false;
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -223,12 +236,102 @@ function createReviewButton(label, variantClass, onClick, disabled) {
   return button;
 }
 
+function setLoginFeedback(message, tone = "info") {
+  if (!loginFeedback) {
+    return;
+  }
+
+  loginFeedback.textContent = message || "Faca login para liberar o painel.";
+
+  if (tone === "info") {
+    loginFeedback.removeAttribute("data-tone");
+    return;
+  }
+
+  loginFeedback.dataset.tone = tone;
+}
+
+function setAuthenticatedView(isAuthenticated, username = "") {
+  adminAuthenticated = Boolean(isAuthenticated);
+
+  if (authPanel) {
+    authPanel.hidden = adminAuthenticated;
+  }
+
+  if (adminApp) {
+    adminApp.hidden = !adminAuthenticated;
+  }
+
+  if (sessionPill) {
+    sessionPill.textContent = username ? `Sessao ativa: ${username}` : "Sessao admin ativa";
+  }
+}
+
+function resetAdminState() {
+  recordsState = [];
+  catalogRecordsState = [];
+
+  if (cardsGrid) {
+    cardsGrid.innerHTML = "";
+  }
+
+  if (catalogCardsGrid) {
+    catalogCardsGrid.innerHTML = "";
+  }
+
+  if (statusText) {
+    statusText.textContent = "";
+  }
+
+  if (catalogStatusText) {
+    catalogStatusText.textContent = "";
+  }
+
+  if (emptyState) {
+    emptyState.hidden = true;
+  }
+
+  if (catalogEmptyState) {
+    catalogEmptyState.hidden = true;
+  }
+}
+
+function handleUnauthorized(message = "Sua sessao expirou. Faca login novamente.") {
+  closeEditDialog();
+  closeCatalogEditDialog();
+  resetAdminState();
+  setAuthenticatedView(false);
+  setLoginFeedback(message, "error");
+  loginPasswordInput?.focus();
+}
+
 async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, options);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: "same-origin",
+    ...options
+  });
   const result = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    handleUnauthorized(result.message || "Sua sessao expirou. Faca login novamente.");
+    throw new UnauthorizedError(result.message || "Nao autorizado.");
+  }
 
   if (!response.ok) {
     throw new Error(result.message || "Nao foi possivel concluir a operacao no servidor.");
+  }
+
+  return result;
+}
+
+async function fetchAdminSession() {
+  const response = await fetch(`${API_BASE_URL}/admin/session`, {
+    credentials: "same-origin"
+  });
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(result.message || "Nao foi possivel validar a sessao admin.");
   }
 
   return result;
@@ -570,6 +673,9 @@ async function saveEditedRecord(event) {
     closeEditDialog();
     await loadRecords();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     window.alert(error.message || "Nao foi possivel salvar a edicao.");
   }
 }
@@ -601,6 +707,9 @@ async function setRecordStatus(recordId, nextStatus) {
     }
     await loadRecords();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     window.alert(error.message || "Nao foi possivel atualizar o status.");
   }
 }
@@ -621,6 +730,9 @@ refreshBtn.addEventListener("click", async () => {
   try {
     await loadRecords();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     statusText.textContent = error.message || "Nao foi possivel atualizar a lista.";
   }
 });
@@ -638,6 +750,9 @@ clearBtn.addEventListener("click", async () => {
     closeEditDialog();
     await loadRecords();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     window.alert(error.message || "Nao foi possivel limpar os cadastros.");
   }
 });
@@ -664,12 +779,6 @@ editPhotoInput.addEventListener("change", () => {
 editForm.addEventListener("submit", saveEditedRecord);
 cancelEditBtn.addEventListener("click", closeEditDialog);
 closeEditBtn.addEventListener("click", closeEditDialog);
-
-loadRecords().catch((error) => {
-  statusText.textContent = error.message || "Nao foi possivel carregar os cadastros do servidor.";
-  emptyState.hidden = false;
-  emptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
-});
 
 const CATALOG_FILTER_LABELS = {
   todos: "todos os cards oficiais",
@@ -1081,6 +1190,9 @@ async function saveCatalogCard(event) {
     closeCatalogEditDialog();
     await loadCatalogCards();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     window.alert(error.message || "Nao foi possivel salvar o card oficial.");
   }
 }
@@ -1106,6 +1218,9 @@ catalogRefreshBtn?.addEventListener("click", async () => {
   try {
     await loadCatalogCards();
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
     catalogStatusText.textContent = error.message || "Nao foi possivel atualizar os cards oficiais.";
   }
 });
@@ -1133,8 +1248,109 @@ catalogEditForm?.addEventListener("submit", saveCatalogCard);
 catalogCancelEditBtn?.addEventListener("click", closeCatalogEditDialog);
 catalogCloseEditBtn?.addEventListener("click", closeCatalogEditDialog);
 
-loadCatalogCards().catch((error) => {
-  catalogStatusText.textContent = error.message || "Nao foi possivel carregar os cards oficiais.";
-  catalogEmptyState.hidden = false;
-  catalogEmptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
-});
+async function loginAdmin(event) {
+  event.preventDefault();
+
+  const username = normalizeLine(loginUsernameInput?.value);
+  const password = String(loginPasswordInput?.value || "");
+
+  if (!username || !password) {
+    setLoginFeedback("Preencha usuario e senha para entrar no painel.", "error");
+    return;
+  }
+
+  if (loginSubmitBtn) {
+    loginSubmitBtn.disabled = true;
+  }
+
+  setLoginFeedback("Validando credenciais...", "info");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(result.message || "Nao foi possivel realizar o login.");
+    }
+
+    setAuthenticatedView(true, result.username || username);
+    setLoginFeedback("Login realizado com sucesso.", "success");
+    if (loginPasswordInput) {
+      loginPasswordInput.value = "";
+    }
+    await initializeAdminData();
+  } catch (error) {
+    setAuthenticatedView(false);
+    setLoginFeedback(error.message || "Nao foi possivel realizar o login.", "error");
+  } finally {
+    if (loginSubmitBtn) {
+      loginSubmitBtn.disabled = false;
+    }
+  }
+}
+
+async function logoutAdmin() {
+  try {
+    await fetch(`${API_BASE_URL}/admin/logout`, {
+      method: "POST",
+      credentials: "same-origin"
+    });
+  } finally {
+    handleUnauthorized("Sessao encerrada. Faca login novamente para continuar.");
+  }
+}
+
+async function initializeAdminData() {
+  try {
+    await Promise.all([
+      loadRecords(),
+      loadCatalogCards()
+    ]);
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
+
+    statusText.textContent = error.message || "Nao foi possivel carregar os cadastros do servidor.";
+    emptyState.hidden = false;
+    emptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
+    catalogStatusText.textContent = error.message || "Nao foi possivel carregar os cards oficiais.";
+    catalogEmptyState.hidden = false;
+    catalogEmptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
+  }
+}
+
+async function initAdminApp() {
+  setAuthenticatedView(false);
+  setLoginFeedback("Validando sessao atual...", "info");
+
+  try {
+    const session = await fetchAdminSession();
+
+    if (!session.authenticated) {
+      setAuthenticatedView(false);
+      setLoginFeedback("Faca login para liberar o painel.", "info");
+      loginUsernameInput?.focus();
+      return;
+    }
+
+    setAuthenticatedView(true, session.username || "");
+    setLoginFeedback("Sessao ativa.", "success");
+    await initializeAdminData();
+  } catch (error) {
+    setAuthenticatedView(false);
+    setLoginFeedback(error.message || "Nao foi possivel validar a sessao admin.", "error");
+  }
+}
+
+loginForm?.addEventListener("submit", loginAdmin);
+logoutBtn?.addEventListener("click", logoutAdmin);
+
+initAdminApp();

@@ -27,6 +27,16 @@ Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL pa
 7. Os marcadores oficiais do mapa usam a mesma tabela `tourism_cards`, alinhando exibicao do mapa com ativo/inativo dos cards.
 8. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
 
+## Login do painel admin
+
+- O painel em `adminformulario/` agora exige login antes de liberar as rotas `/api/admin/*`.
+- A sessao usa cookie HTTP-only com expiracao configuravel.
+- Se nenhuma credencial for definida no ambiente, a API usa por padrao:
+  - usuario: `admin`
+  - senha: `turimo@123`
+
+Em producao, troque essas credenciais e defina um secret proprio para a sessao.
+
 ## Variaveis de ambiente da API
 
 Crie um arquivo `api/.env` com base em `api/.env.example`:
@@ -39,6 +49,12 @@ Crie um arquivo `api/.env` com base em `api/.env.example`:
 - `DB_PASSWORD`
 - `UPLOAD_DIR`
 - `MAX_UPLOAD_MB`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
+- `ADMIN_SESSION_COOKIE_NAME`
+- `ADMIN_SESSION_TTL_HOURS`
+- `ADMIN_COOKIE_SECURE`
 
 ## Como executar com Docker Compose
 
@@ -51,9 +67,10 @@ O `docker-compose.yml` sobe tres servicos:
 Passo a passo:
 
 1. Ajuste as variaveis do compose se quiser trocar porta, banco ou senha.
-2. Rode `docker compose up --build`.
-3. Acesse o portal em `http://localhost:8080`.
-4. A API ficara disponivel por proxy em `/api` e os uploads em `/uploads`.
+2. Se for usar o painel admin, ajuste tambem `ADMIN_USERNAME`, `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET`.
+3. Rode `docker compose up --build`.
+4. Acesse o portal em `http://localhost:8080`.
+5. A API ficara disponivel por proxy em `/api` e os uploads em `/uploads`.
 
 ## Como executar sem Docker
 
@@ -61,6 +78,7 @@ Passo a passo:
 2. Configure `api/.env`.
 3. Na pasta `api`, rode `npm install` e depois `npm start`.
 4. Sirva a raiz do projeto com um servidor web simples ou Nginx.
+5. Acesse `adminformulario/` e entre com as credenciais definidas no ambiente.
 
 ## Publicacao no servidor local via Portainer
 
