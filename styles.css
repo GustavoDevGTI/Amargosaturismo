@@ -293,7 +293,7 @@ textarea {
     min-height: 44px;
     background-color: transparent;
     border: 0;
-    font-size: 0.72vw;
+    font-size: 0.8vw;
     font-family: 'Cabin', sans-serif;
     font-weight: 700;
     color: var(--white);
@@ -312,7 +312,7 @@ textarea {
     position: relative;
     z-index: 1;
     display: block;
-    padding: 0 0.82vw;
+    padding: 0 1vw;
     line-height: 3.2vw;
     white-space: nowrap;
     font-family: 'Cabin', sans-serif;
