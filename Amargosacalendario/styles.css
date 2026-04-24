@@ -1569,6 +1569,15 @@
             white-space: normal;
         }
 
+        .event-card-responsible {
+            margin: 10px 0 0;
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
         .event-card-actions {
             margin-top: 14px;
             display: flex;

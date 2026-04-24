@@ -10,6 +10,7 @@
     const DEFAULT_REFRESH_MS = 60000;
     const MAX_TITLE_LENGTH = 80;
     const MAX_DESCRIPTION_LENGTH = 200;
+    const MAX_RESPONSIBLE_LENGTH = 120;
     const ACCESS_TYPE_FREE = "free";
     const ACCESS_TYPE_PAID = "paid";
     const DISPLAY_STYLE_DOT = "dot";
@@ -84,6 +85,7 @@
         eventTitle: document.getElementById("event-title"),
         eventTime: document.getElementById("event-time"),
         eventDescription: document.getElementById("event-description"),
+        eventResponsible: document.getElementById("event-responsible"),
         eventImageInput: document.getElementById("event-image"),
         eventImageUrlInput: document.getElementById("event-image-url-input"),
         eventImagePreview: document.getElementById("event-image-preview"),
@@ -623,13 +625,13 @@
         }
         let { data, error } = await client
             .from(getEventsTableName())
-            .select("id, event_date, title, event_time, description, categories, image_url, access_type, display_style")
+            .select("id, event_date, title, event_time, description, responsible, categories, image_url, access_type, display_style")
             .order("event_date", { ascending: true })
             .order("title", { ascending: true });
         if (error && isMissingDisplayStyleColumnError(error)) {
             const fallbackResponse = await client
                 .from(getEventsTableName())
-                .select("id, event_date, title, event_time, description, categories, image_url, access_type")
+                .select("id, event_date, title, event_time, description, responsible, categories, image_url, access_type")
                 .order("event_date", { ascending: true })
                 .order("title", { ascending: true });
             data = fallbackResponse.data;
@@ -638,13 +640,22 @@
         if (error && isMissingAccessTypeColumnError(error)) {
             const fallbackResponse = await client
                 .from(getEventsTableName())
-                .select("id, event_date, title, event_time, description, categories, image_url")
+                .select("id, event_date, title, event_time, description, responsible, categories, image_url")
                 .order("event_date", { ascending: true })
                 .order("title", { ascending: true });
             data = fallbackResponse.data;
             error = fallbackResponse.error;
         }
         if (error && isMissingImageUrlColumnError(error)) {
+            const fallbackResponse = await client
+                .from(getEventsTableName())
+                .select("id, event_date, title, event_time, description, responsible, categories")
+                .order("event_date", { ascending: true })
+                .order("title", { ascending: true });
+            data = fallbackResponse.data;
+            error = fallbackResponse.error;
+        }
+        if (error && isMissingResponsibleColumnError(error)) {
             const fallbackResponse = await client
                 .from(getEventsTableName())
                 .select("id, event_date, title, event_time, description, categories")
@@ -794,6 +805,13 @@
         });
         if (categories) {
             card.appendChild(categories);
+        }
+
+        if (calendarEvent.responsible) {
+            const responsible = document.createElement("p");
+            responsible.className = "event-card-responsible";
+            responsible.textContent = calendarEvent.responsible;
+            card.appendChild(responsible);
         }
 
         if (calendarEvent.description) {
@@ -985,6 +1003,7 @@
         refs.eventError.textContent = "";
         refs.eventDateInput.value = dateKey;
         refs.eventIdInput.value = currentEvent ? currentEvent.id : "";
+        refs.eventResponsible.value = currentEvent ? sanitizeResponsible(currentEvent.responsible || "") : "";
         refs.eventDateLabel.textContent = formatFullDate(parseDateKey(dateKey));
         refs.eventImageInput.value = "";
         refs.eventImageUrlInput.value = currentEvent ? sanitizeImageUrl(currentEvent.imageUrl || "") : "";
@@ -1041,6 +1060,7 @@
             refs.eventTitle.value = currentEvent.title;
             refs.eventTime.value = currentEvent.time || "";
             refs.eventDescription.value = currentEvent.description || "";
+            refs.eventResponsible.value = currentEvent.responsible || "";
             setSelectedEventCategories(currentEvent.categories || []);
             setSelectedAccessType(currentEvent.accessType);
             setSelectedDisplayStyle(currentEvent.displayStyle);
@@ -1058,6 +1078,7 @@
             setSelectedEventCategories(state.activeCategoryFilter === CATEGORY_FILTER_ALL ? [] : [state.activeCategoryFilter]);
             setSelectedAccessType(ACCESS_TYPE_FREE);
             setSelectedDisplayStyle(DISPLAY_STYLE_BAR);
+            refs.eventResponsible.value = "";
             renderEventImagePreview("");
             refs.deleteEventButton.hidden = true;
         }
@@ -1080,6 +1101,7 @@
         const title = sanitizeTitle(refs.eventTitle.value);
         const time = normalizeTimeValue(refs.eventTime.value);
         const rawDescription = refs.eventDescription.value;
+        const rawResponsible = refs.eventResponsible.value;
         const categories = getSelectedEventCategories();
         const accessType = getSelectedAccessType();
         const displayStyle = getSelectedDisplayStyle();
@@ -1101,6 +1123,10 @@
             refs.eventError.textContent = "A descrição deve ter no máximo 200 caracteres.";
             return;
         }
+        if (rawResponsible.length > MAX_RESPONSIBLE_LENGTH) {
+            refs.eventError.textContent = "O campo responsavel deve ter no maximo 120 caracteres.";
+            return;
+        }
         if (!categories.length) {
             refs.eventError.textContent = "Selecione ao menos uma categoria para o evento.";
             return;
@@ -1120,6 +1146,7 @@
             title,
             event_time: time || null,
             description: sanitizeDescription(rawDescription),
+            responsible: sanitizeResponsible(rawResponsible),
             categories,
             access_type: accessType,
             display_style: displayStyle,
@@ -1172,21 +1199,35 @@
     }
 
     async function saveEventPayload(payload, eventId = "") {
-        const response = eventId
-            ? await client.from(getEventsTableName()).update(buildEventMutationPayload(payload, true)).eq("id", eventId)
-            : await client.from(getEventsTableName()).insert(payload);
+        let includeDisplayStyle = true;
+        let includeResponsible = true;
+        let response = await mutateEventPayload(payload, eventId, includeDisplayStyle, includeResponsible);
 
-        if (!response.error || !isMissingDisplayStyleColumnError(response.error)) {
+        while (response.error) {
+            if (isMissingResponsibleColumnError(response.error) && includeResponsible) {
+                includeResponsible = false;
+                response = await mutateEventPayload(payload, eventId, includeDisplayStyle, includeResponsible);
+                continue;
+            }
+            if (isMissingDisplayStyleColumnError(response.error) && includeDisplayStyle) {
+                includeDisplayStyle = false;
+                response = await mutateEventPayload(payload, eventId, includeDisplayStyle, includeResponsible);
+                continue;
+            }
             return response;
         }
 
-        const fallbackPayload = buildEventMutationPayload(payload, false);
-        return eventId
-            ? client.from(getEventsTableName()).update(fallbackPayload).eq("id", eventId)
-            : client.from(getEventsTableName()).insert(Object.assign({ id: payload.id }, fallbackPayload));
+        return response;
     }
 
-    function buildEventMutationPayload(payload, includeDisplayStyle) {
+    function mutateEventPayload(payload, eventId, includeDisplayStyle, includeResponsible) {
+        const mutationPayload = buildEventMutationPayload(payload, includeDisplayStyle, includeResponsible);
+        return eventId
+            ? client.from(getEventsTableName()).update(mutationPayload).eq("id", eventId)
+            : client.from(getEventsTableName()).insert(Object.assign({ id: payload.id }, mutationPayload));
+    }
+
+    function buildEventMutationPayload(payload, includeDisplayStyle, includeResponsible) {
         const mutationPayload = {
             event_date: payload.event_date,
             title: payload.title,
@@ -1196,6 +1237,10 @@
             access_type: payload.access_type,
             image_url: payload.image_url || null
         };
+
+        if (includeResponsible) {
+            mutationPayload.responsible = payload.responsible;
+        }
 
         if (includeDisplayStyle) {
             mutationPayload.display_style = payload.display_style;
@@ -1458,6 +1503,7 @@
                 title: sanitizeTitle(row.title || ""),
                 time: normalizeTimeValue(row.event_time),
                 description: sanitizeDescription(row.description || ""),
+                responsible: sanitizeResponsible(row.responsible || ""),
                 categories: sanitizeEventCategories(row.categories || []),
                 accessType: sanitizeAccessType(row.access_type),
                 displayStyle: sanitizeDisplayStyle(row.display_style),
@@ -1485,6 +1531,7 @@
                     title,
                     event_time: normalizeTimeValue(eventItem.time) || null,
                     description: sanitizeDescription(eventItem.description || ""),
+                    responsible: sanitizeResponsible(eventItem.responsible || ""),
                     categories: sanitizeEventCategories(eventItem.categories || []),
                     access_type: sanitizeAccessType(eventItem.accessType),
                     display_style: sanitizeDisplayStyle(eventItem.displayStyle),
@@ -1588,6 +1635,10 @@
 
     function sanitizeDescription(value) {
         return String(value || "").trim().slice(0, MAX_DESCRIPTION_LENGTH);
+    }
+
+    function sanitizeResponsible(value) {
+        return String(value || "").trim().slice(0, MAX_RESPONSIBLE_LENGTH);
     }
 
     function sanitizeImageUrl(value) {
@@ -1905,6 +1956,7 @@
         refs.eventTitle.readOnly = isDeleteOnly;
         refs.eventTime.readOnly = isDeleteOnly;
         refs.eventDescription.readOnly = isDeleteOnly;
+        refs.eventResponsible.readOnly = isDeleteOnly;
         refs.eventImageInput.disabled = isDeleteOnly;
         refs.removeEventImageButton.disabled = isDeleteOnly;
         refs.eventAccessOptions.querySelectorAll("input[name=\"accessType\"]").forEach((input) => {
@@ -1984,6 +2036,11 @@
         return rawMessage.includes("image_url");
     }
 
+    function isMissingResponsibleColumnError(error) {
+        const rawMessage = String((error && error.message) || "").trim().toLowerCase();
+        return rawMessage.includes("responsible");
+    }
+
     function isMissingAccessTypeColumnError(error) {
         const rawMessage = String((error && error.message) || "").trim().toLowerCase();
         return rawMessage.includes("access_type");
@@ -2016,6 +2073,9 @@
         }
         if (rawMessage.includes("image_url")) {
             return "A coluna image_url ainda nao existe. Execute novamente o arquivo supabase-setup.sql no Supabase.";
+        }
+        if (rawMessage.includes("responsible")) {
+            return "A coluna responsible ainda nao existe. Execute o SQL de atualizacao do calendario no Supabase.";
         }
         if (rawMessage.includes("access_type")) {
             return "A coluna access_type ainda nao existe. Execute novamente o arquivo supabase-setup.sql no Supabase.";
