@@ -1,4 +1,4 @@
-# Sistema operacional
+﻿# Sistema operacional
 Thumbs.db
 .DS_Store
 
@@ -10,12 +10,16 @@ Thumbs.db
 # Dependencias e caches
 node_modules/
 .cache/
+api/node_modules/
 
 # Arquivos de ambiente
 .env
 .env.*
 !.env.example
 
+# Uploads locais
+api/uploads/*
+!api/uploads/.gitkeep
+
 # Supabase local
 supabase/.temp/
-

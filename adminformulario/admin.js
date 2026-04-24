@@ -1,4 +1,4 @@
-const STORAGE_KEY = "guia_turista_cadastros_v1";
+﻿const API_BASE_URL = "/api";
 const VALID_STATUSES = ["pending", "approved", "rejected"];
 
 const STATUS_LABELS = {
@@ -18,6 +18,13 @@ const CATEGORY_FILTER_LABELS = {
   todos: "todas as categorias",
   gastronomia: "bares/restaurantes",
   hotel: "hoteis/pousadas"
+};
+
+const ICONS = {
+  instagram: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5A3.95 3.95 0 0 0 16.25 3.8Zm8.93 1.35a1.07 1.07 0 1 1 0 2.14 1.07 1.07 0 0 1 0-2.14ZM12 6.85A5.15 5.15 0 1 1 6.85 12 5.16 5.16 0 0 1 12 6.85Zm0 1.8A3.35 3.35 0 1 0 15.35 12 3.35 3.35 0 0 0 12 8.65Z"/></svg>`,
+  whatsapp: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.57 0 .29 5.28.29 11.79c0 2.08.54 4.11 1.56 5.91L0 24l6.48-1.7a11.78 11.78 0 0 0 5.6 1.43h.01c6.5 0 11.79-5.29 11.79-11.8a11.7 11.7 0 0 0-3.36-8.45ZM12.09 21.7h-.01a9.8 9.8 0 0 1-5-1.37l-.36-.21-3.85 1.01 1.03-3.75-.24-.39a9.77 9.77 0 0 1-1.5-5.2c0-5.43 4.42-9.84 9.86-9.84 2.63 0 5.1 1.02 6.95 2.88a9.77 9.77 0 0 1 2.89 6.96c0 5.43-4.42 9.86-9.85 9.86Zm5.4-7.34c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.66.15-.2.3-.76.97-.93 1.17-.17.2-.35.22-.65.08-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.58-.48-.5-.66-.51h-.56c-.2 0-.51.08-.78.37s-1.02 1-1.02 2.44 1.05 2.83 1.2 3.03c.15.2 2.07 3.16 5.02 4.43.7.3 1.24.48 1.66.62.7.22 1.34.19 1.85.12.56-.08 1.77-.72 2.02-1.42.25-.69.25-1.28.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg>`,
+  email: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75V5.25Zm1.8.37v.28l7.2 5.4 7.2-5.4v-.28a.45.45 0 0 0-.45-.45H5.25a.45.45 0 0 0-.45.45Zm14.4 2.53-6.66 4.99a.9.9 0 0 1-1.08 0L4.8 8.15v10.6c0 .25.2.45.45.45h13.5c.25 0 .45-.2.45-.45V8.15Z"/></svg>`,
+  phone: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 2.93c.3-.3.75-.4 1.14-.25l2.3.86c.52.19.83.73.74 1.28l-.39 2.36a1.35 1.35 0 0 1-.78 1.02l-1.42.68a14.57 14.57 0 0 0 6.91 6.91l.68-1.42c.18-.38.56-.66 1.02-.78l2.36-.39c.55-.09 1.09.22 1.28.74l.86 2.3c.15.39.05.84-.25 1.14l-1.26 1.26c-.77.77-1.9 1.1-2.97.87-2.66-.59-5.2-1.98-7.58-4.35-2.37-2.38-3.76-4.92-4.35-7.58-.23-1.07.1-2.2.87-2.97l1.26-1.26Z"/></svg>`
 };
 
 const cardsGrid = document.getElementById("cardsGrid");
@@ -48,16 +55,15 @@ const editEmailInput = document.getElementById("editEmail");
 const editPhoneInput = document.getElementById("editPhone");
 const editGastronomyFields = document.getElementById("editGastronomyFields");
 const editHotelFields = document.getElementById("editHotelFields");
-
-const ICONS = {
-  instagram: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5A3.95 3.95 0 0 0 16.25 3.8Zm8.93 1.35a1.07 1.07 0 1 1 0 2.14 1.07 1.07 0 0 1 0-2.14ZM12 6.85A5.15 5.15 0 1 1 6.85 12 5.16 5.16 0 0 1 12 6.85Zm0 1.8A3.35 3.35 0 1 0 15.35 12 3.35 3.35 0 0 0 12 8.65Z"/></svg>`,
-  whatsapp: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.57 0 .29 5.28.29 11.79c0 2.08.54 4.11 1.56 5.91L0 24l6.48-1.7a11.78 11.78 0 0 0 5.6 1.43h.01c6.5 0 11.79-5.29 11.79-11.8a11.7 11.7 0 0 0-3.36-8.45ZM12.09 21.7h-.01a9.8 9.8 0 0 1-5-1.37l-.36-.21-3.85 1.01 1.03-3.75-.24-.39a9.77 9.77 0 0 1-1.5-5.2c0-5.43 4.42-9.84 9.86-9.84 2.63 0 5.1 1.02 6.95 2.88a9.77 9.77 0 0 1 2.89 6.96c0 5.43-4.42 9.86-9.85 9.86Zm5.4-7.34c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.66.15-.2.3-.76.97-.93 1.17-.17.2-.35.22-.65.08-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.58-.48-.5-.66-.51h-.56c-.2 0-.51.08-.78.37s-1.02 1-1.02 2.44 1.05 2.83 1.2 3.03c.15.2 2.07 3.16 5.02 4.43.7.3 1.24.48 1.66.62.7.22 1.34.19 1.85.12.56-.08 1.77-.72 2.02-1.42.25-.69.25-1.28.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg>`,
-  email: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75V5.25Zm1.8.37v.28l7.2 5.4 7.2-5.4v-.28a.45.45 0 0 0-.45-.45H5.25a.45.45 0 0 0-.45.45Zm14.4 2.53-6.66 4.99a.9.9 0 0 1-1.08 0L4.8 8.15v10.6c0 .25.2.45.45.45h13.5c.25 0 .45-.2.45-.45V8.15Z"/></svg>`,
-  phone: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 2.93c.3-.3.75-.4 1.14-.25l2.3.86c.52.19.83.73.74 1.28l-.39 2.36a1.35 1.35 0 0 1-.78 1.02l-1.42.68a14.57 14.57 0 0 0 6.91 6.91l.68-1.42c.18-.38.56-.66 1.02-.78l2.36-.39c.55-.09 1.09.22 1.28.74l.86 2.3c.15.39.05.84-.25 1.14l-1.26 1.26c-.77.77-1.9 1.1-2.97.87-2.66-.59-5.2-1.98-7.58-4.35-2.37-2.38-3.76-4.92-4.35-7.58-.23-1.07.1-2.2.87-2.97l1.26-1.26Z"/></svg>`
-};
+const editPhotoInput = document.getElementById("editPhoto");
+const editCurrentPhotoUrlInput = document.getElementById("editCurrentPhotoUrl");
+const editPhotoPreviewWrap = document.getElementById("editPhotoPreviewWrap");
+const editPhotoPreview = document.getElementById("editPhotoPreview");
 
 let activeCategoryFilter = "todos";
 let activeStatusFilter = "pending";
+let recordsState = [];
+let selectedEditPhotoFile = null;
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -68,11 +74,11 @@ function normalizeCategory(value) {
 }
 
 function normalizeStatus(value) {
-  return VALID_STATUSES.includes(value) ? value : "approved";
+  return VALID_STATUSES.includes(value) ? value : "pending";
 }
 
 function digitsOnly(value) {
-  return String(value || "").replace(/\D/g, "");
+  return normalizeLine(value).replace(/\D/g, "");
 }
 
 function buildPhoneUrl(value) {
@@ -95,62 +101,6 @@ function buildGastronomyScheduleLine(daysLine, hoursLine, fallbackLine = "") {
   return parts.length ? parts.join(", ") : normalizeLine(fallbackLine);
 }
 
-function readRecords() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.map(normalizeRecord).filter(Boolean) : [];
-  } catch (_) {
-    return [];
-  }
-}
-
-function writeRecords(records) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
-
-function normalizeRecord(record) {
-  const category = normalizeCategory(record?.category);
-  const name = normalizeLine(record?.name);
-
-  if (!category || !name) {
-    return null;
-  }
-
-  const contacts = record.contacts || {};
-  const guide = record.guide || {};
-
-  return {
-    ...record,
-    category,
-    name,
-    description: normalizeLine(record.description),
-    createdAt: normalizeLine(record.createdAt),
-    updatedAt: normalizeLine(record.updatedAt || record.createdAt),
-    approvalStatus: normalizeStatus(record.approvalStatus),
-    approvalUpdatedAt: normalizeLine(record.approvalUpdatedAt || record.updatedAt || record.createdAt),
-    metaLines: Array.isArray(record.metaLines) ? record.metaLines.filter(Boolean) : [],
-    contacts: {
-      instagram: normalizeLine(contacts.instagram),
-      whatsapp: normalizeLine(contacts.whatsapp),
-      email: normalizeLine(contacts.email),
-      phone: normalizeLine(contacts.phone),
-      phoneUrl: normalizeLine(contacts.phoneUrl || buildPhoneUrl(contacts.phone))
-    },
-    guide: {
-      daysLine: normalizeLine(guide.daysLine),
-      subtitle: normalizeLine(guide.subtitle),
-      description: normalizeLine(guide.description),
-      hoursLine: normalizeLine(guide.hoursLine),
-      addressLine: normalizeLine(guide.addressLine),
-      statusLine: normalizeLine(guide.statusLine),
-      serviceLine: normalizeLine(guide.serviceLine),
-      mapQuery: normalizeLine(guide.mapQuery),
-      directionsUrl: normalizeLine(guide.directionsUrl),
-      popupTitleColor: normalizeLine(guide.popupTitleColor) || (category === "hotel" ? "#3568c9" : "#c9642b")
-    }
-  };
-}
-
 function fallbackImage(category) {
   return category === "gastronomia"
     ? "https://placehold.co/1200x800?text=Bar+ou+Restaurante"
@@ -168,14 +118,6 @@ function formatDateTime(value) {
     dateStyle: "short",
     timeStyle: "short"
   }).format(parsed);
-}
-
-function findAddressLine(record) {
-  if (record.guide?.addressLine) {
-    return record.guide.addressLine;
-  }
-
-  return (record.metaLines || []).find((line) => /CEP\s|\s\|\s|Rua|Avenida|Travessa|Praça|Praca|Largo|Rodovia|BA-/i.test(line)) || "";
 }
 
 function getGuideDescription(record) {
@@ -214,22 +156,18 @@ function mergeGuideDescription(subtitle, description) {
 }
 
 function getGastronomyMetaLines(record) {
-  const addressLine = findAddressLine(record);
-  const scheduleLine = buildGastronomyScheduleLine(
-    record.guide?.daysLine,
-    record.guide?.hoursLine,
-    record.metaLines?.[0]
-  );
-
-  return [scheduleLine, addressLine].filter(Boolean);
+  return [
+    buildGastronomyScheduleLine(record.guide?.daysLine, record.guide?.hoursLine),
+    normalizeLine(record.guide?.addressLine)
+  ].filter(Boolean);
 }
 
 function getHotelMetaLines(record) {
-  const addressLine = findAddressLine(record);
-  const emailLine = normalizeLine(record.contacts?.email) || "E-mail nao informado";
-  const phoneLine = normalizeLine(record.contacts?.phone);
-
-  return [addressLine, emailLine, phoneLine].filter(Boolean);
+  return [
+    normalizeLine(record.guide?.addressLine),
+    normalizeLine(record.contacts?.email) || "E-mail nao informado",
+    normalizeLine(record.contacts?.phone)
+  ].filter(Boolean);
 }
 
 function buildGuideUrl(record) {
@@ -279,61 +217,15 @@ function createReviewButton(label, variantClass, onClick, disabled) {
   return button;
 }
 
-function getEditDraft(record) {
-  return {
-    name: record.name || "",
-    description: record.description || "",
-    addressLine: record.guide?.addressLine || findAddressLine(record),
-    instagram: record.contacts?.instagram || "",
-    whatsapp: record.contacts?.whatsapp || "",
-    daysLine: record.category === "gastronomia" ? (record.guide?.daysLine || "") : "",
-    subtitle: record.category === "gastronomia" ? (record.guide?.subtitle || "") : "",
-    hoursLine: record.category === "gastronomia" ? (record.guide?.hoursLine || "") : "",
-    statusLine: record.category === "hotel" ? (record.guide?.statusLine || "") : "",
-    serviceLine: record.category === "hotel" ? (record.guide?.serviceLine || "") : "",
-    email: record.category === "hotel" ? (record.contacts?.email || "") : "",
-    phone: record.category === "hotel" ? (record.contacts?.phone || "") : ""
-  };
-}
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, options);
+  const result = await response.json().catch(() => ({}));
 
-function buildGuideDataFromAdmin(category, values, contacts) {
-  const mapQuery = buildMapQuery(values.name, values.addressLine);
-
-  if (category === "gastronomia") {
-    return {
-      daysLine: values.daysLine,
-      subtitle: values.subtitle,
-      description: values.description,
-      hoursLine: values.hoursLine,
-      addressLine: values.addressLine,
-      mapQuery,
-      directionsUrl: buildDirectionsUrl(mapQuery),
-      popupTitleColor: "#c9642b"
-    };
+  if (!response.ok) {
+    throw new Error(result.message || "Nao foi possivel concluir a operacao no servidor.");
   }
 
-  const hotelDescription = [values.serviceLine, values.description]
-    .filter(Boolean)
-    .join(values.serviceLine && values.description ? ". " : "");
-
-  return {
-    subtitle: values.statusLine,
-    description: hotelDescription || values.description || values.serviceLine,
-    statusLine: values.statusLine,
-    serviceLine: values.serviceLine,
-    addressLine: values.addressLine,
-    mapQuery,
-    directionsUrl: buildDirectionsUrl(mapQuery),
-    popupTitleColor: "#3568c9"
-  };
-}
-
-function buildMetaLines(category, guide, contacts) {
-  if (category === "gastronomia") {
-    return [buildGastronomyScheduleLine(guide.daysLine, guide.hoursLine), guide.addressLine].filter(Boolean);
-  }
-
-  return [guide.statusLine, guide.serviceLine, guide.addressLine, contacts.email, contacts.phone].filter(Boolean);
+  return result;
 }
 
 function filterRecords(records) {
@@ -346,7 +238,7 @@ function filterRecords(records) {
 
 function setStatus(records, visibleCount) {
   if (!records.length) {
-    statusText.textContent = "Nenhum cadastro salvo neste navegador.";
+    statusText.textContent = "Nenhum cadastro sincronizado com o servidor ainda.";
     return;
   }
 
@@ -427,18 +319,17 @@ function createCard(record) {
   const actions = document.createElement("div");
   actions.className = "card-actions";
 
-  const mapButton = document.createElement("button");
-  mapButton.className = "card-button";
-  mapButton.type = "button";
-  mapButton.textContent = isApproved ? "Ver no mapa" : "Aguardando validacao";
-  mapButton.disabled = !isApproved;
+  const guideButton = document.createElement("button");
+  guideButton.className = "card-button";
+  guideButton.type = "button";
+  guideButton.textContent = isApproved ? "Ver no guia" : "Aguardando validacao";
+  guideButton.disabled = !isApproved;
   if (isApproved) {
-    mapButton.dataset.mapFocus = record.mapFocus || record.pointId || "";
-    mapButton.addEventListener("click", () => {
+    guideButton.addEventListener("click", () => {
       window.open(buildGuideUrl(record), "_blank", "noopener,noreferrer");
     });
   }
-  actions.appendChild(mapButton);
+  actions.appendChild(guideButton);
 
   const linksInline = document.createElement("div");
   linksInline.className = "card-actions-inline";
@@ -446,7 +337,7 @@ function createCard(record) {
   const instagramLink = iconLink(contacts.instagram, "card-link--instagram", "Instagram", ICONS.instagram);
   const whatsappLink = iconLink(contacts.whatsapp, "card-link--whatsapp", "WhatsApp", ICONS.whatsapp);
   const emailLink = iconLink(contacts.email ? `mailto:${contacts.email}` : "", "card-link--email", "E-mail", ICONS.email);
-  const phoneLink = iconLink(contacts.phoneUrl, "card-link--phone", "Contato", ICONS.phone);
+  const phoneLink = iconLink(contacts.phoneUrl || buildPhoneUrl(contacts.phone), "card-link--phone", "Contato", ICONS.phone);
   const actionLinks = isGastronomy
     ? [instagramLink, whatsappLink]
     : [instagramLink, emailLink, whatsappLink, phoneLink];
@@ -483,17 +374,15 @@ function createCard(record) {
 }
 
 function renderCards() {
-  const records = readRecords();
-  const filtered = filterRecords(records);
+  const filtered = filterRecords(recordsState);
 
   cardsGrid.innerHTML = "";
-
   filtered.forEach((record) => {
     cardsGrid.appendChild(createCard(record));
   });
 
-  setEmptyState(records, filtered);
-  setStatus(records, filtered.length);
+  setEmptyState(recordsState, filtered);
+  setStatus(recordsState, filtered.length);
 }
 
 function updateCategoryButtons() {
@@ -526,8 +415,43 @@ function toggleEditCategory(category) {
   editHotelFields.hidden = isGastronomy;
 }
 
+function resetEditPhotoSelection() {
+  selectedEditPhotoFile = null;
+  editPhotoInput.value = "";
+}
+
+function setEditPhotoPreview(url) {
+  const normalized = normalizeLine(url);
+  if (!normalized) {
+    editPhotoPreviewWrap.hidden = true;
+    editPhotoPreview.src = "";
+    return;
+  }
+
+  editPhotoPreviewWrap.hidden = false;
+  editPhotoPreview.src = normalized;
+}
+
+function getEditDraft(record) {
+  return {
+    name: record.name || "",
+    description: record.description || "",
+    addressLine: record.guide?.addressLine || "",
+    instagram: record.contacts?.instagram || "",
+    whatsapp: record.contacts?.whatsapp || "",
+    daysLine: record.category === "gastronomia" ? (record.guide?.daysLine || "") : "",
+    subtitle: record.category === "gastronomia" ? (record.guide?.subtitle || "") : "",
+    hoursLine: record.category === "gastronomia" ? (record.guide?.hoursLine || "") : "",
+    statusLine: record.category === "hotel" ? (record.guide?.statusLine || "") : "",
+    serviceLine: record.category === "hotel" ? (record.guide?.serviceLine || "") : "",
+    email: record.category === "hotel" ? (record.contacts?.email || "") : "",
+    phone: record.category === "hotel" ? (record.contacts?.phone || "") : "",
+    photoSrc: record.photoSrc || ""
+  };
+}
+
 function openEditDialog(recordId) {
-  const record = readRecords().find((item) => item.id === recordId);
+  const record = recordsState.find((item) => item.id === recordId);
 
   if (!record) {
     return;
@@ -537,6 +461,7 @@ function openEditDialog(recordId) {
 
   editRecordIdInput.value = record.id || "";
   editCategoryInput.value = record.category || "";
+  editCurrentPhotoUrlInput.value = draft.photoSrc;
   editNameInput.value = draft.name;
   editDescriptionInput.value = draft.description;
   editAddressLineInput.value = draft.addressLine;
@@ -549,6 +474,8 @@ function openEditDialog(recordId) {
   editServiceLineInput.value = draft.serviceLine;
   editEmailInput.value = draft.email;
   editPhoneInput.value = draft.phone;
+  resetEditPhotoSelection();
+  setEditPhotoPreview(draft.photoSrc);
   editHint.textContent = `Status atual: ${STATUS_LABELS[record.approvalStatus]}. Salvar a edicao nao publica o card; a publicacao acontece ao validar.`;
 
   toggleEditCategory(record.category);
@@ -565,6 +492,8 @@ function closeEditDialog() {
     return;
   }
 
+  resetEditPhotoSelection();
+
   if (typeof editDialog.close === "function") {
     editDialog.close();
     return;
@@ -573,69 +502,76 @@ function closeEditDialog() {
   editDialog.removeAttribute("open");
 }
 
-function saveEditedRecord(event) {
-  event.preventDefault();
-
-  const recordId = normalizeLine(editRecordIdInput.value);
+function buildEditPayload() {
   const category = normalizeCategory(editCategoryInput.value);
-  const records = readRecords();
-  const recordIndex = records.findIndex((item) => item.id === recordId);
+  const name = normalizeLine(editNameInput.value);
+  const addressLine = normalizeLine(editAddressLineInput.value);
+  const mapQuery = buildMapQuery(name, addressLine);
 
-  if (recordIndex === -1 || !category) {
-    return;
-  }
-
-  const currentRecord = records[recordIndex];
-  const now = new Date().toISOString();
-  const values = {
-    name: normalizeLine(editNameInput.value) || currentRecord.name,
+  return {
+    category,
+    name,
     description: normalizeLine(editDescriptionInput.value),
-    addressLine: normalizeLine(editAddressLineInput.value),
-    daysLine: normalizeLine(editDaysLineInput.value),
-    subtitle: normalizeLine(editSubtitleInput.value),
-    hoursLine: normalizeLine(editHoursLineInput.value),
-    statusLine: normalizeLine(editStatusLineInput.value),
-    serviceLine: normalizeLine(editServiceLineInput.value)
-  };
-
-  const contacts = {
-    ...currentRecord.contacts,
+    addressLine,
     instagram: normalizeLine(editInstagramInput.value),
     whatsapp: normalizeLine(editWhatsappInput.value),
     email: category === "hotel" ? normalizeLine(editEmailInput.value) : "",
-    phone: category === "hotel" ? normalizeLine(editPhoneInput.value) : ""
+    phone: category === "hotel" ? normalizeLine(editPhoneInput.value) : "",
+    daysLine: category === "gastronomia" ? normalizeLine(editDaysLineInput.value) : "",
+    subtitle: category === "gastronomia" ? normalizeLine(editSubtitleInput.value) : "",
+    hoursLine: category === "gastronomia" ? normalizeLine(editHoursLineInput.value) : "",
+    statusLine: category === "hotel" ? normalizeLine(editStatusLineInput.value) : "",
+    serviceLine: category === "hotel" ? normalizeLine(editServiceLineInput.value) : "",
+    mapQuery,
+    directionsUrl: buildDirectionsUrl(mapQuery),
+    popupTitleColor: category === "hotel" ? "#3568c9" : "#c9642b",
+    photoUrl: normalizeLine(editCurrentPhotoUrlInput.value),
+    currentPhotoUrl: normalizeLine(editCurrentPhotoUrlInput.value)
   };
-  contacts.phoneUrl = buildPhoneUrl(contacts.phone);
+}
 
-  const guide = buildGuideDataFromAdmin(category, values, contacts);
-  const updatedRecord = {
-    ...currentRecord,
-    name: values.name,
-    description: values.description,
-    contacts,
-    guide,
-    metaLines: buildMetaLines(category, guide, contacts),
-    updatedAt: now
-  };
-
-  records[recordIndex] = updatedRecord;
-  writeRecords(records);
-  closeEditDialog();
+async function loadRecords() {
+  statusText.textContent = "Sincronizando cadastros com o servidor...";
+  const result = await apiRequest("/admin/submissions");
+  recordsState = Array.isArray(result.records) ? result.records : [];
   renderCards();
 }
 
-function setRecordStatus(recordId, nextStatus) {
-  const targetStatus = normalizeStatus(nextStatus);
-  const records = readRecords();
-  const recordIndex = records.findIndex((item) => item.id === recordId);
+async function saveEditedRecord(event) {
+  event.preventDefault();
 
-  if (recordIndex === -1) {
+  const recordId = normalizeLine(editRecordIdInput.value);
+  const payload = buildEditPayload();
+
+  if (!recordId || !payload.category) {
     return;
   }
 
-  const currentRecord = records[recordIndex];
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, value || "");
+  });
 
-  if (currentRecord.approvalStatus === targetStatus) {
+  if (selectedEditPhotoFile) {
+    formData.append("photo", selectedEditPhotoFile);
+  }
+
+  try {
+    await apiRequest(`/admin/submissions/${encodeURIComponent(recordId)}`, {
+      method: "PATCH",
+      body: formData
+    });
+    closeEditDialog();
+    await loadRecords();
+  } catch (error) {
+    window.alert(error.message || "Nao foi possivel salvar a edicao.");
+  }
+}
+
+async function setRecordStatus(recordId, nextStatus) {
+  const targetStatus = normalizeStatus(nextStatus);
+
+  if (!recordId) {
     return;
   }
 
@@ -646,21 +582,21 @@ function setRecordStatus(recordId, nextStatus) {
     }
   }
 
-  const now = new Date().toISOString();
-  records[recordIndex] = {
-    ...currentRecord,
-    approvalStatus: targetStatus,
-    approvalUpdatedAt: now,
-    updatedAt: now
-  };
-
-  writeRecords(records);
-
-  if (normalizeLine(editRecordIdInput.value) === recordId) {
-    closeEditDialog();
+  try {
+    await apiRequest(`/admin/submissions/${encodeURIComponent(recordId)}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: targetStatus })
+    });
+    if (normalizeLine(editRecordIdInput.value) === recordId) {
+      closeEditDialog();
+    }
+    await loadRecords();
+  } catch (error) {
+    window.alert(error.message || "Nao foi possivel atualizar o status.");
   }
-
-  renderCards();
 }
 
 categoryFilterButtons.forEach((button) => {
@@ -675,23 +611,56 @@ statusFilterButtons.forEach((button) => {
   });
 });
 
-refreshBtn.addEventListener("click", () => {
-  renderCards();
+refreshBtn.addEventListener("click", async () => {
+  try {
+    await loadRecords();
+  } catch (error) {
+    statusText.textContent = error.message || "Nao foi possivel atualizar a lista.";
+  }
 });
 
-clearBtn.addEventListener("click", () => {
-  const ok = confirm("Deseja realmente apagar todos os estabelecimentos cadastrados neste navegador?");
+clearBtn.addEventListener("click", async () => {
+  const ok = confirm("Deseja realmente apagar todos os estabelecimentos cadastrados no servidor?");
   if (!ok) {
     return;
   }
 
-  localStorage.removeItem(STORAGE_KEY);
-  closeEditDialog();
-  renderCards();
+  try {
+    await apiRequest("/admin/submissions", {
+      method: "DELETE"
+    });
+    closeEditDialog();
+    await loadRecords();
+  } catch (error) {
+    window.alert(error.message || "Nao foi possivel limpar os cadastros.");
+  }
+});
+
+editPhotoInput.addEventListener("change", () => {
+  const file = editPhotoInput.files && editPhotoInput.files[0];
+  if (!file) {
+    selectedEditPhotoFile = null;
+    setEditPhotoPreview(editCurrentPhotoUrlInput.value);
+    return;
+  }
+
+  selectedEditPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = () => setEditPhotoPreview(reader.result);
+  reader.onerror = () => {
+    selectedEditPhotoFile = null;
+    setEditPhotoPreview(editCurrentPhotoUrlInput.value);
+    window.alert("Nao foi possivel carregar a nova imagem.");
+  };
+  reader.readAsDataURL(file);
 });
 
 editForm.addEventListener("submit", saveEditedRecord);
 cancelEditBtn.addEventListener("click", closeEditDialog);
 closeEditBtn.addEventListener("click", closeEditDialog);
 
-renderCards();
+loadRecords().catch((error) => {
+  statusText.textContent = error.message || "Nao foi possivel carregar os cadastros do servidor.";
+  emptyState.hidden = false;
+  emptyState.textContent = "Verifique se a API e o banco MySQL estao ativos.";
+});

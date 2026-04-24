@@ -1,4 +1,36 @@
-services:
+﻿services:
+  amargosaturismo-db:
+    image: mariadb:11.4
+    container_name: amargosaturismo-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-amargosaturismo}
+      MYSQL_USER: ${MYSQL_USER:-amargosa_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-amargosa123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+    volumes:
+      - amargosa_mysql_data:/var/lib/mysql
+      - ./api/sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+  amargosaturismo-api:
+    build:
+      context: ./api
+    container_name: amargosaturismo-api
+    restart: unless-stopped
+    environment:
+      API_PORT: 3000
+      DB_HOST: amargosaturismo-db
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-amargosaturismo}
+      DB_USER: ${MYSQL_USER:-amargosa_app}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-amargosa123}
+      UPLOAD_DIR: uploads
+      MAX_UPLOAD_MB: 4
+    volumes:
+      - amargosa_uploads:/app/uploads
+    depends_on:
+      - amargosaturismo-db
+
   amargosaturismo:
     build:
       context: .
@@ -6,3 +38,9 @@ services:
     restart: unless-stopped
     ports:
       - "${SITE_PORT:-8080}:80"
+    depends_on:
+      - amargosaturismo-api
+
+volumes:
+  amargosa_mysql_data:
+  amargosa_uploads:

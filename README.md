@@ -1,50 +1,79 @@
-# Amargosaturismo
+﻿# Amargosaturismo
 
-Site turistico de Amargosa preparado para hospedagem estatica no GitHub.
+Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL para cadastros de estabelecimentos.
 
-## Estrutura
+## Estrutura principal
 
-- `index.html`: pagina principal
-- `styles.css`: estilos do site
+- `index.html`: pagina principal do portal
+- `guia-do-turista.html`: guia com mapa, cards e filtros
+- `styles.css`: estilos globais do portal
 - `script.js`: interacoes, acessibilidade, carrossel e integracao da galeria
+- `formulario/`: formulario publico de novos estabelecimentos
+- `adminformulario/`: painel de validacao e edicao dos cadastros
+- `api/`: backend Express + MySQL para formulario/admin
+- `api/sql/init.sql`: schema inicial do banco
 - `public/images/`: imagens locais usadas no layout
 - `supabase/functions/tourism-gallery/`: Edge Function usada para carregar galerias externas
 - `supabase/DEPLOY.md`: passos para publicar a funcao no Supabase
 
-## Como executar localmente
+## Fluxo atual de cadastro
 
-Como o projeto e estatico, basta abrir `index.html` no navegador. Se preferir, rode um servidor local simples para testar melhor links e carregamentos.
+1. O visitante envia um novo estabelecimento pelo formulario publico.
+2. A API salva o cadastro no MySQL com status `pending`.
+3. O painel admin lista, edita, valida ou recusa os cadastros.
+4. O guia publico consome os registros `approved` pela API e adiciona os cards aprovados.
+5. Os marcadores dinamicos continuam desativados no mapa por enquanto (`SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false`).
 
-## Publicacao no GitHub
+## Variaveis de ambiente da API
 
-Este repositorio foi estruturado para subir diretamente ao GitHub no repositorio `GustavoDevGTI/Amargosaturismo`.
+Crie um arquivo `api/.env` com base em `api/.env.example`:
+
+- `API_PORT`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `UPLOAD_DIR`
+- `MAX_UPLOAD_MB`
+
+## Como executar com Docker Compose
+
+O `docker-compose.yml` sobe tres servicos:
+
+- `amargosaturismo`: site em Nginx
+- `amargosaturismo-api`: API Express
+- `amargosaturismo-db`: banco MariaDB/MySQL
+
+Passo a passo:
+
+1. Ajuste as variaveis do compose se quiser trocar porta, banco ou senha.
+2. Rode `docker compose up --build`.
+3. Acesse o portal em `http://localhost:8080`.
+4. A API ficara disponivel por proxy em `/api` e os uploads em `/uploads`.
+
+## Como executar sem Docker
+
+1. Crie o banco MySQL e execute `api/sql/init.sql`.
+2. Configure `api/.env`.
+3. Na pasta `api`, rode `npm install` e depois `npm start`.
+4. Sirva a raiz do projeto com um servidor web simples ou Nginx.
 
 ## Publicacao no servidor local via Portainer
 
-O projeto agora tambem esta pronto para deploy em container via Portainer usando o proprio repositorio GitHub.
+O projeto esta preparado para deploy em stack com site, API e banco.
 
-Arquivos adicionados para essa subida:
+Arquivos principais para essa subida:
 
-- `Dockerfile`: empacota o site em `nginx:alpine`
-- `nginx.conf`: configura a entrega estatica e um endpoint de healthcheck
-- `docker-compose.yml`: sobe o container expondo a porta `80`
+- `Dockerfile`: empacota o frontend no `nginx:alpine`
+- `api/Dockerfile`: empacota a API Node.js
+- `nginx.conf`: entrega o frontend e encaminha `/api` e `/uploads` para a API
+- `docker-compose.yml`: sobe frontend, API e banco
 - `.dockerignore`: reduz o contexto de build
-
-Passo a passo sugerido no Portainer:
-
-1. Criar um stack apontando para este repositorio
-2. Usar o arquivo `docker-compose.yml`
-3. Publicar a porta do host desejada para a porta `80` do container
-4. Fazer o deploy da stack
-
-Observacoes importantes:
-
-- o site e estatico, mas depende de acesso externo para Google Maps, Google Fonts e servicos do Supabase
-- a galeria continua dependendo da Edge Function descrita em `supabase/DEPLOY.md`
 
 ## Sincronizacao com o clone Portainer
 
-Este repositorio agora possui um workflow para espelhar automaticamente as alteracoes do site para `GustavoDevGTI/Amargosaturismo-Portainer`, preservando os arquivos especificos de infraestrutura do clone Portainer.
+Este repositorio possui um workflow para espelhar automaticamente alteracoes do site para `GustavoDevGTI/Amargosaturismo-Portainer`, preservando os arquivos especificos de infraestrutura do clone Portainer.
 
 Para ativar a sincronizacao automatica no GitHub Actions, adicione neste repositorio o secret:
 

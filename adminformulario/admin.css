@@ -590,3 +590,25 @@ img {
     min-width: 40px;
   }
 }
+.edit-photo-note {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: #5f6f69;
+}
+
+.edit-photo-preview {
+  margin-top: 14px;
+  max-width: 320px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 56, 52, 0.14);
+  background: #f5f7f2;
+}
+
+.edit-photo-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}

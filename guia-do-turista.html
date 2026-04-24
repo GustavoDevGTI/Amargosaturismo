@@ -2000,8 +2000,9 @@
     const carouselRoot = document.querySelector("[data-carousel]");
     const carouselViewport = carouselRoot?.querySelector(".points-carousel__viewport");
     const carouselTrack = carouselRoot?.querySelector(".attractions-grid");
-    const GUIDE_STORAGE_KEY = "guia_turista_cadastros_v1";
+    const GUIDE_PUBLIC_API_URL = "/api/public/submissions";
     const SHOW_SUBMITTED_GUIDE_POINTS_ON_MAP = false;
+    let submittedGuideRecords = [];
 
     const GUIDE_ICONS = {
       instagram: `<svg class="card-link__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5A3.95 3.95 0 0 0 16.25 3.8Zm8.93 1.35a1.07 1.07 0 1 1 0 2.14 1.07 1.07 0 0 1 0-2.14ZM12 6.85A5.15 5.15 0 1 1 6.85 12 5.16 5.16 0 0 1 12 6.85Zm0 1.8A3.35 3.35 0 1 0 15.35 12 3.35 3.35 0 0 0 12 8.65Z"/></svg>`,
@@ -2191,11 +2192,17 @@
       };
     }
 
-    function readSubmittedGuideRecords() {
+    async function fetchSubmittedGuideRecords() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(GUIDE_STORAGE_KEY) || "[]");
-        return Array.isArray(parsed)
-          ? parsed
+        const response = await fetch(GUIDE_PUBLIC_API_URL);
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.message || "Nao foi possivel carregar os cadastros aprovados.");
+        }
+
+        return Array.isArray(result.records)
+          ? result.records
             .map(normalizeSubmittedGuideRecord)
             .filter((record) => record && record.approvalStatus === "approved")
           : [];
@@ -2308,17 +2315,23 @@
       return article;
     }
 
-    const submittedGuideRecords = readSubmittedGuideRecords();
+    async function appendSubmittedGuideCards() {
+      submittedGuideRecords = await fetchSubmittedGuideRecords();
 
-    if (carouselTrack && submittedGuideRecords.length) {
+      if (!carouselTrack || !submittedGuideRecords.length) {
+        return;
+      }
+
       const fragment = document.createDocumentFragment();
       submittedGuideRecords.forEach((record) => {
         fragment.appendChild(buildSubmittedGuideCard(record));
       });
       carouselTrack.appendChild(fragment);
+      allCarouselCards = Array.from(carouselTrack.children);
+      refreshVisibleCards();
     }
 
-    const allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
+    let allCarouselCards = carouselTrack ? Array.from(carouselTrack.children) : [];
     const carouselPrevButton = carouselRoot?.querySelector("[data-carousel-prev]");
     const carouselNextButton = carouselRoot?.querySelector("[data-carousel-next]");
     const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
@@ -3400,6 +3413,7 @@
     }
 
     refreshVisibleCards();
+    appendSubmittedGuideCards();
   </script>
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc&callback=initMap"></script>

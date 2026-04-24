@@ -65,6 +65,7 @@
 
       <input type="hidden" id="editRecordId" name="recordId">
       <input type="hidden" id="editCategory" name="category">
+      <input type="hidden" id="editCurrentPhotoUrl" name="currentPhotoUrl">
 
       <div class="edit-grid">
         <div class="field">
@@ -80,6 +81,15 @@
         <div class="field field--full">
           <label for="editAddressLine">Endereco completo</label>
           <input id="editAddressLine" name="addressLine" placeholder="Rua, numero | Bairro | Cidade - UF | CEP">
+        </div>
+
+        <div class="field field--full">
+          <label for="editPhoto">Imagem do card</label>
+          <input id="editPhoto" name="photo" type="file" accept="image/*">
+          <p class="edit-photo-note">Envie uma nova imagem apenas se quiser substituir a atual.</p>
+          <div class="edit-photo-preview" id="editPhotoPreviewWrap" hidden>
+            <img id="editPhotoPreview" alt="Preview da imagem do estabelecimento">
+          </div>
         </div>
 
         <div class="field">

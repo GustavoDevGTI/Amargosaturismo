@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = "guia_turista_cadastros_v1";
+﻿const API_SUBMISSIONS_URL = "/api/submissions";
 
 const typeInputs = Array.from(document.querySelectorAll('input[name="tipo"]'));
 const formWrap = document.getElementById("formWrap");
@@ -19,6 +19,7 @@ const fotoPreview = document.getElementById("fotoPreview");
 
 let selectedType = "";
 let uploadedPhotoDataUrl = "";
+let uploadedPhotoFile = null;
 
 function digitsOnly(value) {
   return String(value || "").replace(/\D/g, "");
@@ -88,6 +89,7 @@ function setDropState(active) {
 
 function clearPhotoSelection() {
   uploadedPhotoDataUrl = "";
+  uploadedPhotoFile = null;
   fotoInput.value = "";
   fotoNome.textContent = "Nenhuma foto selecionada";
   dropZone.classList.remove("has-file");
@@ -118,6 +120,7 @@ async function handlePhotoFile(file) {
   }
 
   try {
+    uploadedPhotoFile = file;
     uploadedPhotoDataUrl = await readAsDataUrl(file);
     fotoNome.textContent = `Foto selecionada: ${file.name}`;
     dropZone.classList.add("has-file");
@@ -369,11 +372,64 @@ function buildMetaLines(data, category, addressLine, cnpjFormatted) {
   return lines.filter(Boolean);
 }
 
-function saveRecord(record) {
-  const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  current.unshift(record);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
-  return current.length;
+function buildSubmissionPayload(data, category, pointId, mapFocus) {
+  const nomeOriginal = data.get("nome").trim();
+  const description = data.get("descricao").trim();
+  const addressLine = buildAddressLine(data);
+  const cnpjFormatted = applyCnpjMask(data.get("cnpj").trim());
+  const mapQuery = buildMapQuery(nomeOriginal, data);
+  const instagram = normalizeInstagram(data.get("instagram").trim());
+  const whatsapp = whatsappUrl(data.get("whatsapp").trim());
+  const email = String(data.get("email") || "").trim();
+  const phone = data.get("telefone").trim();
+  const hoursLine = category === "gastronomia"
+    ? normalizeAttendanceHours(data.get("horario").trim())
+    : "";
+
+  return {
+    category,
+    pointId,
+    mapFocus,
+    name: nomeOriginal,
+    cnpj: cnpjFormatted,
+    description,
+    addressLine,
+    instagram,
+    whatsapp,
+    email,
+    phone,
+    daysLine: category === "gastronomia" ? data.get("diaFuncionamento").trim() : "",
+    hoursLine,
+    subtitle: category === "gastronomia" ? data.get("gasExtra").trim() : "",
+    statusLine: category === "hotel" ? data.get("statusHotel").trim() : "",
+    serviceLine: category === "hotel" ? data.get("servicoHotel").trim() : "",
+    mapQuery,
+    directionsUrl: buildDirectionsUrl(mapQuery),
+    popupTitleColor: category === "hotel" ? "#3568c9" : "#c9642b"
+  };
+}
+
+async function submitRecord(payload) {
+  const requestBody = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    requestBody.append(key, value || "");
+  });
+
+  requestBody.append("photo", uploadedPhotoFile);
+
+  const response = await fetch(API_SUBMISSIONS_URL, {
+    method: "POST",
+    body: requestBody
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(result.message || "Nao foi possivel enviar o cadastro.");
+  }
+
+  return result;
 }
 
 cnpjInput.addEventListener("input", () => {
@@ -512,7 +568,7 @@ form.addEventListener("reset", () => {
   }, 0);
 });
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!selectedType) {
@@ -541,57 +597,18 @@ form.addEventListener("submit", (event) => {
   const pointId = `${prefix}-${slug}`;
   const mapFocus = pointId;
 
-  const cnpjFormatted = applyCnpjMask(data.get("cnpj").trim());
-  const description = data.get("descricao").trim();
-  const addressLine = buildAddressLine(data);
-
-  if (!uploadedPhotoDataUrl) {
+  if (!uploadedPhotoDataUrl || !uploadedPhotoFile) {
     showFeedback("Envie a foto obrigatoria do estabelecimento antes de continuar.", true);
     return;
   }
 
-  const instagram = normalizeInstagram(data.get("instagram").trim());
-  const whatsapp = whatsappUrl(data.get("whatsapp").trim());
-  const email = String(data.get("email") || "").trim();
-  const phone = data.get("telefone").trim();
-  const contacts = {
-    instagram,
-    whatsapp,
-    email,
-    phone,
-    phoneUrl: phoneUrl(phone)
-  };
-  const guide = buildGuideData(data, selectedType, nomeOriginal, description, addressLine, contacts);
-
-  const createdAt = new Date().toISOString();
-
-  const record = {
-    id: `cad-${Date.now()}`,
-    createdAt,
-    updatedAt: createdAt,
-    approvalStatus: "pending",
-    approvalUpdatedAt: createdAt,
-    category: selectedType,
-    pointId,
-    mapFocus,
-    name: nomeOriginal,
-    cnpj: cnpjFormatted,
-    description,
-    photoSrc: uploadedPhotoDataUrl,
-    metaLines: buildMetaLines(data, selectedType, addressLine, cnpjFormatted),
-    contacts,
-    guide
-  };
+  const payload = buildSubmissionPayload(data, selectedType, pointId, mapFocus);
 
   try {
-    const total = saveRecord(record);
+    await submitRecord(payload);
     form.reset();
-    showFeedback(`Cadastro enviado com sucesso. Total de estabelecimentos cadastrados: ${total}. Agora ele aguarda validacao no painel Admin.`);
+    showFeedback("Cadastro enviado com sucesso. Agora ele aguarda validacao no painel Admin.");
   } catch (error) {
-    if (error && (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED")) {
-      showFeedback("Nao foi possivel salvar. O armazenamento local do navegador ficou cheio.", true);
-      return;
-    }
-    showFeedback("Ocorreu um erro ao salvar o cadastro.", true);
+    showFeedback(error.message || "Ocorreu um erro ao enviar o cadastro.", true);
   }
 });
