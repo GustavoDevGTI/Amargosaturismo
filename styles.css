@@ -2173,6 +2173,47 @@ section h2::after {
     box-shadow: inset 0 0 0 1px rgba(18, 111, 159, 0.08);
 }
 
+.event-modal--contact .event-modal__dialog {
+    width: min(560px, 100%);
+    border-color: rgba(22, 138, 114, 0.18);
+    background: linear-gradient(180deg, rgba(248, 255, 252, 0.98), rgba(234, 249, 244, 0.98));
+    box-shadow: 0 32px 72px rgba(12, 77, 64, 0.22);
+}
+
+.event-modal--contact .event-modal__content {
+    grid-template-columns: 1fr;
+    min-height: auto;
+}
+
+.event-modal--contact .event-modal__intro {
+    background:
+        radial-gradient(circle at 16% 10%, rgba(110, 219, 190, 0.22), transparent 28%),
+        linear-gradient(180deg, rgba(15, 111, 90, 0.98), rgba(22, 138, 114, 0.94));
+}
+
+.event-modal--contact .event-modal__eyebrow {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ecfff8;
+}
+
+.event-modal--contact .event-modal__lead,
+.event-modal--contact .event-modal__copy {
+    color: rgba(244, 255, 251, 0.94);
+}
+
+.event-modal--contact .event-modal__actions {
+    margin-top: 0.35rem;
+}
+
+.event-modal--contact .event-modal__action:first-child {
+    background: #f6fffb;
+    color: #0c6553;
+}
+
+.event-modal--contact .event-modal__action--secondary {
+    color: #f7fffc;
+}
+
 .event-modal--carnaval-cultural .event-modal__notice,
 .event-modal--sao-joao .event-modal__notice,
 .event-modal--festival-forro .event-modal__notice {
@@ -4066,6 +4107,11 @@ body.modo_escuro .event-modal--guia .event-modal__frame-shell {
     background: linear-gradient(180deg, rgba(11, 28, 24, 0.98), rgba(8, 22, 18, 0.98));
 }
 
+body.modo_escuro .event-modal--contact .event-modal__dialog {
+    background: linear-gradient(180deg, rgba(10, 32, 27, 0.98), rgba(8, 24, 21, 0.98));
+    border-color: rgba(81, 184, 158, 0.18);
+}
+
 @media (max-width: 960px) {
     .event-modal {
         align-items: flex-start;
@@ -4222,5 +4268,9 @@ body.modo_escuro .event-modal--guia .event-modal__frame-shell {
 
     .event-modal--guia .event-modal__frame {
         border-radius: 16px;
+    }
+
+    .event-modal--contact .event-modal__intro {
+        padding: 1.35rem;
     }
 }

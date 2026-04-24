@@ -16,6 +16,7 @@ const desktopMenuButtons = document.querySelector('.menu-btns-campo');
 const desktopHamburgerItem = document.querySelector('.menu-btns-campo .menu-sub-campo.hamburger');
 const desktopHamburgerButton = document.querySelector('.menu-sub-campo.hamburger .menu-btn');
 const desktopHamburgerSubmenu = document.querySelector('.menu-sub-campo.hamburger .submenu_horizontal');
+const desktopContactSubmenu = document.querySelector('#submenu-contato');
 const desktopGalleryDropdownItem = document.querySelector('.menu-sub-campo--dropdown');
 const desktopGalleryDropdownButton = desktopGalleryDropdownItem?.querySelector('.menu-btn');
 const desktopGalleryDropdownSubmenu = desktopGalleryDropdownItem?.querySelector('.submenu');
@@ -61,6 +62,9 @@ const festivalForroModalTriggers = Array.from(document.querySelectorAll('[data-f
 const guiaModal = document.querySelector('#guia-modal');
 const guiaModalCloseButton = guiaModal?.querySelector('.event-modal__close');
 const guiaModalDialog = guiaModal?.querySelector('.event-modal__dialog');
+const contactModal = document.querySelector('#contact-modal');
+const contactModalCloseButton = contactModal?.querySelector('.event-modal__close');
+const contactModalActions = document.querySelector('#contact-modal-actions');
 const carnavalCulturalModalFrame = carnavalCulturalModal?.querySelector('.event-modal__frame');
 const saoJoaoModalFrame = saoJoaoModal?.querySelector('.event-modal__frame');
 const festivalForroModalFrame = festivalForroModal?.querySelector('.event-modal__frame');
@@ -144,6 +148,7 @@ let lastCarnavalCulturalModalTrigger = null;
 let lastSaoJoaoModalTrigger = null;
 let lastFestivalForroModalTrigger = null;
 let lastGuiaModalTrigger = null;
+let lastContactModalTrigger = null;
 let heroActiveIndex = heroSlides.findIndex((slide) => slide.classList.contains('is-active'));
 let heroAutoplayId = 0;
 
@@ -182,6 +187,43 @@ function createMobileMenuLink(sourceLink, extraClasses = []) {
     link.textContent = sourceLink.textContent.trim();
 
     return link;
+}
+
+function createMobileContactTrigger(labelText = 'Contato') {
+    const button = document.createElement('button');
+
+    button.type = 'button';
+    button.className = 'menu-mobile-links-btn';
+    button.dataset.contactModalTrigger = 'true';
+    button.textContent = labelText;
+
+    return button;
+}
+
+function createGuideMobileShortcutLink(labelText, sourceUrl) {
+    const link = document.createElement('a');
+
+    link.className = 'menu-mobile-links-btn menu-mobile-links-btn--atalho';
+    link.setAttribute('href', sourceUrl);
+    link.dataset.guideModalTrigger = 'true';
+    link.textContent = labelText;
+
+    return link;
+}
+
+function createGuideMobileShortcutGroup() {
+    const fragment = document.createDocumentFragment();
+    const guideShortcuts = [
+        { label: 'Como chegar', url: './guia-do-turista.html?route=como-chegar#mapa' },
+        { label: 'Hospedagem', url: './guia-do-turista.html?filter=hotel#pontos' },
+        { label: 'Gastronomia', url: './guia-do-turista.html?filter=gastronomia#pontos' }
+    ];
+
+    guideShortcuts.forEach(({ label, url }) => {
+        fragment.appendChild(createGuideMobileShortcutLink(label, url));
+    });
+
+    return fragment;
 }
 
 function createMobileThemeToggleButton() {
@@ -399,11 +441,46 @@ function buildMobileMenuFromDesktop() {
         linksPanel.className = 'menu-mobile-links-panel menu-mobile-links-panel--simple';
 
         desktopHamburgerSubmenu.querySelectorAll('.submenu_horizontal-btn a').forEach((sourceLink) => {
+            if (sourceLink.hasAttribute('data-guide-modal-trigger')) {
+                linksPanel.appendChild(createGuideMobileShortcutGroup());
+                return;
+            }
+
+            if (sourceLink.textContent.trim() === 'Contato' && desktopContactSubmenu?.querySelector('.submenu-btn a')) {
+                linksPanel.appendChild(createMobileContactTrigger(sourceLink.textContent.trim()));
+                return;
+            }
+
             linksPanel.appendChild(createMobileMenuLink(sourceLink));
         });
 
         mobileMenuBox.appendChild(linksPanel);
     }
+}
+
+function populateContactModalActions() {
+    if (!contactModalActions || !desktopContactSubmenu) {
+        return;
+    }
+
+    const sourceLinks = Array.from(desktopContactSubmenu.querySelectorAll('.submenu-btn a'));
+
+    if (!sourceLinks.length) {
+        contactModalActions.replaceChildren();
+        return;
+    }
+
+    const actionsFragment = document.createDocumentFragment();
+
+    sourceLinks.forEach((sourceLink, index) => {
+        const actionLink = document.createElement('a');
+        actionLink.className = index === 0 ? 'event-modal__action' : 'event-modal__action event-modal__action--secondary';
+        copyLinkAttributes(sourceLink, actionLink);
+        actionLink.textContent = sourceLink.textContent.trim();
+        actionsFragment.appendChild(actionLink);
+    });
+
+    contactModalActions.replaceChildren(actionsFragment);
 }
 
 function setMobileMenuOpen(isOpen) {
@@ -428,6 +505,7 @@ function getScrollOffset() {
 }
 
 buildMobileMenuFromDesktop();
+populateContactModalActions();
 applyNewTabToRedirectLinks();
 
 function setHeroSlide(nextIndex) {
@@ -1545,6 +1623,30 @@ function closeGuiaModal() {
     lastGuiaModalTrigger?.focus?.();
 }
 
+function openContactModal(trigger = null) {
+    if (!contactModal) {
+        return;
+    }
+
+    if (trigger instanceof Element && !contactModal.contains(trigger)) {
+        lastContactModalTrigger = trigger;
+    }
+
+    contactModal.hidden = false;
+    body.classList.add('contact-modal-open');
+    contactModalCloseButton?.focus();
+}
+
+function closeContactModal() {
+    if (!contactModal || contactModal.hidden) {
+        return;
+    }
+
+    contactModal.hidden = true;
+    body.classList.remove('contact-modal-open');
+    lastContactModalTrigger?.focus?.();
+}
+
 function openSaoJoaoModal(trigger = null) {
     if (!saoJoaoModal) {
         return;
@@ -2047,6 +2149,24 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    const contactModalCloseTrigger = event.target.closest('[data-contact-modal-close]');
+
+    if (contactModalCloseTrigger) {
+        event.preventDefault();
+        closeContactModal();
+        return;
+    }
+
+    const contactModalTrigger = event.target.closest('[data-contact-modal-trigger]');
+
+    if (contactModalTrigger) {
+        event.preventDefault();
+        setMobileMenuOpen(false);
+        setDesktopHamburgerOpen(false);
+        openContactModal(contactModalTrigger);
+        return;
+    }
+
     const guideModalTrigger = event.target.closest('[data-guide-modal-trigger]');
 
     if (guideModalTrigger) {
@@ -2240,6 +2360,11 @@ document.addEventListener('keydown', (event) => {
 
         if (guiaModal && !guiaModal.hidden) {
             closeGuiaModal();
+            return;
+        }
+
+        if (contactModal && !contactModal.hidden) {
+            closeContactModal();
             return;
         }
 
