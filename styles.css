@@ -4115,8 +4115,12 @@ body.modo_escuro .event-modal--contact .event-modal__dialog {
 @media (max-width: 960px) {
     .event-modal {
         align-items: flex-start;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 16px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
 
     .event-modal__dialog {
@@ -4126,6 +4130,7 @@ body.modo_escuro .event-modal--contact .event-modal__dialog {
         isolation: isolate;
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
 
     .event-modal__content {
@@ -4149,6 +4154,12 @@ body.modo_escuro .event-modal--contact .event-modal__dialog {
         max-width: 100%;
         min-height: 0;
         pointer-events: auto;
+        touch-action: pan-y;
+    }
+
+    .event-modal__intro,
+    .event-modal__frame-shell {
+        touch-action: pan-y;
     }
 
     .event-modal--guia .event-modal__intro {
