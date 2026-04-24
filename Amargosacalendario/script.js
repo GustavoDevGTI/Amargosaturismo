@@ -809,8 +809,11 @@
 
         if (calendarEvent.responsible) {
             const responsible = document.createElement("p");
+            const responsibleLabel = document.createElement("strong");
             responsible.className = "event-card-responsible";
-            responsible.innerHTML = "<strong>Responsável:</strong> " + escapeHtml(calendarEvent.responsible);
+            responsibleLabel.textContent = "Responsável:";
+            responsible.appendChild(responsibleLabel);
+            responsible.appendChild(document.createTextNode(" " + calendarEvent.responsible));
             card.appendChild(responsible);
         }
 
@@ -1170,7 +1173,9 @@
         }
 
         await refreshEvents({ silent: true, showToastOnError: false });
+        state.selectedDate = dateKey;
         closeModal(refs.eventModal);
+        openDayDetailsModal(dateKey);
         showToast(eventId ? "Evento atualizado com sucesso." : "Evento criado com sucesso.");
     }
 
