@@ -707,7 +707,9 @@
 
     function handleDayClick(dateKey) {
         const clickedDate = parseDateKey(dateKey);
-        if (clickedDate.getFullYear() !== state.currentMonth.getFullYear() || clickedDate.getMonth() !== state.currentMonth.getMonth()) {
+        const clickedMonthChanged = clickedDate.getFullYear() !== state.currentMonth.getFullYear() || clickedDate.getMonth() !== state.currentMonth.getMonth();
+
+        if (clickedMonthChanged) {
             state.currentMonth = startOfMonth(clickedDate);
         }
         state.selectedDate = dateKey;
@@ -716,7 +718,8 @@
         openDayDetailsModal(dateKey);
     }
 
-    function openDayDetailsModal(dateKey) {
+    function openDayDetailsModal(dateKey = state.selectedDate) {
+        renderDayDetailsModal(dateKey);
         openModal(refs.dayDetailsModal, refs.dayDetailsCreateButton.hidden ? null : refs.dayDetailsCreateButton);
     }
 
