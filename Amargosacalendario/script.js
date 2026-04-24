@@ -37,6 +37,7 @@
         { id: "gastronomia", label: "Gastronomia", color: "#ff7a2f" },
         { id: "literatura", label: "Literatura", color: "#56b85a" },
         { id: "musica", label: "Música", color: "#28b7c7" },
+        { id: "religiosidade", label: "Religiosidade", color: "#5f3dc4" },
         { id: "teatro", label: "Teatro", color: "#ff4f86" }
     ];
     const CATEGORY_LOOKUP = EVENT_CATEGORIES.reduce((lookup, category) => {
