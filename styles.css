@@ -289,17 +289,17 @@ textarea {
 }
 
 .menu-btn {
-    height: 2.9vw;
-    min-height: 44px;
+    height: 2.75vw;
+    min-height: 42px;
     background-color: transparent;
     border: 0;
-    font-size: 0.8vw;
+    font-size: 0.74vw;
     color: var(--white);
     text-transform: uppercase;
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    margin-top: -0.3vw;
+    margin-top: -0.15vw;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -310,16 +310,16 @@ textarea {
     position: relative;
     z-index: 1;
     display: block;
-    padding: 0 1vw;
-    line-height: 3.2vw;
+    padding: 0 0.78vw;
+    line-height: 2.95vw;
     white-space: nowrap;
 }
 
 .menu-btn .material-symbols-outlined {
-    font-size: 1.35vw;
+    font-size: 1.22vw;
     font-weight: 700;
     color: var(--white);
-    line-height: 3.2vw;
+    line-height: 2.95vw;
 }
 
 .menu-btn-base {
@@ -327,7 +327,7 @@ textarea {
     height: 5vw;
     background-color: var(--padrao02);
     position: absolute;
-    top: 2.9vw;
+    top: 2.75vw;
     left: 0;
     box-shadow: -0.1vw 0 0.3vw rgba(0, 0, 0, 0.2);
     transition: all 0.2s ease-in-out;
