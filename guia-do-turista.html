@@ -2804,7 +2804,6 @@
 
       pageMap = new google.maps.Map(document.getElementById("map"), mapOptions);
       pageInfoWindow = new google.maps.InfoWindow();
-      const geocoder = new google.maps.Geocoder();
 
       const attractionPath = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
       const heritagePath = "M4 10v2h2v6H4v2h16v-2h-2v-6h2v-2L12 4 4 10zm2 0 6-3.18L18 10H6zm2 2h2v6H8v-6zm6 0h2v6h-2v-6zm-3 0h2v6h-2v-6z";
@@ -2936,7 +2935,7 @@
           id: "tur-santa-rita",
           name: "PraÃ§a da Santa Rita",
           category: "turistico",
-          query: "PraÃ§a Constantino Sampaio, Santa Rita, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0232761, lng: -39.6028166 },
           icon: attractionIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pra%C3%A7a%20Constantino%20Sampaio,%20Santa%20Rita,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -2992,7 +2991,7 @@
           id: "gas-casa-da-feijoada",
           name: "Casa da Feijoada",
           category: "gastronomia",
-          query: "Casa da Feijoada, Rua Conselheiro Dantas, 15, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0300058, lng: -39.5980395 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Casa%20da%20Feijoada,%20Rua%20Conselheiro%20Dantas,%2015,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3006,7 +3005,7 @@
           id: "gas-chef-restaurante",
           name: "Chef Restaurante e Pizzaria",
           category: "gastronomia",
-          query: "Chef Restaurante e Pizzaria, Valle Shopping, Avenida Doutor Luis Sande de Oliveira, 196, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0238365, lng: -39.605897 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Chef%20Restaurante%20e%20Pizzaria,%20Valle%20Shopping,%20Avenida%20Doutor%20Luis%20Sande%20de%20Oliveira,%20196,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3020,7 +3019,7 @@
           id: "gas-cantinho-da-evely",
           name: "Cantinho da Evely",
           category: "gastronomia",
-          query: "Cantinho da Evely, Valle Shopping, Avenida Doutor Luis Sande de Oliveira, 196, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0235967, lng: -39.6065712 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Cantinho%20da%20Evely,%20Valle%20Shopping,%20Avenida%20Doutor%20Luis%20Sande%20de%20Oliveira,%20196,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3034,7 +3033,7 @@
           id: "gas-3-marias",
           name: "3 Marias",
           category: "gastronomia",
-          query: "3 Marias, Praca dos Correios, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.02921, lng: -39.6047845 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=3%20Marias,%20Praca%20dos%20Correios,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3048,7 +3047,7 @@
           id: "gas-boteco-boliche",
           name: "Boteco Boliche",
           category: "gastronomia",
-          query: "Boteco Boliche, Valle Shopping, Avenida Doutor Luis Sande de Oliveira, 196, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0238365, lng: -39.605897 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Boteco%20Boliche,%20Valle%20Shopping,%20Avenida%20Doutor%20Luis%20Sande%20de%20Oliveira,%20196,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3062,7 +3061,7 @@
           id: "gas-villa-galicia",
           name: "Villa Galicia Horto Restaurante",
           category: "gastronomia",
-          query: "Villa Galicia Horto Restaurante, Avenida Lomanto Junior, 35, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0359043, lng: -39.6046664 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Villa%20Galicia%20Horto%20Restaurante,%20Avenida%20Lomanto%20Junior,%2035,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3076,7 +3075,7 @@
           id: "gas-bella-roma",
           name: "Restaurante Bella Roma",
           category: "gastronomia",
-          query: "Restaurante Bella Roma, Largo Maracana, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0300058, lng: -39.5980395 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Restaurante%20Bella%20Roma,%20Largo%20Maracana,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3090,7 +3089,7 @@
           id: "gas-volupe",
           name: "Volupe Gastro Bar",
           category: "gastronomia",
-          query: "Volupe Gastro Bar, Rua da Lapinha, 209, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.025113, lng: -39.606495 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Volupe%20Gastro%20Bar,%20Rua%20da%20Lapinha,%20209,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3104,7 +3103,7 @@
           id: "gas-saori",
           name: "Saori Sushi",
           category: "gastronomia",
-          query: "Saori Sushi, Travessa Benedito Almeida, Amarcenter, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0292654, lng: -39.605642 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Saori%20Sushi,%20Travessa%20Benedito%20Almeida,%20Amarcenter,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3118,7 +3117,7 @@
           id: "gas-americano",
           name: "Americano Bar e Lanchonete",
           category: "gastronomia",
-          query: "Americano Bar e Lanchonete, Avenida Lomanto Junior, 117, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0319602, lng: -39.604313 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Americano%20Bar%20e%20Lanchonete,%20Avenida%20Lomanto%20Junior,%20117,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3132,7 +3131,7 @@
           id: "gas-pug-efemero",
           name: "Pub e Bar Efemero",
           category: "gastronomia",
-          query: "Pub e Bar Efemero, Rua Carlos Gomes, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0312651, lng: -39.6001785 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pub%20e%20Bar%20Efemero,%20Rua%20Carlos%20Gomes,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3146,7 +3145,7 @@
           id: "gas-restaurante-sias",
           name: "Restaurante e Pizzaria do Sias",
           category: "gastronomia",
-          query: "Restaurante e Pizzaria do Sias, Travessa Almeida Sampaio, 250, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0292726, lng: -39.6023098 },
           icon: gastronomyIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Restaurante%20e%20Pizzaria%20do%20Sias,%20Travessa%20Almeida%20Sampaio,%20250,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3160,7 +3159,7 @@
           id: "hotel-katiara",
           name: "Pousada Katiara",
           category: "hotel",
-          query: "Pousada Katiara, Avenida Abelardo Veloso, 470, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0302393, lng: -39.5941363 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Katiara,%20Avenida%20Abelardo%20Veloso,%20470,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3174,7 +3173,7 @@
           id: "hotel-girassol",
           name: "Pousada Girassol",
           category: "hotel",
-          query: "Pousada Girassol, Avenida Doutor Abelardo Velloso, 522, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0301649, lng: -39.5937849 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Girassol,%20Avenida%20Doutor%20Abelardo%20Velloso,%20522,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3188,7 +3187,7 @@
           id: "hotel-vale-aguas",
           name: "Hotel Fazenda Vale das Aguas",
           category: "hotel",
-          query: "Hotel Fazenda Vale das Aguas, BA-540, km 5, Fazenda Reunidas Ribeirao do Cupido, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0687402, lng: -39.5669952 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Hotel%20Fazenda%20Vale%20das%20Aguas,%20BA-540,%20km%205,%20Fazenda%20Reunidas%20Ribeirao%20do%20Cupido,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3202,7 +3201,7 @@
           id: "hotel-calisto",
           name: "Pousada Calisto",
           category: "hotel",
-          query: "Pousada Calisto, Avenida Abelardo Veloso, 258, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0299687, lng: -39.5987767 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Calisto,%20Avenida%20Abelardo%20Veloso,%20258,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3216,7 +3215,7 @@
           id: "hotel-bosque",
           name: "Pousada do Bosque",
           category: "hotel",
-          query: "Pousada do Bosque, Praca da Bandeira, 269, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0315483, lng: -39.6000694 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20do%20Bosque,%20Praca%20da%20Bandeira,%20269,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3230,7 +3229,7 @@
           id: "hotel-dona-marieta",
           name: "Pousada Dona Marieta",
           category: "hotel",
-          query: "Pousada Dona Marieta, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0231323, lng: -39.6028382 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Dona%20Marieta,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3244,7 +3243,7 @@
           id: "hotel-imperial",
           name: "Hotel Imperial",
           category: "hotel",
-          query: "Pousada Imperial, Rua Aldemiro Vaz Sampaio, 100, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0285661, lng: -39.6043237 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Imperial,%20Rua%20Aldemiro%20Vaz%20Sampaio,%20100,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3258,7 +3257,7 @@
           id: "hotel-colibri",
           name: "Hotel Fazenda Colibri",
           category: "hotel",
-          query: "Hotel Fazenda Colibri, Rodovia Amargosa-Mutuipe, km 2, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0421524, lng: -39.5816165 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Hotel%20Fazenda%20Colibri,%20Rodovia%20Amargosa-Mutuipe,%20km%202,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3272,7 +3271,7 @@
           id: "hotel-sampaio",
           name: "Pousada Sampaio",
           category: "hotel",
-          query: "Pousada Sampaio, Rua Moreira Coelho, 28, Centro, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.03061, lng: -39.6013196 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Pousada%20Sampaio,%20Rua%20Moreira%20Coelho,%2028,%20Centro,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3286,7 +3285,7 @@
           id: "hotel-baitinga",
           name: "Resort Baitinga",
           category: "hotel",
-          query: "Resort Baitinga, Povoado Baitinga, 15 - Rural, Amargosa - BA, 45300-000, Brasil",
+          coords: { lat: -13.0156032, lng: -39.5754319 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Resort%20Baitinga,%20Povoado%20Baitinga,%2015%20-%20Rural,%20Amargosa%20-%20BA,%2045300-000,%20Brasil",
           content: `
@@ -3300,7 +3299,7 @@
           id: "hotel-asa-branca",
           name: "Motel Asa Branca",
           category: "hotel",
-          query: "Motel Asa Branca, BA-540, 400, Rodovia Amargosa-Mutuipe, Amargosa, Bahia, Brasil",
+          coords: { lat: -13.0130724, lng: -39.6114608 },
           icon: lodgingIcon,
           directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Motel%20Asa%20Branca,%20BA-540,%20400,%20Rodovia%20Amargosa-Mutuipe,%20Amargosa,%20Bahia,%20Brasil",
           content: `
@@ -3334,6 +3333,9 @@
         pointCategories.set(point.id, point.category);
       });
 
+      const geocoder = points.some((point) => !point.coords && point.query)
+        ? new google.maps.Geocoder()
+        : null;
       let mappedPoints = 0;
       let pendingLookups = points.length;
 
@@ -3375,6 +3377,12 @@
       points.forEach((point) => {
         if (point.coords) {
           addMarker(point, point.coords);
+          finalizeMap();
+          return;
+        }
+
+        if (!geocoder || !point.query) {
+          console.warn("Ponto sem coordenadas ignorado no mapa:", point.name);
           finalizeMap();
           return;
         }

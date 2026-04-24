@@ -243,7 +243,7 @@ function buildGuideUrl(record) {
     params.set("focus", record.pointId || record.mapFocus);
   }
 
-  return `../wifi-publico.html?${params.toString()}#mapa`;
+  return `../guia-do-turista.html?${params.toString()}#mapa`;
 }
 
 function iconLink(href, variantClass, label, iconMarkup) {

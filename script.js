@@ -124,7 +124,7 @@ const galleryThemeCards = [
     }
 ];
 
-const GUIDE_MODAL_DEFAULT_SRC = './wifi-publico.html';
+const GUIDE_MODAL_DEFAULT_SRC = './guia-do-turista.html';
 
 const galleryCache = new Map();
 const galleryState = {
@@ -233,9 +233,9 @@ function isIntegratedGuideUrl(url) {
 
     try {
         const resolvedUrl = new URL(url, window.location.href);
-        return resolvedUrl.origin === window.location.origin && /\/wifi-publico\.html$/i.test(resolvedUrl.pathname);
+        return resolvedUrl.origin === window.location.origin && /\/guia-do-turista\.html$/i.test(resolvedUrl.pathname);
     } catch (error) {
-        return /wifi-publico\.html$/i.test(url);
+        return /guia-do-turista\.html$/i.test(url);
     }
 }
 
