@@ -810,7 +810,7 @@
         if (calendarEvent.responsible) {
             const responsible = document.createElement("p");
             responsible.className = "event-card-responsible";
-            responsible.textContent = calendarEvent.responsible;
+            responsible.innerHTML = "<strong>Responsável:</strong> " + escapeHtml(calendarEvent.responsible);
             card.appendChild(responsible);
         }
 
