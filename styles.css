@@ -294,6 +294,8 @@ textarea {
     background-color: transparent;
     border: 0;
     font-size: 0.72vw;
+    font-family: 'Cabin', sans-serif;
+    font-weight: 700;
     color: var(--white);
     text-transform: uppercase;
     cursor: pointer;
@@ -313,6 +315,8 @@ textarea {
     padding: 0 0.82vw;
     line-height: 3.2vw;
     white-space: nowrap;
+    font-family: 'Cabin', sans-serif;
+    font-weight: 700;
 }
 
 .menu-btn .material-symbols-outlined {
@@ -369,6 +373,8 @@ textarea {
 .submenu-btn {
     font-size: 0.8vw;
     line-height: 1.7vw;
+    font-family: 'Cabin', sans-serif;
+    font-weight: 700;
     color: var(--white);
     padding: 0 1vw;
     transition: all 0.2s ease-in-out;
@@ -377,6 +383,8 @@ textarea {
 .submenu-btn a {
     display: block;
     padding: 0.45vw 0;
+    font-family: inherit;
+    font-weight: inherit;
     color: inherit;
     text-decoration: none;
 }
@@ -384,6 +392,11 @@ textarea {
 .submenu-btn a[aria-disabled='true'],
 .menu-mobile-links-btn[aria-disabled='true'] {
     cursor: default;
+}
+
+.menu-mobile-links-btn {
+    font-family: 'Cabin', sans-serif;
+    font-weight: 700;
 }
 
 .submenu-btn a:hover,
@@ -524,6 +537,8 @@ textarea {
 
 .submenu_horizontal-btn {
     font-size: clamp(0.9rem, 0.84vw, 1rem);
+    font-family: 'Cabin', sans-serif;
+    font-weight: 700;
     color: var(--padrao04);
     min-height: clamp(70px, 4.8vw, 82px);
     border-radius: 14px;
@@ -548,6 +563,8 @@ textarea {
     height: 100%;
     display: flex;
     align-items: center;
+    font-family: inherit;
+    font-weight: inherit;
     color: inherit;
     text-decoration: none;
     padding: clamp(14px, 1vw, 18px) clamp(18px, 1.4vw, 24px);
