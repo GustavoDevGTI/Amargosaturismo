@@ -13,7 +13,7 @@ module.exports = {
   maxUploadBytes: toNumber(process.env.MAX_UPLOAD_MB, 4) * 1024 * 1024,
   admin: {
     username: process.env.ADMIN_USERNAME || "admin",
-    password: process.env.ADMIN_PASSWORD || "turimo@123",
+    password: process.env.ADMIN_PASSWORD || "turismo@123",
     sessionSecret: process.env.ADMIN_SESSION_SECRET || "change-this-admin-session-secret",
     sessionCookieName: process.env.ADMIN_SESSION_COOKIE_NAME || "amargosa_admin_session",
     sessionTtlHours: toNumber(process.env.ADMIN_SESSION_TTL_HOURS, 12),

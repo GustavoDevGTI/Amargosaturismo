@@ -33,7 +33,7 @@ Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL pa
 - A sessao usa cookie HTTP-only com expiracao configuravel.
 - Se nenhuma credencial for definida no ambiente, a API usa por padrao:
   - usuario: `admin`
-  - senha: `turimo@123`
+  - senha: `turismo@123`
 
 Em producao, troque essas credenciais e defina um secret proprio para a sessao.
 
