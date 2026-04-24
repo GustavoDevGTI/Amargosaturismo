@@ -132,6 +132,8 @@
     };
     let calendarLayoutObserver = null;
     let parentFrameHeightSyncId = 0;
+    let activeBrowserModalId = "";
+    let isHandlingBrowserModalPopstate = false;
 
     init();
 
@@ -281,6 +283,7 @@
         });
         document.addEventListener("scroll", hideDayPreview, true);
         window.addEventListener("resize", handleViewportResize);
+        window.addEventListener("popstate", handleBrowserModalPopstate);
     }
 
     function render() {
@@ -294,6 +297,62 @@
         renderAdminTools();
         renderDayDetailsModal(state.selectedDate);
         queueParentFrameHeightSync();
+    }
+
+    function getBrowserHistoryModalId(modal) {
+        if (modal === refs.dayDetailsModal) {
+            return "calendar-day-details-modal";
+        }
+
+        return "";
+    }
+
+    function syncBrowserHistoryOnModalOpen(modal) {
+        const modalId = getBrowserHistoryModalId(modal);
+        if (!modalId) {
+            return;
+        }
+
+        const nextState = Object.assign(
+            {},
+            window.history.state && typeof window.history.state === "object" ? window.history.state : {},
+            { amargosaCalendarModal: modalId }
+        );
+
+        if (activeBrowserModalId || (window.history.state && window.history.state.amargosaCalendarModal)) {
+            window.history.replaceState(nextState, "", window.location.href);
+        } else {
+            window.history.pushState(nextState, "", window.location.href);
+        }
+
+        activeBrowserModalId = modalId;
+    }
+
+    function shouldCloseModalViaBrowserBack(modal, options = {}) {
+        const modalId = getBrowserHistoryModalId(modal);
+
+        if (!modalId || options.skipHistory || isHandlingBrowserModalPopstate || activeBrowserModalId !== modalId) {
+            return false;
+        }
+
+        if (window.history.state && window.history.state.amargosaCalendarModal === modalId) {
+            window.history.back();
+            return true;
+        }
+
+        activeBrowserModalId = "";
+        return false;
+    }
+
+    function handleBrowserModalPopstate() {
+        if (refs.dayDetailsModal && refs.dayDetailsModal.classList.contains("open")) {
+            isHandlingBrowserModalPopstate = true;
+            closeModal(refs.dayDetailsModal, { skipHistory: true });
+            isHandlingBrowserModalPopstate = false;
+            return;
+        }
+
+        activeBrowserModalId = "";
     }
 
     function renderThemeState() {
@@ -827,7 +886,7 @@
             const actions = document.createElement("div");
             actions.className = "event-card-actions";
             actions.appendChild(buildEventAdminActionButton(dateKey, calendarEvent, {
-                beforeOpen: () => closeModal(refs.dayDetailsModal)
+                beforeOpen: () => closeModal(refs.dayDetailsModal, { skipHistory: true })
             }));
             card.appendChild(actions);
         }
@@ -865,7 +924,7 @@
 
     function handleDayDetailsCreateEvent() {
         const dateKey = refs.dayDetailsCreateButton.dataset.dateKey || state.selectedDate;
-        closeModal(refs.dayDetailsModal);
+        closeModal(refs.dayDetailsModal, { skipHistory: true });
         openEventModal(dateKey);
     }
 
@@ -1841,6 +1900,7 @@
     function openModal(modal, focusTarget) {
         modal.classList.add("open");
         modal.setAttribute("aria-hidden", "false");
+        syncBrowserHistoryOnModalOpen(modal);
         updateModalOpenState();
         queueParentFrameHeightSync();
         if (focusTarget) {
@@ -1848,12 +1908,18 @@
         }
     }
 
-    function closeModal(modal) {
+    function closeModal(modal, options = {}) {
         if (!modal) {
+            return;
+        }
+        if (shouldCloseModalViaBrowserBack(modal, options)) {
             return;
         }
         modal.classList.remove("open");
         modal.setAttribute("aria-hidden", "true");
+        if (getBrowserHistoryModalId(modal)) {
+            activeBrowserModalId = "";
+        }
         updateModalOpenState();
         queueParentFrameHeightSync();
         if (modal === refs.loginModal) {

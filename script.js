@@ -151,6 +151,8 @@ let lastGuiaModalTrigger = null;
 let lastContactModalTrigger = null;
 let heroActiveIndex = heroSlides.findIndex((slide) => slide.classList.contains('is-active'));
 let heroAutoplayId = 0;
+let activeBrowserModalId = null;
+let isHandlingBrowserModalPopstate = false;
 
 if (desktopMenuButtons && desktopHamburgerItem) {
     desktopMenuButtons.appendChild(desktopHamburgerItem);
@@ -1425,14 +1427,76 @@ function showGalleryPreview(index) {
     });
 }
 
-function closeGalleryModal() {
+function getVisibleBrowserModal() {
+    if (galleryModal && !galleryModal.hidden) {
+        return { id: 'gallery-modal', close: closeGalleryModal };
+    }
+
+    if (carnavalCulturalModal && !carnavalCulturalModal.hidden) {
+        return { id: 'carnaval-cultural-modal', close: closeCarnavalCulturalModal };
+    }
+
+    if (saoJoaoModal && !saoJoaoModal.hidden) {
+        return { id: 'sao-joao-modal', close: closeSaoJoaoModal };
+    }
+
+    if (festivalForroModal && !festivalForroModal.hidden) {
+        return { id: 'festival-forro-modal', close: closeFestivalForroModal };
+    }
+
+    if (guiaModal && !guiaModal.hidden) {
+        return { id: 'guia-modal', close: closeGuiaModal };
+    }
+
+    if (contactModal && !contactModal.hidden) {
+        return { id: 'contact-modal', close: closeContactModal };
+    }
+
+    return null;
+}
+
+function syncBrowserHistoryOnModalOpen(modalId) {
+    const nextState = {
+        ...(window.history.state && typeof window.history.state === 'object' ? window.history.state : {}),
+        amargosaModal: modalId
+    };
+
+    if (activeBrowserModalId || window.history.state?.amargosaModal) {
+        window.history.replaceState(nextState, '', window.location.href);
+    } else {
+        window.history.pushState(nextState, '', window.location.href);
+    }
+
+    activeBrowserModalId = modalId;
+}
+
+function shouldCloseModalViaBrowserBack(modalId, options = {}) {
+    if (options.skipHistory || isHandlingBrowserModalPopstate || activeBrowserModalId !== modalId) {
+        return false;
+    }
+
+    if (window.history.state?.amargosaModal === modalId) {
+        window.history.back();
+        return true;
+    }
+
+    activeBrowserModalId = null;
+    return false;
+}
+
+function closeGalleryModal(options = {}) {
     if (!galleryModal || galleryModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('gallery-modal', options)) {
         return;
     }
 
     galleryModal.hidden = true;
     body.classList.remove('gallery-modal-open');
     resetGalleryPreview();
+    activeBrowserModalId = null;
     lastGalleryTrigger?.focus?.();
 }
 
@@ -1544,10 +1608,10 @@ function initGuiaModalFrameScrollBridge() {
 }
 
 function closeOpenEventModals() {
-    closeCarnavalCulturalModal();
-    closeSaoJoaoModal();
-    closeFestivalForroModal();
-    closeGuiaModal();
+    closeCarnavalCulturalModal({ skipHistory: true });
+    closeSaoJoaoModal({ skipHistory: true });
+    closeFestivalForroModal({ skipHistory: true });
+    closeGuiaModal({ skipHistory: true });
 }
 
 function openCarnavalCulturalModal(trigger = null) {
@@ -1562,17 +1626,23 @@ function openCarnavalCulturalModal(trigger = null) {
     ensureIframeLoaded(carnavalCulturalModalFrame);
     carnavalCulturalModal.hidden = false;
     body.classList.add('carnaval-cultural-modal-open');
+    syncBrowserHistoryOnModalOpen('carnaval-cultural-modal');
     carnavalCulturalModalCloseButton?.focus();
     queueEventModalFrameSync();
 }
 
-function closeCarnavalCulturalModal() {
+function closeCarnavalCulturalModal(options = {}) {
     if (!carnavalCulturalModal || carnavalCulturalModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('carnaval-cultural-modal', options)) {
         return;
     }
 
     carnavalCulturalModal.hidden = true;
     body.classList.remove('carnaval-cultural-modal-open');
+    activeBrowserModalId = null;
     lastCarnavalCulturalModalTrigger?.focus?.();
 }
 
@@ -1619,18 +1689,24 @@ function openGuiaModal(trigger = null, sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
     }
     guiaModal.hidden = false;
     body.classList.add('guia-modal-open');
+    syncBrowserHistoryOnModalOpen('guia-modal');
     guiaModalCloseButton?.focus();
     queueEventModalFrameSync();
     window.setTimeout(initGuiaModalFrameScrollBridge, 250);
 }
 
-function closeGuiaModal() {
+function closeGuiaModal(options = {}) {
     if (!guiaModal || guiaModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('guia-modal', options)) {
         return;
     }
 
     guiaModal.hidden = true;
     body.classList.remove('guia-modal-open');
+    activeBrowserModalId = null;
     lastGuiaModalTrigger?.focus?.();
 }
 
@@ -1645,16 +1721,22 @@ function openContactModal(trigger = null) {
 
     contactModal.hidden = false;
     body.classList.add('contact-modal-open');
+    syncBrowserHistoryOnModalOpen('contact-modal');
     contactModalCloseButton?.focus();
 }
 
-function closeContactModal() {
+function closeContactModal(options = {}) {
     if (!contactModal || contactModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('contact-modal', options)) {
         return;
     }
 
     contactModal.hidden = true;
     body.classList.remove('contact-modal-open');
+    activeBrowserModalId = null;
     lastContactModalTrigger?.focus?.();
 }
 
@@ -1670,17 +1752,23 @@ function openSaoJoaoModal(trigger = null) {
     ensureIframeLoaded(saoJoaoModalFrame);
     saoJoaoModal.hidden = false;
     body.classList.add('sao-joao-modal-open');
+    syncBrowserHistoryOnModalOpen('sao-joao-modal');
     saoJoaoModalCloseButton?.focus();
     queueEventModalFrameSync();
 }
 
-function closeSaoJoaoModal() {
+function closeSaoJoaoModal(options = {}) {
     if (!saoJoaoModal || saoJoaoModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('sao-joao-modal', options)) {
         return;
     }
 
     saoJoaoModal.hidden = true;
     body.classList.remove('sao-joao-modal-open');
+    activeBrowserModalId = null;
     lastSaoJoaoModalTrigger?.focus?.();
 }
 
@@ -1696,17 +1784,23 @@ function openFestivalForroModal(trigger = null) {
     ensureIframeLoaded(festivalForroModalFrame);
     festivalForroModal.hidden = false;
     body.classList.add('festival-forro-modal-open');
+    syncBrowserHistoryOnModalOpen('festival-forro-modal');
     festivalForroModalCloseButton?.focus();
     queueEventModalFrameSync();
 }
 
-function closeFestivalForroModal() {
+function closeFestivalForroModal(options = {}) {
     if (!festivalForroModal || festivalForroModal.hidden) {
+        return;
+    }
+
+    if (shouldCloseModalViaBrowserBack('festival-forro-modal', options)) {
         return;
     }
 
     festivalForroModal.hidden = true;
     body.classList.remove('festival-forro-modal-open');
+    activeBrowserModalId = null;
     lastFestivalForroModalTrigger?.focus?.();
 }
 
@@ -1717,6 +1811,7 @@ function showGalleryModalShell() {
 
     galleryModal.hidden = false;
     body.classList.add('gallery-modal-open');
+    syncBrowserHistoryOnModalOpen('gallery-modal');
     galleryModalCloseButton?.focus();
 }
 
@@ -2312,6 +2407,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initEventGalleryButtons();
     await handleGalleryDeepLink();
     console.log('Página de Turismo de Amargosa carregada com sucesso!');
+});
+
+window.addEventListener('popstate', () => {
+    const visibleModal = getVisibleBrowserModal();
+
+    if (!visibleModal) {
+        activeBrowserModalId = null;
+        return;
+    }
+
+    isHandlingBrowserModalPopstate = true;
+    visibleModal.close({ skipHistory: true });
+    isHandlingBrowserModalPopstate = false;
 });
 
 // Compartilhamento em redes sociais
