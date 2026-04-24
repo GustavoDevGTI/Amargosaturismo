@@ -55,6 +55,7 @@ jobs:
           rsync -a --delete \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='portainer-repo/' \
             --exclude='.dockerignore' \
             --exclude='Dockerfile' \
             --exclude='docker-compose.yml' \
