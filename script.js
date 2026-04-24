@@ -1463,6 +1463,13 @@ function syncEventModalFrameHeights() {
             return;
         }
 
+        if (frame === guiaModalFrame) {
+            const mobileGuideHeight = Math.max(320, Math.min(window.innerHeight - 140, 820));
+            frame.style.height = `${mobileGuideHeight}px`;
+            frame.setAttribute('scrolling', 'yes');
+            return;
+        }
+
         try {
             const frameHeight = getFrameDocumentHeight(frame);
 
@@ -1486,6 +1493,10 @@ function queueEventModalFrameSync() {
 
 function initGuiaModalFrameScrollBridge() {
     if (!(guiaModalFrame instanceof HTMLIFrameElement) || !guiaModalDialog) {
+        return;
+    }
+
+    if (eventModalMobileMediaQuery.matches) {
         return;
     }
 
