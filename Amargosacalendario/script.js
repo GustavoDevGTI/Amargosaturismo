@@ -1031,6 +1031,8 @@
         refs.eventError.textContent = "";
         refs.eventDateInput.value = dateKey;
         refs.eventIdInput.value = currentEvent ? currentEvent.id : "";
+        refs.eventImageInput.value = "";
+        refs.eventImageUrlInput.value = currentEvent ? sanitizeImageUrl(currentEvent.imageUrl || "") : "";
         refs.eventDateLabel.textContent = formatFullDate(parseDateKey(dateKey));
         setSaveBusy(false);
         setDeleteBusy(false);
@@ -1047,6 +1049,7 @@
             refs.eventModalSubtitle.textContent = isPastEvent
                 ? "Este evento ja aconteceu e nao pode ser editado. Voce ainda pode exclui-lo."
                 : "Atualize as informacoes ou exclua o evento abaixo.";
+            renderEventImagePreview(refs.eventImageUrlInput.value);
             refs.deleteEventButton.hidden = false;
         } else {
             setEventFormMode("create");
