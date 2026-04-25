@@ -4143,6 +4143,7 @@ body.modo_escuro .event-modal--contact .event-modal__dialog {
     .event-modal__content {
         grid-template-columns: 1fr;
         min-height: auto;
+        overflow: visible;
     }
 
     .event-modal--carnaval-cultural .event-modal__content,
@@ -4167,6 +4168,12 @@ body.modo_escuro .event-modal--contact .event-modal__dialog {
     .event-modal__intro,
     .event-modal__frame-shell {
         touch-action: pan-y;
+    }
+
+    .event-modal--carnaval-cultural .event-modal__intro,
+    .event-modal--sao-joao .event-modal__intro,
+    .event-modal--festival-forro .event-modal__intro {
+        overflow: visible;
     }
 
     .event-modal--guia .event-modal__intro {

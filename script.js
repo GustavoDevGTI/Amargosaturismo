@@ -1544,17 +1544,9 @@ function syncEventModalFrameHeights() {
             return;
         }
 
-        try {
-            const frameHeight = getFrameDocumentHeight(frame);
-
-            if (frameHeight > 0) {
-                frame.style.height = `${frameHeight}px`;
-                frame.setAttribute('scrolling', 'no');
-            }
-        } catch (error) {
-            frame.style.removeProperty('height');
-            frame.removeAttribute('scrolling');
-        }
+        const mobileFrameHeight = Math.max(360, Math.min(window.innerHeight * 0.62, 640));
+        frame.style.height = `${mobileFrameHeight}px`;
+        frame.setAttribute('scrolling', 'yes');
     });
 }
 
