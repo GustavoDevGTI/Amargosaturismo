@@ -551,7 +551,7 @@
 
         item.addEventListener("click", (event) => {
             event.stopPropagation();
-            state.selectedDate = dateKey;
+            selectCalendarDate(dateKey);
             if (isLoggedIn()) {
                 closeModal(refs.dayDetailsModal);
                 openEventModal(dateKey, calendarEvent.id);
@@ -776,16 +776,21 @@
     }
 
     function handleDayClick(dateKey) {
-        const clickedDate = parseDateKey(dateKey);
-        const clickedMonthChanged = clickedDate.getFullYear() !== state.currentMonth.getFullYear() || clickedDate.getMonth() !== state.currentMonth.getMonth();
-
-        if (clickedMonthChanged) {
-            state.currentMonth = startOfMonth(clickedDate);
-        }
-        state.selectedDate = dateKey;
+        selectCalendarDate(dateKey);
         hideDayPreview();
         render();
         openDayDetailsModal(dateKey);
+    }
+
+    function selectCalendarDate(dateKey) {
+        const selected = parseDateKey(dateKey);
+        if (Number.isNaN(selected.getTime())) {
+            return;
+        }
+        if (selected.getFullYear() !== state.currentMonth.getFullYear() || selected.getMonth() !== state.currentMonth.getMonth()) {
+            state.currentMonth = startOfMonth(selected);
+        }
+        state.selectedDate = dateKey;
     }
 
     function openDayDetailsModal(dateKey = state.selectedDate) {
