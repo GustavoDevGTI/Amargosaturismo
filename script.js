@@ -338,6 +338,16 @@ function ensureIframeLoaded(frame, nextSource = null) {
     return true;
 }
 
+function isGuideFrameShowingSource(sourceUrl) {
+    if (!(guiaModalFrame instanceof HTMLIFrameElement)) {
+        return false;
+    }
+
+    const currentSource = guiaModalFrame.getAttribute('src');
+
+    return Boolean(currentSource) && normalizeGuideModalSource(currentSource) === normalizeGuideModalSource(sourceUrl);
+}
+
 function shouldOpenInNewTab(url) {
     if (!url || url.startsWith('#')) {
         return false;
@@ -1673,12 +1683,15 @@ function openGuiaModal(trigger = null, sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
     }
 
     const nextSourceUrl = resolveGuideModalSource(trigger, sourceUrl);
+    const wasOpen = !guiaModal.hidden;
 
     if (trigger instanceof Element && !guiaModal.contains(trigger)) {
         lastGuiaModalTrigger = trigger;
     }
 
-    ensureIframeLoaded(guiaModalFrame, nextSourceUrl);
+    if (!isGuideFrameShowingSource(nextSourceUrl)) {
+        ensureIframeLoaded(guiaModalFrame, nextSourceUrl);
+    }
 
     if (guiaModalPrimaryAction) {
         guiaModalPrimaryAction.setAttribute('href', nextSourceUrl);
@@ -1689,7 +1702,9 @@ function openGuiaModal(trigger = null, sourceUrl = GUIDE_MODAL_DEFAULT_SRC) {
     }
     guiaModal.hidden = false;
     body.classList.add('guia-modal-open');
-    syncBrowserHistoryOnModalOpen('guia-modal');
+    if (!wasOpen) {
+        syncBrowserHistoryOnModalOpen('guia-modal');
+    }
     guiaModalCloseButton?.focus();
     queueEventModalFrameSync();
     window.setTimeout(initGuiaModalFrameScrollBridge, 250);
@@ -2277,6 +2292,7 @@ document.addEventListener('click', (event) => {
 
     if (guideModalTrigger) {
         event.preventDefault();
+        event.stopPropagation();
         setMobileMenuOpen(false);
         setDesktopHamburgerOpen(false);
         openGuiaModal(guideModalTrigger, resolveGuideModalSource(guideModalTrigger));
