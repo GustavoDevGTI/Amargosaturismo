@@ -56,12 +56,7 @@ jobs:
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='portainer-repo/' \
-            --exclude='.dockerignore' \
-            --exclude='Dockerfile' \
-            --exclude='docker-compose.yml' \
-            --exclude='nginx.conf' \
             --exclude='README.md' \
-            --exclude='PORTAINER.md' \
             ./ ./portainer-repo/
 
       - name: Commit and push synchronized changes
