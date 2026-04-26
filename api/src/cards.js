@@ -162,7 +162,7 @@ async function ensureCardTable() {
 }
 
 async function ensureTableColumn(columnName, definition) {
-  const rows = await runQuery("SHOW COLUMNS FROM tourism_cards LIKE ?", [columnName]);
+  const [rows] = await getPool().query("SHOW COLUMNS FROM tourism_cards LIKE ?", [columnName]);
   if (!rows.length) {
     await runQuery(`ALTER TABLE tourism_cards ADD COLUMN ${definition}`);
   }
