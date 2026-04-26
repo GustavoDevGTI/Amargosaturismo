@@ -9,6 +9,15 @@ const diaFuncionamentoField = document.getElementById("diaFuncionamento");
 const horarioField = document.getElementById("horario");
 const statusHotelField = document.getElementById("statusHotel");
 const cnpjInput = document.getElementById("cnpj");
+const logradouroInput = document.getElementById("logradouro");
+const numeroInput = document.getElementById("numero");
+const bairroInput = document.getElementById("bairro");
+const mapLocateBtn = document.getElementById("mapLocateBtn");
+const mapStatus = document.getElementById("mapStatus");
+const mapSummary = document.getElementById("mapSummary");
+const latitudeInput = document.getElementById("latitude");
+const longitudeInput = document.getElementById("longitude");
+const locationMapElement = document.getElementById("locationMap");
 
 const fotoInput = document.getElementById("fotoArquivo");
 const fotoBtn = document.getElementById("fotoBtn");
@@ -20,6 +29,14 @@ const fotoPreview = document.getElementById("fotoPreview");
 let selectedType = "";
 let uploadedPhotoDataUrl = "";
 let uploadedPhotoFile = null;
+let locationMap = null;
+let locationMarker = null;
+let locationGeocoder = null;
+let mapsLoaderPromise = null;
+
+const defaultMapCenter = { lat: -13.0265, lng: -39.6085 };
+const defaultMapZoom = 14;
+const GOOGLE_MAPS_API_KEY = "AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc";
 
 function digitsOnly(value) {
   return String(value || "").replace(/\D/g, "");
@@ -81,6 +98,258 @@ function clearFeedback() {
   feedback.hidden = true;
   feedback.classList.remove("error");
   feedback.textContent = "";
+}
+
+function setMapStatus(message, isError = false) {
+  if (!mapStatus) {
+    return;
+  }
+
+  mapStatus.textContent = message;
+  mapStatus.classList.toggle("is-error", Boolean(isError));
+}
+
+function formatCoordinate(value) {
+  return Number(value).toFixed(6);
+}
+
+function getLatLngLiteral(position) {
+  if (!position) {
+    return null;
+  }
+
+  if (typeof position.lat === "function" && typeof position.lng === "function") {
+    return {
+      lat: Number(position.lat()),
+      lng: Number(position.lng())
+    };
+  }
+
+  if (typeof position.lat === "number" && typeof position.lng === "number") {
+    return {
+      lat: Number(position.lat),
+      lng: Number(position.lng)
+    };
+  }
+
+  return null;
+}
+
+function updateMapSummary(position) {
+  const literal = getLatLngLiteral(position);
+
+  if (!literal || !mapSummary) {
+    if (mapSummary) {
+      mapSummary.hidden = true;
+      mapSummary.textContent = "";
+    }
+    return;
+  }
+
+  mapSummary.hidden = false;
+  mapSummary.textContent = `Posicao confirmada: ${formatCoordinate(literal.lat)}, ${formatCoordinate(literal.lng)}.`;
+}
+
+function clearStoredCoordinates() {
+  latitudeInput.value = "";
+  longitudeInput.value = "";
+  updateMapSummary(null);
+}
+
+function storeCoordinates(position) {
+  const literal = getLatLngLiteral(position);
+
+  if (!literal) {
+    clearStoredCoordinates();
+    return;
+  }
+
+  latitudeInput.value = literal.lat.toFixed(8);
+  longitudeInput.value = literal.lng.toFixed(8);
+  updateMapSummary(literal);
+}
+
+function placeLocationMarker(position, shouldCenter = true) {
+  const literal = getLatLngLiteral(position);
+
+  if (!literal || !locationMap || !window.google?.maps) {
+    return;
+  }
+
+  if (!locationMarker) {
+    locationMarker = new google.maps.Marker({
+      position: literal,
+      map: locationMap,
+      draggable: true,
+      title: "Localizacao confirmada do estabelecimento"
+    });
+
+    locationMarker.addListener("dragend", (event) => {
+      storeCoordinates(event.latLng);
+      setMapStatus("Pino ajustado manualmente. Localizacao confirmada para o cadastro.");
+    });
+  } else {
+    locationMarker.setPosition(literal);
+  }
+
+  if (shouldCenter) {
+    locationMap.setCenter(literal);
+  }
+
+  storeCoordinates(literal);
+}
+
+function resetLocationSelection(showMessage = true) {
+  clearStoredCoordinates();
+
+  if (locationMarker) {
+    locationMarker.setMap(null);
+    locationMarker = null;
+  }
+
+  if (locationMap) {
+    locationMap.setCenter(defaultMapCenter);
+    locationMap.setZoom(defaultMapZoom);
+  }
+
+  if (showMessage) {
+    setMapStatus('Preencha rua, numero e bairro. Depois clique em "Localizar no mapa".');
+  }
+}
+
+function invalidateLocationSelection() {
+  if (!latitudeInput.value && !longitudeInput.value) {
+    return;
+  }
+
+  resetLocationSelection(false);
+  setMapStatus('O endereco foi alterado. Clique em "Localizar no mapa" para confirmar a nova posicao.');
+}
+
+function buildLocationQueryFromInputs() {
+  return [
+    logradouroInput?.value.trim(),
+    numeroInput?.value.trim(),
+    bairroInput?.value.trim(),
+    "Amargosa",
+    "Bahia",
+    "Brasil"
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function initLocationPicker() {
+  if (!locationMapElement || !window.google?.maps || locationMap) {
+    return;
+  }
+
+  locationMap = new google.maps.Map(locationMapElement, {
+    center: defaultMapCenter,
+    zoom: defaultMapZoom,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false
+  });
+  locationGeocoder = new google.maps.Geocoder();
+  locationMapElement.classList.add("is-ready");
+
+  locationMap.addListener("click", (event) => {
+    if (!event.latLng) {
+      return;
+    }
+
+    placeLocationMarker(event.latLng);
+    setMapStatus("Ponto confirmado no mapa. Se precisar, arraste o pino para refinar a localizacao.");
+  });
+
+  setMapStatus('Preencha rua, numero e bairro. Depois clique em "Localizar no mapa".');
+}
+
+function ensureLocationPickerReady() {
+  if (locationMap && locationGeocoder && window.google?.maps) {
+    return Promise.resolve();
+  }
+
+  if (window.google?.maps) {
+    initLocationPicker();
+    return Promise.resolve();
+  }
+
+  if (!mapsLoaderPromise) {
+    setMapStatus("Carregando o mapa para confirmar a localizacao...");
+
+    mapsLoaderPromise = new Promise((resolve, reject) => {
+      window.__amargosaInitLocationPicker = () => {
+        try {
+          initLocationPicker();
+          resolve();
+        } catch (error) {
+          reject(error);
+        } finally {
+          delete window.__amargosaInitLocationPicker;
+        }
+      };
+
+      const script = document.createElement("script");
+      script.id = "googleMapsLocationPickerScript";
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=__amargosaInitLocationPicker`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => {
+        mapsLoaderPromise = null;
+        delete window.__amargosaInitLocationPicker;
+        reject(new Error("Nao foi possivel carregar o mapa neste momento."));
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
+  return mapsLoaderPromise;
+}
+
+async function locateAddressOnMap() {
+  if (!logradouroInput.value.trim() || !numeroInput.value.trim() || !bairroInput.value.trim()) {
+    setMapStatus("Informe rua, numero e bairro antes de localizar no mapa.", true);
+    return;
+  }
+
+  mapLocateBtn.disabled = true;
+
+  try {
+    await ensureLocationPickerReady();
+  } catch (error) {
+    setMapStatus(error.message || "O mapa ainda esta carregando. Aguarde alguns segundos e tente novamente.", true);
+    mapLocateBtn.disabled = false;
+    return;
+  }
+
+  const query = buildLocationQueryFromInputs();
+  setMapStatus("Localizando o endereco informado no mapa...");
+
+  locationGeocoder.geocode({ address: query }, (results, status) => {
+    mapLocateBtn.disabled = false;
+
+    if (status === "OK" && results?.[0]) {
+      const result = results[0];
+      const location = result.geometry?.location;
+
+      if (result.geometry?.viewport) {
+        locationMap.fitBounds(result.geometry.viewport);
+      } else {
+        locationMap.setCenter(location);
+        locationMap.setZoom(17);
+      }
+
+      placeLocationMarker(location, false);
+      setMapStatus("Endereco encontrado. Confira o pino e, se precisar, arraste ou clique no mapa para ajustar.");
+      return;
+    }
+
+    resetLocationSelection(false);
+    setMapStatus("Nao foi possivel localizar esse endereco. Revise os campos e tente novamente.", true);
+  });
 }
 
 function setDropState(active) {
@@ -378,6 +647,8 @@ function buildSubmissionPayload(data, category, pointId, mapFocus) {
   const addressLine = buildAddressLine(data);
   const cnpjFormatted = applyCnpjMask(data.get("cnpj").trim());
   const mapQuery = buildMapQuery(nomeOriginal, data);
+  const latitude = String(data.get("latitude") || "").trim();
+  const longitude = String(data.get("longitude") || "").trim();
   const instagram = normalizeInstagram(data.get("instagram").trim());
   const whatsapp = whatsappUrl(data.get("whatsapp").trim());
   const email = String(data.get("email") || "").trim();
@@ -404,8 +675,10 @@ function buildSubmissionPayload(data, category, pointId, mapFocus) {
     statusLine: category === "hotel" ? data.get("statusHotel").trim() : "",
     serviceLine: category === "hotel" ? data.get("servicoHotel").trim() : "",
     mapQuery,
-    directionsUrl: buildDirectionsUrl(mapQuery),
-    popupTitleColor: category === "hotel" ? "#3568c9" : "#c9642b"
+    directionsUrl: buildDirectionsUrl(latitude && longitude ? `${latitude},${longitude}` : mapQuery),
+    popupTitleColor: category === "hotel" ? "#3568c9" : "#c9642b",
+    latitude,
+    longitude
   };
 }
 
@@ -550,6 +823,12 @@ dropZone.addEventListener("drop", async (event) => {
   await handlePhotoFile(file);
 });
 
+[logradouroInput, numeroInput, bairroInput].forEach((input) => {
+  input?.addEventListener("input", invalidateLocationSelection);
+});
+
+mapLocateBtn?.addEventListener("click", locateAddressOnMap);
+
 typeInputs.forEach((input) => {
   input.addEventListener("change", () => pickType(input.value));
 });
@@ -564,6 +843,7 @@ form.addEventListener("reset", () => {
     });
     delete horarioField.dataset.attendanceDigits;
     clearPhotoSelection();
+    resetLocationSelection();
     clearFeedback();
   }, 0);
 });
@@ -599,6 +879,12 @@ form.addEventListener("submit", async (event) => {
 
   if (!uploadedPhotoDataUrl || !uploadedPhotoFile) {
     showFeedback("Envie a foto obrigatoria do estabelecimento antes de continuar.", true);
+    return;
+  }
+
+  if (!latitudeInput.value || !longitudeInput.value) {
+    showFeedback('Confirme a localizacao no mapa antes de enviar o cadastro.', true);
+    mapLocateBtn?.focus();
     return;
   }
 

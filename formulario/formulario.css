@@ -187,6 +187,100 @@ textarea:focus {
   gap: 8px;
 }
 
+.map-picker {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fbfefd 0%, #f3faf7 100%);
+}
+
+.map-picker__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.map-picker__label {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.map-picker__lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.map-picker__action {
+  white-space: nowrap;
+  min-width: 180px;
+}
+
+.map-picker__status,
+.map-picker__summary {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.map-picker__status {
+  border: 1px dashed #b9d3ca;
+  background: rgba(255, 255, 255, 0.72);
+  color: #31554a;
+}
+
+.map-picker__status.is-error {
+  border-color: #e5c2bf;
+  background: #fff4f3;
+  color: #9a2f28;
+}
+
+.map-picker__summary {
+  border: 1px solid #a6cdbc;
+  background: #eef9f5;
+  color: #0d5d47;
+  font-weight: 600;
+}
+
+.map-picker__summary[hidden] {
+  display: none;
+}
+
+.map-picker__canvas {
+  min-height: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #c8d9d2;
+  background:
+    linear-gradient(180deg, rgba(21, 124, 98, 0.08) 0%, rgba(21, 124, 98, 0.02) 100%),
+    linear-gradient(90deg, rgba(21, 124, 98, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(21, 124, 98, 0.05) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+  position: relative;
+}
+
+.map-picker__canvas::before {
+  content: "O mapa sera exibido aqui assim que a API carregar.";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  color: #4f6a61;
+  font-weight: 600;
+}
+
+.map-picker__canvas.is-ready::before {
+  display: none;
+}
+
 .upload-trigger {
   width: max-content;
 }
@@ -311,7 +405,12 @@ button:focus-visible,
 
   .actions button,
   .actions .button-link,
-  .upload-trigger {
+  .upload-trigger,
+  .map-picker__action {
     width: 100%;
+  }
+
+  .map-picker__header {
+    flex-direction: column;
   }
 }

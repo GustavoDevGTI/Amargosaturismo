@@ -71,6 +71,23 @@
             </div>
 
             <div class="field full">
+              <div class="map-picker">
+                <div class="map-picker__header">
+                  <div>
+                    <p class="map-picker__label">Confirmacao no mapa *</p>
+                    <p class="map-picker__lead">Localize pelo endereco e, se precisar, ajuste o pino manualmente para salvar a posicao exata do estabelecimento.</p>
+                  </div>
+                  <button type="button" class="secondary map-picker__action" id="mapLocateBtn">Localizar no mapa</button>
+                </div>
+                <div class="map-picker__status" id="mapStatus">Preencha rua, numero e bairro. Depois clique em "Localizar no mapa".</div>
+                <div class="map-picker__summary" id="mapSummary" hidden></div>
+                <div class="map-picker__canvas" id="locationMap" aria-label="Mapa para confirmar a localizacao do estabelecimento"></div>
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+              </div>
+            </div>
+
+            <div class="field full">
               <label for="fotoArquivo">Foto do estabelecimento *</label>
               <input id="fotoArquivo" name="fotoArquivo" class="file-input-hidden" type="file" accept="image/*" capture="environment">
               <div class="upload-box">
