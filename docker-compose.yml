@@ -53,7 +53,7 @@ services:
         protocol: tcp
     depends_on:
       amargosaturismo-api:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   amargosa_mysql8_data:
