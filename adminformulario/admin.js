@@ -71,12 +71,23 @@ const editPhotoInput = document.getElementById("editPhoto");
 const editCurrentPhotoUrlInput = document.getElementById("editCurrentPhotoUrl");
 const editPhotoPreviewWrap = document.getElementById("editPhotoPreviewWrap");
 const editPhotoPreview = document.getElementById("editPhotoPreview");
+const editLatitudeInput = document.getElementById("editLatitude");
+const editLongitudeInput = document.getElementById("editLongitude");
+const editMapLocateBtn = document.getElementById("editMapLocateBtn");
+const editMapStatus = document.getElementById("editMapStatus");
+const editMapSummary = document.getElementById("editMapSummary");
+const editLocationMapElement = document.getElementById("editLocationMap");
 
 let activeCategoryFilter = "todos";
 let activeStatusFilter = "pending";
 let recordsState = [];
 let selectedEditPhotoFile = null;
 let adminAuthenticated = false;
+let adminMapsLoaderPromise = null;
+
+const DEFAULT_MAP_CENTER = { lat: -13.0265, lng: -39.6085 };
+const DEFAULT_MAP_ZOOM = 14;
+const GOOGLE_MAPS_API_KEY = "AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc";
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -107,6 +118,307 @@ function buildMapQuery(name, addressLine) {
 
 function buildDirectionsUrl(mapQuery) {
   return mapQuery ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}` : "";
+}
+
+function getLatLngLiteral(position) {
+  if (!position) {
+    return null;
+  }
+
+  if (typeof position.lat === "function" && typeof position.lng === "function") {
+    return {
+      lat: Number(position.lat()),
+      lng: Number(position.lng())
+    };
+  }
+
+  if (typeof position.lat === "number" && typeof position.lng === "number") {
+    return {
+      lat: Number(position.lat),
+      lng: Number(position.lng)
+    };
+  }
+
+  return null;
+}
+
+function formatCoordinate(value) {
+  return Number(value).toFixed(6);
+}
+
+function buildDirectionsUrlFromCoordinates(latitude, longitude) {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return "";
+  }
+
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+
+function hasConfirmedCoordinates(latitude, longitude) {
+  return Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
+}
+
+function createAdminMapPickerState(options) {
+  return {
+    canvas: options.canvas,
+    statusNode: options.statusNode,
+    summaryNode: options.summaryNode,
+    latitudeInput: options.latitudeInput,
+    longitudeInput: options.longitudeInput,
+    locateButton: options.locateButton,
+    buildQuery: options.buildQuery,
+    idleMessage: options.idleMessage,
+    notFoundMessage: options.notFoundMessage,
+    locatedMessage: options.locatedMessage,
+    adjustedMessage: options.adjustedMessage,
+    changedMessage: options.changedMessage,
+    map: null,
+    marker: null,
+    geocoder: null
+  };
+}
+
+function setMapPickerStatus(state, message, isError = false) {
+  if (!state?.statusNode) {
+    return;
+  }
+
+  state.statusNode.textContent = message;
+  state.statusNode.classList.toggle("is-error", Boolean(isError));
+}
+
+function updateMapPickerSummary(state, position) {
+  const literal = getLatLngLiteral(position);
+
+  if (!state?.summaryNode) {
+    return;
+  }
+
+  if (!literal) {
+    state.summaryNode.hidden = true;
+    state.summaryNode.textContent = "";
+    return;
+  }
+
+  state.summaryNode.hidden = false;
+  state.summaryNode.textContent = `Posicao confirmada: ${formatCoordinate(literal.lat)}, ${formatCoordinate(literal.lng)}.`;
+}
+
+function clearMapPickerCoordinates(state) {
+  state.latitudeInput.value = "";
+  state.longitudeInput.value = "";
+  updateMapPickerSummary(state, null);
+}
+
+function storeMapPickerCoordinates(state, position) {
+  const literal = getLatLngLiteral(position);
+
+  if (!literal) {
+    clearMapPickerCoordinates(state);
+    return;
+  }
+
+  state.latitudeInput.value = literal.lat.toFixed(8);
+  state.longitudeInput.value = literal.lng.toFixed(8);
+  updateMapPickerSummary(state, literal);
+}
+
+function ensureMapPickerInstance(state) {
+  if (!state?.canvas || !window.google?.maps) {
+    return;
+  }
+
+  if (!state.map) {
+    state.map = new google.maps.Map(state.canvas, {
+      center: DEFAULT_MAP_CENTER,
+      zoom: DEFAULT_MAP_ZOOM,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false
+    });
+    state.geocoder = new google.maps.Geocoder();
+    state.canvas.classList.add("is-ready");
+
+    state.map.addListener("click", (event) => {
+      if (!event.latLng) {
+        return;
+      }
+
+      placeMapPickerMarker(state, event.latLng);
+      setMapPickerStatus(state, state.adjustedMessage);
+    });
+  }
+}
+
+function ensureAdminMapsReady(state) {
+  if (window.google?.maps) {
+    ensureMapPickerInstance(state);
+    return Promise.resolve();
+  }
+
+  if (!adminMapsLoaderPromise) {
+    adminMapsLoaderPromise = new Promise((resolve, reject) => {
+      window.__amargosaInitAdminMapPicker = () => {
+        try {
+          ensureMapPickerInstance(submissionMapPickerState);
+          ensureMapPickerInstance(catalogMapPickerState);
+          resolve();
+        } catch (error) {
+          reject(error);
+        } finally {
+          delete window.__amargosaInitAdminMapPicker;
+        }
+      };
+
+      const script = document.createElement("script");
+      script.id = "googleMapsAdminPickerScript";
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=__amargosaInitAdminMapPicker`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => {
+        adminMapsLoaderPromise = null;
+        delete window.__amargosaInitAdminMapPicker;
+        reject(new Error("Nao foi possivel carregar o mapa neste momento."));
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
+  return adminMapsLoaderPromise.then(() => {
+    ensureMapPickerInstance(state);
+  });
+}
+
+function placeMapPickerMarker(state, position, shouldCenter = true) {
+  const literal = getLatLngLiteral(position);
+
+  if (!literal || !state.map || !window.google?.maps) {
+    return;
+  }
+
+  if (!state.marker) {
+    state.marker = new google.maps.Marker({
+      position: literal,
+      map: state.map,
+      draggable: true,
+      title: "Localizacao confirmada"
+    });
+
+    state.marker.addListener("dragend", (event) => {
+      storeMapPickerCoordinates(state, event.latLng);
+      setMapPickerStatus(state, state.adjustedMessage);
+    });
+  } else {
+    state.marker.setPosition(literal);
+    state.marker.setMap(state.map);
+  }
+
+  if (shouldCenter) {
+    state.map.setCenter(literal);
+  }
+
+  storeMapPickerCoordinates(state, literal);
+}
+
+function resetMapPicker(state, showMessage = true) {
+  clearMapPickerCoordinates(state);
+
+  if (state.marker) {
+    state.marker.setMap(null);
+    state.marker = null;
+  }
+
+  if (state.map) {
+    state.map.setCenter(DEFAULT_MAP_CENTER);
+    state.map.setZoom(DEFAULT_MAP_ZOOM);
+  }
+
+  if (showMessage) {
+    setMapPickerStatus(state, state.idleMessage);
+  }
+}
+
+function hydrateMapPickerFromCoordinates(state, latitude, longitude, statusMessage) {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    clearMapPickerCoordinates(state);
+    setMapPickerStatus(state, statusMessage || state.idleMessage);
+    return;
+  }
+
+  state.latitudeInput.value = lat.toFixed(8);
+  state.longitudeInput.value = lng.toFixed(8);
+  updateMapPickerSummary(state, { lat, lng });
+  setMapPickerStatus(state, statusMessage || "Localizacao atual carregada. Clique em \"Abrir / localizar\" para revisar ou ajustar.");
+}
+
+function invalidateMapPicker(state) {
+  if (!state.latitudeInput.value && !state.longitudeInput.value) {
+    return;
+  }
+
+  resetMapPicker(state, false);
+  setMapPickerStatus(state, state.changedMessage);
+}
+
+async function openMapPickerAtAddress(state) {
+  const query = normalizeLine(state.buildQuery());
+
+  if (!query) {
+    setMapPickerStatus(state, "Informe um nome e um endereco antes de localizar no mapa.", true);
+    return;
+  }
+
+  state.locateButton.disabled = true;
+  setMapPickerStatus(state, "Carregando mapa e localizando endereco...");
+
+  try {
+    await ensureAdminMapsReady(state);
+  } catch (error) {
+    setMapPickerStatus(state, error.message || "Nao foi possivel carregar o mapa neste momento.", true);
+    state.locateButton.disabled = false;
+    return;
+  }
+
+  const existingLatitude = Number(state.latitudeInput.value);
+  const existingLongitude = Number(state.longitudeInput.value);
+  if (Number.isFinite(existingLatitude) && Number.isFinite(existingLongitude)) {
+    state.map.setCenter({ lat: existingLatitude, lng: existingLongitude });
+    state.map.setZoom(17);
+    placeMapPickerMarker(state, { lat: existingLatitude, lng: existingLongitude }, false);
+    setMapPickerStatus(state, "Localizacao atual carregada no mapa. Ajuste o pino se precisar.");
+    state.locateButton.disabled = false;
+    return;
+  }
+
+  state.geocoder.geocode({ address: query }, (results, status) => {
+    state.locateButton.disabled = false;
+
+    if (status === "OK" && results?.[0]) {
+      const result = results[0];
+      const location = result.geometry?.location;
+
+      if (result.geometry?.viewport) {
+        state.map.fitBounds(result.geometry.viewport);
+      } else {
+        state.map.setCenter(location);
+        state.map.setZoom(17);
+      }
+
+      placeMapPickerMarker(state, location, false);
+      setMapPickerStatus(state, state.locatedMessage);
+      return;
+    }
+
+    resetMapPicker(state, false);
+    setMapPickerStatus(state, state.notFoundMessage, true);
+  });
 }
 
 function buildGastronomyScheduleLine(daysLine, hoursLine, fallbackLine = "") {
@@ -555,7 +867,9 @@ function getEditDraft(record) {
     serviceLine: record.category === "hotel" ? (record.guide?.serviceLine || "") : "",
     email: record.category === "hotel" ? (record.contacts?.email || "") : "",
     phone: record.category === "hotel" ? (record.contacts?.phone || "") : "",
-    photoSrc: record.photoSrc || ""
+    photoSrc: record.photoSrc || "",
+    latitude: record.guide?.coords?.lat ?? null,
+    longitude: record.guide?.coords?.lng ?? null
   };
 }
 
@@ -583,6 +897,14 @@ function openEditDialog(recordId) {
   editServiceLineInput.value = draft.serviceLine;
   editEmailInput.value = draft.email;
   editPhoneInput.value = draft.phone;
+  hydrateMapPickerFromCoordinates(
+    submissionMapPickerState,
+    draft.latitude,
+    draft.longitude,
+    Number.isFinite(Number(draft.latitude)) && Number.isFinite(Number(draft.longitude))
+      ? "Localizacao atual carregada. Clique em \"Abrir / localizar\" para revisar ou ajustar."
+      : submissionMapPickerState.idleMessage
+  );
   resetEditPhotoSelection();
   setEditPhotoPreview(draft.photoSrc);
   editHint.textContent = `Status atual: ${STATUS_LABELS[record.approvalStatus]}. Salvar a edicao nao publica o card; a publicacao acontece ao validar.`;
@@ -602,6 +924,7 @@ function closeEditDialog() {
   }
 
   resetEditPhotoSelection();
+  resetMapPicker(submissionMapPickerState);
 
   if (typeof editDialog.close === "function") {
     editDialog.close();
@@ -616,6 +939,8 @@ function buildEditPayload() {
   const name = normalizeLine(editNameInput.value);
   const addressLine = normalizeLine(editAddressLineInput.value);
   const mapQuery = buildMapQuery(name, addressLine);
+  const latitude = normalizeLine(editLatitudeInput.value);
+  const longitude = normalizeLine(editLongitudeInput.value);
 
   return {
     category,
@@ -632,10 +957,12 @@ function buildEditPayload() {
     statusLine: category === "hotel" ? normalizeLine(editStatusLineInput.value) : "",
     serviceLine: category === "hotel" ? normalizeLine(editServiceLineInput.value) : "",
     mapQuery,
-    directionsUrl: buildDirectionsUrl(mapQuery),
+    directionsUrl: buildDirectionsUrlFromCoordinates(latitude, longitude) || buildDirectionsUrl(mapQuery),
     popupTitleColor: category === "hotel" ? "#3568c9" : "#c9642b",
     photoUrl: normalizeLine(editCurrentPhotoUrlInput.value),
-    currentPhotoUrl: normalizeLine(editCurrentPhotoUrlInput.value)
+    currentPhotoUrl: normalizeLine(editCurrentPhotoUrlInput.value),
+    latitude,
+    longitude
   };
 }
 
@@ -653,6 +980,11 @@ async function saveEditedRecord(event) {
   const payload = buildEditPayload();
 
   if (!recordId || !payload.category) {
+    return;
+  }
+
+  if (payload.addressLine && !hasConfirmedCoordinates(payload.latitude, payload.longitude)) {
+    window.alert("Confirme a localizacao no mapa antes de salvar este cadastro.");
     return;
   }
 
@@ -776,6 +1108,11 @@ editPhotoInput.addEventListener("change", () => {
   reader.readAsDataURL(file);
 });
 
+editNameInput?.addEventListener("input", () => invalidateMapPicker(submissionMapPickerState));
+editAddressLineInput?.addEventListener("input", () => invalidateMapPicker(submissionMapPickerState));
+editMapLocateBtn?.addEventListener("click", () => {
+  openMapPickerAtAddress(submissionMapPickerState);
+});
 editForm.addEventListener("submit", saveEditedRecord);
 cancelEditBtn.addEventListener("click", closeEditDialog);
 closeEditBtn.addEventListener("click", closeEditDialog);
@@ -824,10 +1161,50 @@ const catalogEditPhoneInput = document.getElementById("catalogEditPhone");
 const catalogScheduleFieldWrap = document.getElementById("catalogScheduleFieldWrap");
 const catalogSocialFields = document.getElementById("catalogSocialFields");
 const catalogHotelContactFields = document.getElementById("catalogHotelContactFields");
+const catalogEditLatitudeInput = document.getElementById("catalogEditLatitude");
+const catalogEditLongitudeInput = document.getElementById("catalogEditLongitude");
+const catalogMapLocateBtn = document.getElementById("catalogMapLocateBtn");
+const catalogMapStatus = document.getElementById("catalogMapStatus");
+const catalogMapSummary = document.getElementById("catalogMapSummary");
+const catalogLocationMapElement = document.getElementById("catalogLocationMap");
 
 let catalogActiveCategoryFilter = "todos";
 let catalogRecordsState = [];
 let selectedCatalogPhotoFile = null;
+
+const submissionMapPickerState = createAdminMapPickerState({
+  canvas: editLocationMapElement,
+  statusNode: editMapStatus,
+  summaryNode: editMapSummary,
+  latitudeInput: editLatitudeInput,
+  longitudeInput: editLongitudeInput,
+  locateButton: editMapLocateBtn,
+  buildQuery: () => [normalizeLine(editNameInput.value), normalizeLine(editAddressLineInput.value), "Amargosa, Bahia, Brasil"]
+    .filter(Boolean)
+    .join(", "),
+  idleMessage: 'Clique em "Abrir / localizar" para revisar ou corrigir a posicao no mapa.',
+  notFoundMessage: "Nao foi possivel localizar este cadastro no mapa. Revise o endereco e tente novamente.",
+  locatedMessage: "Endereco encontrado. Confira o pino e ajuste manualmente se precisar.",
+  adjustedMessage: "Pino ajustado manualmente. A nova localizacao sera salva com o cadastro.",
+  changedMessage: "O endereco foi alterado. Clique em \"Abrir / localizar\" para confirmar a nova localizacao."
+});
+
+const catalogMapPickerState = createAdminMapPickerState({
+  canvas: catalogLocationMapElement,
+  statusNode: catalogMapStatus,
+  summaryNode: catalogMapSummary,
+  latitudeInput: catalogEditLatitudeInput,
+  longitudeInput: catalogEditLongitudeInput,
+  locateButton: catalogMapLocateBtn,
+  buildQuery: () => [normalizeLine(catalogEditNameInput.value), normalizeLine(catalogEditAddressLineInput.value), "Amargosa, Bahia, Brasil"]
+    .filter(Boolean)
+    .join(", "),
+  idleMessage: 'Clique em "Abrir / localizar" para revisar a posicao do card no mapa.',
+  notFoundMessage: "Nao foi possivel localizar este card no mapa. Revise o endereco e tente novamente.",
+  locatedMessage: "Endereco do card encontrado. Confira o pino e ajuste se precisar.",
+  adjustedMessage: "Pino ajustado manualmente. A nova localizacao sera salva no card.",
+  changedMessage: "O endereco do card foi alterado. Clique em \"Abrir / localizar\" para confirmar a nova localizacao."
+});
 
 function normalizeCatalogCategory(value) {
   return ["turistico", "gastronomia", "hotel"].includes(value) ? value : "turistico";
@@ -1084,7 +1461,9 @@ function getCatalogEditDraft(record) {
     instagram: contacts.instagram || "",
     whatsapp: contacts.whatsapp || "",
     email: contacts.email || "",
-    phone: contacts.phone || ""
+    phone: contacts.phone || "",
+    latitude: record.latitude ?? null,
+    longitude: record.longitude ?? null
   };
 }
 
@@ -1111,6 +1490,14 @@ function openCatalogEditDialog(recordId) {
   catalogEditWhatsappInput.value = draft.whatsapp;
   catalogEditEmailInput.value = draft.email;
   catalogEditPhoneInput.value = draft.phone;
+  hydrateMapPickerFromCoordinates(
+    catalogMapPickerState,
+    draft.latitude,
+    draft.longitude,
+    hasConfirmedCoordinates(draft.latitude, draft.longitude)
+      ? "Localizacao atual do card carregada. Clique em \"Abrir / localizar\" para revisar ou ajustar."
+      : catalogMapPickerState.idleMessage
+  );
   resetCatalogPhotoSelection();
   setCatalogPhotoPreview(draft.photoSrc);
   toggleCatalogDialogFields(draft.category);
@@ -1128,6 +1515,7 @@ function closeCatalogEditDialog() {
   }
 
   resetCatalogPhotoSelection();
+  resetMapPicker(catalogMapPickerState);
 
   if (typeof catalogEditDialog.close === "function") {
     catalogEditDialog.close();
@@ -1142,6 +1530,8 @@ function buildCatalogPayload() {
   const isTourism = category === "turistico";
   const isHotel = category === "hotel";
   const isGastronomy = category === "gastronomia";
+  const latitude = normalizeLine(catalogEditLatitudeInput.value);
+  const longitude = normalizeLine(catalogEditLongitudeInput.value);
 
   return {
     category,
@@ -1158,7 +1548,10 @@ function buildCatalogPayload() {
     photoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
     currentPhotoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
     displayOrder: normalizeLine(catalogEditDisplayOrderInput.value) || "0",
-    isActive: catalogEditIsActiveInput.checked ? "true" : "false"
+    isActive: catalogEditIsActiveInput.checked ? "true" : "false",
+    latitude,
+    longitude,
+    directionsUrl: buildDirectionsUrlFromCoordinates(latitude, longitude)
   };
 }
 
@@ -1170,6 +1563,11 @@ async function saveCatalogCard(event) {
 
   if (!recordId || !payload.name || !payload.description) {
     window.alert("Preencha pelo menos nome e descricao do card.");
+    return;
+  }
+
+  if (payload.addressLine && !hasConfirmedCoordinates(payload.latitude, payload.longitude)) {
+    window.alert("Confirme a localizacao no mapa antes de salvar este card.");
     return;
   }
 
@@ -1244,6 +1642,11 @@ catalogEditPhotoInput?.addEventListener("change", () => {
   reader.readAsDataURL(file);
 });
 
+catalogEditNameInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
+catalogEditAddressLineInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
+catalogMapLocateBtn?.addEventListener("click", () => {
+  openMapPickerAtAddress(catalogMapPickerState);
+});
 catalogEditForm?.addEventListener("submit", saveCatalogCard);
 catalogCancelEditBtn?.addEventListener("click", closeCatalogEditDialog);
 catalogCloseEditBtn?.addEventListener("click", closeCatalogEditDialog);

@@ -162,7 +162,15 @@ async function ensureCardTable() {
 }
 
 async function ensureTableColumn(columnName, definition) {
-  const [rows] = await getPool().query("SHOW COLUMNS FROM tourism_cards LIKE ?", [columnName]);
+  const [rows] = await getPool().query(
+    `SELECT COLUMN_NAME
+       FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'tourism_cards'
+        AND COLUMN_NAME = ?
+      LIMIT 1`,
+    [columnName]
+  );
   if (!rows.length) {
     await runQuery(`ALTER TABLE tourism_cards ADD COLUMN ${definition}`);
   }
@@ -327,6 +335,17 @@ function validateCardPayload(payload) {
 }
 
 function buildCardPayload(input, currentCard = null) {
+  const hasLatitude = Object.prototype.hasOwnProperty.call(input, "latitude");
+  const hasLongitude = Object.prototype.hasOwnProperty.call(input, "longitude");
+  const latitude = hasLatitude
+    ? (input.latitude === "" ? null : toNullableNumber(input.latitude))
+    : currentCard?.latitude ?? null;
+  const longitude = hasLongitude
+    ? (input.longitude === "" ? null : toNullableNumber(input.longitude))
+    : currentCard?.longitude ?? null;
+  const directionsUrl = buildDirectionsUrlFromCoordinates(latitude, longitude)
+    || normalizeLine(input.directionsUrl || currentCard?.directionsUrl);
+
   return {
     category: normalizeCategory(input.category || currentCard?.category),
     name: normalizeLine(input.name || currentCard?.name),
@@ -342,9 +361,9 @@ function buildCardPayload(input, currentCard = null) {
     phone: normalizeLine(input.phone || currentCard?.contacts?.phone),
     displayOrder: toNumber(input.displayOrder, currentCard?.displayOrder || 0),
     isActive: normalizeBool(input.isActive, currentCard?.isActive ?? true),
-    latitude: currentCard?.latitude ?? null,
-    longitude: currentCard?.longitude ?? null,
-    directionsUrl: normalizeLine(currentCard?.directionsUrl),
+    latitude,
+    longitude,
+    directionsUrl,
     markerIcon: normalizeMarkerIcon(currentCard?.markerIcon, currentCard?.category)
   };
 }
@@ -371,7 +390,7 @@ async function updateCard(publicId, input) {
     `UPDATE tourism_cards
       SET category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
           address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
-          display_order = ?, is_active = ?, updated_at = NOW()
+          latitude = ?, longitude = ?, directions_url = ?, display_order = ?, is_active = ?, updated_at = NOW()
       WHERE public_id = ?`,
     [
       payload.category,
@@ -386,6 +405,9 @@ async function updateCard(publicId, input) {
       payload.whatsappUrl,
       payload.email,
       payload.phone,
+      payload.latitude,
+      payload.longitude,
+      payload.directionsUrl,
       payload.displayOrder,
       payload.isActive ? 1 : 0,
       publicId

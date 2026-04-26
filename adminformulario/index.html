@@ -132,6 +132,8 @@
       <input type="hidden" id="editRecordId" name="recordId">
       <input type="hidden" id="editCategory" name="category">
       <input type="hidden" id="editCurrentPhotoUrl" name="currentPhotoUrl">
+      <input type="hidden" id="editLatitude" name="latitude">
+      <input type="hidden" id="editLongitude" name="longitude">
 
       <div class="edit-grid">
         <div class="field">
@@ -147,6 +149,21 @@
         <div class="field field--full">
           <label for="editAddressLine">Endereco completo</label>
           <input id="editAddressLine" name="addressLine" placeholder="Rua, numero | Bairro | Cidade - UF | CEP">
+        </div>
+
+        <div class="field field--full">
+          <div class="map-picker">
+            <div class="map-picker__header">
+              <div>
+                <p class="map-picker__label">Mapa de confirmacao</p>
+                <p class="map-picker__lead">Use o endereco para localizar o ponto e, se precisar, arraste o pino para corrigir a localizacao.</p>
+              </div>
+              <button class="neutral-btn map-picker__action" type="button" id="editMapLocateBtn">Abrir / localizar</button>
+            </div>
+            <div class="map-picker__status" id="editMapStatus">Clique em "Abrir / localizar" para revisar ou corrigir a posicao no mapa.</div>
+            <div class="map-picker__summary" id="editMapSummary" hidden></div>
+            <div class="map-picker__canvas" id="editLocationMap" aria-label="Mapa para confirmar a localizacao do cadastro"></div>
+          </div>
         </div>
 
         <div class="field field--full">
@@ -228,6 +245,8 @@
       <input type="hidden" id="catalogEditRecordId" name="recordId">
       <input type="hidden" id="catalogEditCategory" name="category">
       <input type="hidden" id="catalogEditCurrentPhotoUrl" name="currentPhotoUrl">
+      <input type="hidden" id="catalogEditLatitude" name="latitude">
+      <input type="hidden" id="catalogEditLongitude" name="longitude">
 
       <div class="edit-grid">
         <div class="field">
@@ -265,6 +284,21 @@
         <div class="field field--full">
           <label for="catalogEditAddressLine">Endereco</label>
           <input id="catalogEditAddressLine" name="addressLine" placeholder="Rua, numero, bairro ou referencia principal">
+        </div>
+
+        <div class="field field--full">
+          <div class="map-picker">
+            <div class="map-picker__header">
+              <div>
+                <p class="map-picker__label">Mapa do card</p>
+                <p class="map-picker__lead">Revise a localizacao do card e ajuste o pino se o endereco mudou ou se o ponto precisa ficar mais preciso.</p>
+              </div>
+              <button class="neutral-btn map-picker__action" type="button" id="catalogMapLocateBtn">Abrir / localizar</button>
+            </div>
+            <div class="map-picker__status" id="catalogMapStatus">Clique em "Abrir / localizar" para revisar a posicao do card no mapa.</div>
+            <div class="map-picker__summary" id="catalogMapSummary" hidden></div>
+            <div class="map-picker__canvas" id="catalogLocationMap" aria-label="Mapa para confirmar a localizacao do card oficial"></div>
+          </div>
         </div>
 
         <div class="field field--full" id="catalogScheduleFieldWrap">

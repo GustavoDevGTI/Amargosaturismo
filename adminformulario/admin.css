@@ -639,6 +639,10 @@ img {
     flex-direction: column;
   }
 
+  .map-picker__header {
+    flex-direction: column;
+  }
+
   .card-actions-inline .card-link--icon {
     flex: 0 0 40px;
     width: 40px;
@@ -667,6 +671,98 @@ img {
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
+
+.map-picker {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(21, 124, 98, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fbfefd 0%, #f2faf7 100%);
+}
+
+.map-picker__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.map-picker__label {
+  color: var(--text-color);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.map-picker__lead {
+  color: var(--muted-text);
+  font-size: 0.9rem;
+}
+
+.map-picker__action {
+  white-space: nowrap;
+}
+
+.map-picker__status,
+.map-picker__summary {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.map-picker__status {
+  border: 1px dashed rgba(21, 124, 98, 0.26);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--body-muted);
+}
+
+.map-picker__status.is-error {
+  border-color: rgba(190, 58, 45, 0.28);
+  background: rgba(190, 58, 45, 0.08);
+  color: #9c2f23;
+}
+
+.map-picker__summary {
+  border: 1px solid rgba(21, 124, 98, 0.22);
+  background: rgba(21, 124, 98, 0.08);
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.map-picker__summary[hidden] {
+  display: none;
+}
+
+.map-picker__canvas {
+  min-height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 56, 52, 0.14);
+  background:
+    linear-gradient(180deg, rgba(21, 124, 98, 0.08) 0%, rgba(21, 124, 98, 0.02) 100%),
+    linear-gradient(90deg, rgba(21, 124, 98, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(21, 124, 98, 0.05) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+  position: relative;
+}
+
+.map-picker__canvas::before {
+  content: "O mapa sera carregado quando voce clicar para localizar.";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  color: #4f6a61;
+  font-weight: 600;
+}
+
+.map-picker__canvas.is-ready::before {
+  display: none;
+}
+
 .panel--catalog {
   margin-top: 24px;
 }
