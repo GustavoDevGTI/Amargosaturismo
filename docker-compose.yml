@@ -48,7 +48,9 @@ services:
     container_name: amargosaturismo
     restart: unless-stopped
     ports:
-      - "${SITE_PORT:-8080}:80"
+      - target: 80
+        published: "${SITE_PORT:-8080}"
+        protocol: tcp
     depends_on:
       amargosaturismo-api:
         condition: service_started
