@@ -1,6 +1,6 @@
-﻿services:
+services:
   amargosaturismo-db:
-    image: mariadb:11.4
+    image: mysql:8.0.45
     container_name: amargosaturismo-db
     restart: unless-stopped
     environment:
@@ -9,8 +9,14 @@
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-amargosa123}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
     volumes:
-      - amargosa_mysql_data:/var/lib/mysql
+      - amargosa_mysql8_data:/var/lib/mysql
       - ./api/sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   amargosaturismo-api:
     build:
@@ -33,7 +39,8 @@
     volumes:
       - amargosa_uploads:/app/uploads
     depends_on:
-      - amargosaturismo-db
+      amargosaturismo-db:
+        condition: service_healthy
 
   amargosaturismo:
     build:
@@ -43,8 +50,9 @@
     ports:
       - "${SITE_PORT:-8080}:80"
     depends_on:
-      - amargosaturismo-api
+      amargosaturismo-api:
+        condition: service_started
 
 volumes:
-  amargosa_mysql_data:
+  amargosa_mysql8_data:
   amargosa_uploads:

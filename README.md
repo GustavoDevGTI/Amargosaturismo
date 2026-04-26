@@ -1,4 +1,4 @@
-﻿# Amargosaturismo
+# Amargosaturismo
 
 Portal turistico de Amargosa com frontend estatico, API Node.js e banco MySQL para cadastros de estabelecimentos.
 
@@ -62,7 +62,7 @@ O `docker-compose.yml` sobe tres servicos:
 
 - `amargosaturismo`: site em Nginx
 - `amargosaturismo-api`: API Express
-- `amargosaturismo-db`: banco MariaDB/MySQL
+- `amargosaturismo-db`: banco MySQL
 
 Passo a passo:
 
@@ -71,6 +71,12 @@ Passo a passo:
 3. Rode `docker compose up --build`.
 4. Acesse o portal em `http://localhost:8080`.
 5. A API ficara disponivel por proxy em `/api` e os uploads em `/uploads`.
+
+Observacao de migracao:
+
+- O stack agora usa MySQL oficial (`mysql:8.0.45`) e um volume novo `amargosa_mysql8_data`.
+- Isso preserva o volume antigo do MariaDB para rollback ou migracao manual.
+- Na primeira subida com essa troca, o MySQL inicializa do zero executando `api/sql/init.sql`.
 
 ## Como executar sem Docker
 

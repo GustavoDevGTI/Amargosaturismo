@@ -6,7 +6,7 @@ Este projeto sobe o stack completo com tres servicos:
 
 - `amargosaturismo`: frontend em Nginx
 - `amargosaturismo-api`: API Node.js
-- `amargosaturismo-db`: MariaDB/MySQL
+- `amargosaturismo-db`: MySQL
 
 ## Portas
 
@@ -50,6 +50,13 @@ Use o `.env.example` como base para as variaveis do stack:
 6. Use o arquivo `docker-compose.yml`.
 7. Defina as variaveis do stack.
 8. Faca o deploy.
+
+## Observacao sobre a troca do banco
+
+- O compose agora usa MySQL oficial (`mysql:8.0.45`) em vez de MariaDB.
+- O volume do banco foi trocado para `amargosa_mysql8_data` para preservar qualquer dado antigo do volume MariaDB.
+- No primeiro redeploy dessa versao, o banco sobe limpo e recria o schema a partir de `api/sql/init.sql`.
+
 
 ## Testes depois do deploy
 
