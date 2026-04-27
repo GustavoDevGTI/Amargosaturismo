@@ -1041,6 +1041,50 @@ function getGalleryPhotoFilename(photo) {
     return `${fallbackName}${extension}`;
 }
 
+function triggerGalleryPhotoDownload(blob, filename) {
+    const objectUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+
+    downloadLink.href = objectUrl;
+    downloadLink.download = filename;
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
+async function handleGalleryPreviewDownload(event) {
+    event.preventDefault();
+
+    const selectedPhoto = Number.isInteger(galleryState.selectedIndex)
+        ? galleryState.photos[galleryState.selectedIndex]
+        : null;
+    const imageUrl = galleryModalPreviewImage?.src || selectedPhoto?.imageUrl || selectedPhoto?.thumbUrl || '';
+
+    if (!imageUrl || !selectedPhoto || !galleryModalPreviewDownloadButton) {
+        return;
+    }
+
+    const filename = getGalleryPhotoFilename(selectedPhoto);
+    galleryModalPreviewDownloadButton.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch(imageUrl, { mode: 'cors' });
+
+        if (!response.ok) {
+            throw new Error('Nao foi possivel baixar a imagem.');
+        }
+
+        const blob = await response.blob();
+        triggerGalleryPhotoDownload(blob, filename);
+    } catch (error) {
+        window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    } finally {
+        galleryModalPreviewDownloadButton.removeAttribute('aria-busy');
+    }
+}
+
 function setGalleryStatus(message = '', type = 'info') {
     if (!galleryModalStatus) {
         return;
@@ -2224,6 +2268,7 @@ galleryModalPageNextButton?.addEventListener('click', () => changeGalleryPage(1)
 galleryModalMobilePagePrevButton?.addEventListener('click', () => changeGalleryPage(-1));
 galleryModalMobilePageNextButton?.addEventListener('click', () => changeGalleryPage(1));
 
+galleryModalPreviewDownloadButton?.addEventListener('click', handleGalleryPreviewDownload);
 galleryModalPreviewCloseButton?.addEventListener('click', resetGalleryPreview);
 galleryModalBackButton?.addEventListener('click', handleGalleryBack);
 
