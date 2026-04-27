@@ -10,6 +10,16 @@ function normalizeLine(value) {
   return String(value || "").trim();
 }
 
+function normalizeMediaUrl(value) {
+  const normalized = normalizeLine(value);
+
+  if (!normalized || /^(?:https?:|data:|blob:|\/)/i.test(normalized)) {
+    return normalized;
+  }
+
+  return `/${normalized.replace(/^\.?\//, "")}`;
+}
+
 function digitsOnly(value) {
   return normalizeLine(value).replace(/\D/g, "");
 }
@@ -105,7 +115,7 @@ function mapRowToCard(row) {
     name: normalizeLine(row.name),
     subtitle: normalizeLine(row.subtitle),
     description: normalizeLine(row.description),
-    photoSrc: normalizeLine(row.image_url),
+    photoSrc: normalizeMediaUrl(row.image_url),
     imageAlt: normalizeLine(row.image_alt) || normalizeLine(row.name),
     addressLine: normalizeLine(row.address_line),
     scheduleLine: normalizeLine(row.schedule_line),
@@ -351,7 +361,7 @@ function buildCardPayload(input, currentCard = null) {
     name: normalizeLine(input.name || currentCard?.name),
     subtitle: normalizeLine(input.subtitle || currentCard?.subtitle),
     description: normalizeLine(input.description || currentCard?.description),
-    photoUrl: normalizeLine(input.photoUrl || currentCard?.photoSrc),
+    photoUrl: normalizeMediaUrl(input.photoUrl || currentCard?.photoSrc),
     imageAlt: normalizeLine(input.imageAlt || currentCard?.imageAlt || input.name || currentCard?.name),
     addressLine: normalizeLine(input.addressLine || currentCard?.addressLine),
     scheduleLine: normalizeLine(input.scheduleLine || currentCard?.scheduleLine),

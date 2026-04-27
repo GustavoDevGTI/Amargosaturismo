@@ -1,11 +1,13 @@
 const fs = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
-const { runQuery } = require("./db");
+const { runQuery, getPool } = require("./db");
 const { uploadDir } = require("./config");
 
 const VALID_CATEGORIES = new Set(["gastronomia", "hotel"]);
 const VALID_STATUSES = new Set(["pending", "approved", "rejected"]);
+
+let ensureSubmissionsPromise = null;
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -215,6 +217,8 @@ function buildSubmissionPayload(input, previousRecord = null) {
 }
 
 async function listAdminSubmissions(filters = {}) {
+  await ensureSubmissionsReady();
+
   const params = [];
   const conditions = [];
 
@@ -238,6 +242,8 @@ async function listAdminSubmissions(filters = {}) {
 }
 
 async function listApprovedSubmissions(filters = {}) {
+  await ensureSubmissionsReady();
+
   const params = ["approved"];
   const conditions = ["approval_status = ?"];
 
@@ -255,11 +261,15 @@ async function listApprovedSubmissions(filters = {}) {
 }
 
 async function getSubmissionByPublicId(publicId) {
+  await ensureSubmissionsReady();
+
   const rows = await runQuery("SELECT * FROM tourism_submissions WHERE public_id = ? LIMIT 1", [publicId]);
   return rows[0] ? mapRowToRecord(rows[0]) : null;
 }
 
 async function createSubmission(input) {
+  await ensureSubmissionsReady();
+
   const payload = buildSubmissionPayload(input);
   const error = validatePayload(payload, "create");
 
@@ -391,6 +401,8 @@ async function updateSubmissionStatus(publicId, nextStatus) {
 }
 
 async function deleteAllSubmissions() {
+  await ensureSubmissionsReady();
+
   const rows = await runQuery("SELECT photo_url FROM tourism_submissions");
   await runQuery("DELETE FROM tourism_submissions");
   await Promise.all(rows.map((row) => maybeDeleteUpload(row.photo_url)));
@@ -420,12 +432,88 @@ function fileNameToUrl(fileName) {
   return withUploadsPrefix(fileName);
 }
 
+async function ensureSubmissionTable() {
+  await runQuery(
+    `CREATE TABLE IF NOT EXISTS tourism_submissions (
+      id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      public_id VARCHAR(64) NOT NULL,
+      approval_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+      category ENUM('gastronomia', 'hotel') NOT NULL,
+      point_id VARCHAR(128) NOT NULL,
+      map_focus VARCHAR(128) NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      cnpj VARCHAR(32) NOT NULL DEFAULT '',
+      description TEXT NOT NULL,
+      photo_url VARCHAR(500) NOT NULL,
+      instagram_url VARCHAR(500) NOT NULL DEFAULT '',
+      whatsapp_url VARCHAR(500) NOT NULL DEFAULT '',
+      email VARCHAR(255) NOT NULL DEFAULT '',
+      phone VARCHAR(64) NOT NULL DEFAULT '',
+      phone_url VARCHAR(255) NOT NULL DEFAULT '',
+      address_line VARCHAR(255) NOT NULL,
+      days_line VARCHAR(255) NOT NULL DEFAULT '',
+      hours_line VARCHAR(255) NOT NULL DEFAULT '',
+      subtitle VARCHAR(255) NOT NULL DEFAULT '',
+      status_line VARCHAR(255) NOT NULL DEFAULT '',
+      service_line VARCHAR(255) NOT NULL DEFAULT '',
+      map_query VARCHAR(500) NOT NULL DEFAULT '',
+      directions_url VARCHAR(500) NOT NULL DEFAULT '',
+      popup_title_color VARCHAR(32) NOT NULL DEFAULT '',
+      latitude DECIMAL(10, 8) NULL,
+      longitude DECIMAL(11, 8) NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      approval_updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uk_tourism_submissions_public_id (public_id),
+      KEY idx_tourism_submissions_status (approval_status),
+      KEY idx_tourism_submissions_category (category),
+      KEY idx_tourism_submissions_point (point_id)
+    )`
+  );
+}
+
+async function ensureTableColumn(columnName, definition) {
+  const [rows] = await getPool().query(
+    `SELECT COLUMN_NAME
+       FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'tourism_submissions'
+        AND COLUMN_NAME = ?
+      LIMIT 1`,
+    [columnName]
+  );
+
+  if (!rows.length) {
+    await runQuery(`ALTER TABLE tourism_submissions ADD COLUMN ${definition}`);
+  }
+}
+
+async function ensureSubmissionSchema() {
+  await ensureSubmissionTable();
+  await ensureTableColumn("latitude", "latitude DECIMAL(10, 8) NULL AFTER popup_title_color");
+  await ensureTableColumn("longitude", "longitude DECIMAL(11, 8) NULL AFTER latitude");
+  await ensureTableColumn("approval_updated_at", "approval_updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER updated_at");
+}
+
+async function ensureSubmissionsReady() {
+  if (!ensureSubmissionsPromise) {
+    ensureSubmissionsPromise = ensureSubmissionSchema().catch((error) => {
+      ensureSubmissionsPromise = null;
+      throw error;
+    });
+  }
+
+  return ensureSubmissionsPromise;
+}
+
 module.exports = {
   buildSubmissionPayload,
   createSubmission,
   deleteAllSubmissions,
   fileNameToUrl,
   getSubmissionByPublicId,
+  ensureSubmissionsReady,
   listAdminSubmissions,
   listApprovedSubmissions,
   maybeDeleteUpload,
