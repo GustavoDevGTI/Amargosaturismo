@@ -25,6 +25,7 @@ const {
 const {
   listAdminCards,
   listPublicCards,
+  promoteSubmissionToCard,
   updateCard
 } = require("./cards");
 const { getPool } = require("./db");
@@ -242,9 +243,13 @@ app.patch("/api/admin/cards/:id", upload.single("photo"), async (req, res, next)
 app.patch("/api/admin/submissions/:id/status", async (req, res, next) => {
   try {
     const record = await updateSubmissionStatus(req.params.id, req.body.status);
+    const card = record.approvalStatus === "approved"
+      ? await promoteSubmissionToCard(record)
+      : null;
     res.json({
       message: "Status atualizado com sucesso.",
-      record
+      record,
+      card
     });
   } catch (error) {
     next(error);

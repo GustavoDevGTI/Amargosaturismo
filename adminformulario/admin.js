@@ -530,7 +530,7 @@ function buildGuideUrl(record) {
     params.set("focus", record.pointId || record.mapFocus);
   }
 
-  return `../guia-do-turista.html?${params.toString()}#mapa`;
+  return `../guia-do-turista.html?${params.toString()}#pontos`;
 }
 
 function iconLink(href, variantClass, label, iconMarkup) {
@@ -1049,6 +1049,9 @@ async function setRecordStatus(recordId, nextStatus) {
       closeEditDialog();
     }
     await loadRecords();
+    if (targetStatus === "approved") {
+      await loadCatalogCards();
+    }
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return;

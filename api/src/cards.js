@@ -1,10 +1,13 @@
+const crypto = require("crypto");
 const { runQuery, getPool } = require("./db");
 const cardSeeds = require("./cardSeeds");
+const { ensureSubmissionsReady, listApprovedSubmissions } = require("./submissions");
 
 const VALID_CARD_CATEGORIES = new Set(["turistico", "gastronomia", "hotel"]);
 const VALID_MARKER_ICONS = new Set(["attraction", "heritage", "gastronomy", "lodging"]);
 
 let ensureCardsPromise = null;
+let cleanupTestCardsPromise = null;
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -111,6 +114,76 @@ function normalizeBool(value, fallback = true) {
   }
 
   return ["1", "true", "on", "yes", "sim"].includes(normalized);
+}
+
+function toSlug(value) {
+  return normalizeLine(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function shortHash(value) {
+  return crypto.createHash("sha1").update(normalizeLine(value)).digest("hex").slice(0, 10);
+}
+
+function buildPromotedPublicId(submissionId) {
+  const normalized = normalizeLine(submissionId);
+  const preferred = `card-${normalized}`;
+  return preferred.length <= 64 ? preferred : `card-${shortHash(normalized)}`;
+}
+
+function buildScheduleLineFromSubmission(record) {
+  const guide = record.guide || {};
+
+  if (record.category === "gastronomia") {
+    return [guide.daysLine, guide.hoursLine].map(normalizeLine).filter(Boolean).join(", ");
+  }
+
+  return normalizeLine(guide.statusLine);
+}
+
+function buildDescriptionFromSubmission(record) {
+  const guide = record.guide || {};
+  return normalizeLine(guide.description || record.description);
+}
+
+function buildCardPayloadFromSubmission(record) {
+  const category = normalizeCategory(record.category);
+  const guide = record.guide || {};
+  const contacts = record.contacts || {};
+  const coords = guide.coords || {};
+  const latitude = toNullableNumber(coords.lat);
+  const longitude = toNullableNumber(coords.lng);
+  const name = normalizeLine(record.name);
+  const pointPrefix = category === "hotel" ? "hotel" : "gas";
+  const fallbackPointId = `${pointPrefix}-${toSlug(name) || shortHash(record.id)}`;
+
+  return {
+    publicId: buildPromotedPublicId(record.id),
+    pointId: normalizeLine(record.pointId || record.mapFocus) || fallbackPointId,
+    category,
+    name,
+    subtitle: category === "hotel"
+      ? normalizeLine(guide.statusLine || guide.subtitle || guide.serviceLine)
+      : normalizeLine(guide.subtitle),
+    description: buildDescriptionFromSubmission(record),
+    photoUrl: normalizeMediaUrl(record.photoSrc),
+    imageAlt: name,
+    addressLine: normalizeLine(guide.addressLine),
+    scheduleLine: buildScheduleLineFromSubmission(record),
+    instagramUrl: normalizeLine(contacts.instagram),
+    whatsappUrl: normalizeWhatsapp(contacts.whatsapp),
+    email: normalizeEmail(contacts.email),
+    phone: normalizeLine(contacts.phone),
+    latitude,
+    longitude,
+    directionsUrl: normalizeLine(guide.directionsUrl) || buildDirectionsUrlFromCoordinates(latitude, longitude),
+    markerIcon: normalizeMarkerIcon("", category),
+    isActive: true
+  };
 }
 
 function mapRowToCard(row) {
@@ -313,8 +386,184 @@ async function ensureCardsSeeded() {
   return ensureCardsPromise;
 }
 
+async function resolvePromotedPointId(connection, requestedPointId, publicId) {
+  const basePointId = normalizeLine(requestedPointId) || `card-${shortHash(publicId)}`;
+  let candidate = basePointId;
+  let attempt = 0;
+
+  while (attempt < 10) {
+    const [rows] = await connection.execute(
+      "SELECT public_id FROM tourism_cards WHERE point_id = ? LIMIT 1",
+      [candidate]
+    );
+
+    if (!rows.length || rows[0].public_id === publicId) {
+      return candidate;
+    }
+
+    attempt += 1;
+    const suffix = attempt === 1 ? shortHash(publicId) : `${shortHash(publicId)}-${attempt}`;
+    candidate = `${basePointId.slice(0, Math.max(1, 127 - suffix.length))}-${suffix}`;
+  }
+
+  return `card-${shortHash(`${publicId}-${Date.now()}`)}`;
+}
+
+async function getCategoryInsertionOrder(connection, category) {
+  const [rows] = await connection.execute(
+    `SELECT id, category, display_order
+       FROM tourism_cards
+      ORDER BY display_order ASC, id ASC
+      FOR UPDATE`
+  );
+  const lastCategoryIndex = rows.reduce((lastIndex, row, index) => (
+    row.category === category ? index : lastIndex
+  ), -1);
+  const insertionIndex = lastCategoryIndex >= 0 ? lastCategoryIndex + 1 : rows.length;
+
+  for (const [index, row] of rows.entries()) {
+    const nextOrder = index >= insertionIndex ? index + 2 : index + 1;
+    if (toNumber(row.display_order, 0) !== nextOrder) {
+      await connection.execute(
+        "UPDATE tourism_cards SET display_order = ? WHERE id = ?",
+        [nextOrder, row.id]
+      );
+    }
+  }
+
+  return insertionIndex + 1;
+}
+
+async function promoteSubmissionToCard(record, options = {}) {
+  await ensureCardsSeeded();
+
+  const payload = buildCardPayloadFromSubmission(record);
+  const validationError = validateCardPayload(payload);
+
+  if (validationError) {
+    const error = new Error(validationError);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const connection = await getPool().getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [existingRows] = await connection.execute(
+      "SELECT * FROM tourism_cards WHERE public_id = ? LIMIT 1 FOR UPDATE",
+      [payload.publicId]
+    );
+    if (existingRows.length) {
+      if (options.updateExisting === false) {
+        await connection.commit();
+        return mapRowToCard(existingRows[0]);
+      }
+
+      const pointId = await resolvePromotedPointId(connection, payload.pointId, payload.publicId);
+      await connection.execute(
+        `UPDATE tourism_cards
+          SET point_id = ?, category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
+              address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
+              latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, is_active = 1, updated_at = NOW()
+          WHERE public_id = ?`,
+        [
+          pointId,
+          payload.category,
+          payload.name,
+          payload.subtitle,
+          payload.description,
+          payload.photoUrl,
+          payload.imageAlt,
+          payload.addressLine,
+          payload.scheduleLine,
+          payload.instagramUrl,
+          payload.whatsappUrl,
+          payload.email,
+          payload.phone,
+          payload.latitude,
+          payload.longitude,
+          payload.directionsUrl,
+          payload.markerIcon,
+          payload.publicId
+        ]
+      );
+    } else {
+      const pointId = await resolvePromotedPointId(connection, payload.pointId, payload.publicId);
+      const displayOrder = await getCategoryInsertionOrder(connection, payload.category);
+      await connection.execute(
+        `INSERT INTO tourism_cards (
+          public_id, point_id, category, name, subtitle, description, image_url, image_alt,
+          address_line, schedule_line, instagram_url, whatsapp_url, email, phone,
+          latitude, longitude, directions_url, marker_icon, display_order, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+        [
+          payload.publicId,
+          pointId,
+          payload.category,
+          payload.name,
+          payload.subtitle,
+          payload.description,
+          payload.photoUrl,
+          payload.imageAlt,
+          payload.addressLine,
+          payload.scheduleLine,
+          payload.instagramUrl,
+          payload.whatsappUrl,
+          payload.email,
+          payload.phone,
+          payload.latitude,
+          payload.longitude,
+          payload.directionsUrl,
+          payload.markerIcon,
+          displayOrder
+        ]
+      );
+    }
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  return getCardByPublicId(payload.publicId);
+}
+
+async function promoteApprovedSubmissionsToCards() {
+  await ensureCardsSeeded();
+  await cleanupTestCardsByName();
+  const records = await listApprovedSubmissions();
+  const promotedCards = [];
+
+  for (const record of records) {
+    promotedCards.push(await promoteSubmissionToCard(record, { updateExisting: false }));
+  }
+
+  return promotedCards;
+}
+
+async function cleanupTestCardsByName() {
+  if (!cleanupTestCardsPromise) {
+    cleanupTestCardsPromise = (async () => {
+      await ensureSubmissionsReady();
+      await runQuery("DELETE FROM tourism_cards WHERE LOWER(TRIM(name)) = 'teste 2'");
+      await runQuery("DELETE FROM tourism_submissions WHERE LOWER(TRIM(name)) = 'teste 2'");
+    })().catch((error) => {
+      cleanupTestCardsPromise = null;
+      throw error;
+    });
+  }
+
+  return cleanupTestCardsPromise;
+}
+
 async function listPublicCards() {
   await ensureCardsSeeded();
+  await promoteApprovedSubmissionsToCards();
   const rows = await runQuery(
     `SELECT * FROM tourism_cards
       WHERE is_active = 1
@@ -326,6 +575,7 @@ async function listPublicCards() {
 
 async function listAdminCards(filters = {}) {
   await ensureCardsSeeded();
+  await promoteApprovedSubmissionsToCards();
   const params = [];
   const conditions = [];
   const category = normalizeCategory(filters.category);
@@ -512,5 +762,7 @@ module.exports = {
   getCardByPublicId,
   listAdminCards,
   listPublicCards,
+  promoteApprovedSubmissionsToCards,
+  promoteSubmissionToCard,
   updateCard
 };
