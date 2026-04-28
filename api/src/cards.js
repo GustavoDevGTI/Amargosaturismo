@@ -354,6 +354,42 @@ async function getCardByPublicId(publicId) {
   return rows[0] ? mapRowToCard(rows[0]) : null;
 }
 
+async function reorderCardsForUpdate(connection, publicId, requestedOrder) {
+  const [rows] = await connection.execute(
+    `SELECT id, public_id, display_order
+       FROM tourism_cards
+      ORDER BY display_order ASC, id ASC
+      FOR UPDATE`
+  );
+  const currentIndex = rows.findIndex((row) => row.public_id === publicId);
+
+  if (currentIndex === -1) {
+    const error = new Error("Card nao encontrado.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const [movingCard] = rows.splice(currentIndex, 1);
+  const targetPosition = Math.min(
+    Math.max(toPositiveInteger(requestedOrder, currentIndex + 1), 1),
+    rows.length + 1
+  );
+
+  rows.splice(targetPosition - 1, 0, movingCard);
+
+  for (const [index, row] of rows.entries()) {
+    const nextOrder = index + 1;
+    if (toNumber(row.display_order, 0) !== nextOrder) {
+      await connection.execute(
+        "UPDATE tourism_cards SET display_order = ? WHERE id = ?",
+        [nextOrder, row.id]
+      );
+    }
+  }
+
+  return targetPosition;
+}
+
 function validateCardPayload(payload) {
   if (!normalizeCategory(payload.category)) {
     return "Categoria do card invalida.";
@@ -426,33 +462,48 @@ async function updateCard(publicId, input) {
     throw error;
   }
 
-  await runQuery(
-    `UPDATE tourism_cards
-      SET category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
-          address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
-          latitude = ?, longitude = ?, directions_url = ?, display_order = ?, is_active = ?, updated_at = NOW()
-      WHERE public_id = ?`,
-    [
-      payload.category,
-      payload.name,
-      payload.subtitle,
-      payload.description,
-      payload.photoUrl,
-      payload.imageAlt,
-      payload.addressLine,
-      payload.scheduleLine,
-      payload.instagramUrl,
-      payload.whatsappUrl,
-      payload.email,
-      payload.phone,
-      payload.latitude,
-      payload.longitude,
-      payload.directionsUrl,
-      payload.displayOrder,
-      payload.isActive ? 1 : 0,
-      publicId
-    ]
-  );
+  const connection = await getPool().getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const displayOrder = await reorderCardsForUpdate(connection, publicId, payload.displayOrder);
+
+    await connection.execute(
+      `UPDATE tourism_cards
+        SET category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
+            address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
+            latitude = ?, longitude = ?, directions_url = ?, display_order = ?, is_active = ?, updated_at = NOW()
+        WHERE public_id = ?`,
+      [
+        payload.category,
+        payload.name,
+        payload.subtitle,
+        payload.description,
+        payload.photoUrl,
+        payload.imageAlt,
+        payload.addressLine,
+        payload.scheduleLine,
+        payload.instagramUrl,
+        payload.whatsappUrl,
+        payload.email,
+        payload.phone,
+        payload.latitude,
+        payload.longitude,
+        payload.directionsUrl,
+        displayOrder,
+        payload.isActive ? 1 : 0,
+        publicId
+      ]
+    );
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 
   return getCardByPublicId(publicId);
 }
