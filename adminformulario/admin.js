@@ -1452,15 +1452,31 @@ function setCatalogPhotoPreview(url) {
   catalogEditPhotoPreview.src = normalized;
 }
 
+function setCatalogFieldGroupState(group, hidden) {
+  if (!group) {
+    return;
+  }
+
+  group.hidden = hidden;
+
+  group.querySelectorAll("input, textarea, select").forEach((field) => {
+    field.disabled = hidden;
+
+    if (hidden) {
+      field.value = "";
+    }
+  });
+}
+
 function toggleCatalogDialogFields(category) {
   const normalized = normalizeCatalogCategory(category);
   const isTourism = normalized === "turistico";
   const isHotel = normalized === "hotel";
   const isGastronomy = normalized === "gastronomia";
 
-  catalogScheduleFieldWrap.hidden = !isGastronomy;
-  catalogSocialFields.hidden = isTourism;
-  catalogHotelContactFields.hidden = !isHotel;
+  setCatalogFieldGroupState(catalogScheduleFieldWrap, !isGastronomy);
+  setCatalogFieldGroupState(catalogSocialFields, isTourism);
+  setCatalogFieldGroupState(catalogHotelContactFields, !isHotel);
 
   if (catalogEditHint) {
     catalogEditHint.textContent = isTourism
