@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS tourism_cards (
   longitude DECIMAL(11, 8) NULL,
   directions_url VARCHAR(500) NOT NULL DEFAULT '',
   marker_icon ENUM('attraction', 'heritage', 'gastronomy', 'lodging') NOT NULL DEFAULT 'attraction',
+  has_wifi TINYINT(1) NOT NULL DEFAULT 0,
   display_order INT NOT NULL DEFAULT 0,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

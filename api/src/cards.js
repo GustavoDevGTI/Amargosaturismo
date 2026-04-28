@@ -194,6 +194,7 @@ function buildCardPayloadFromSubmission(record) {
     longitude,
     directionsUrl: normalizeLine(guide.directionsUrl) || buildDirectionsUrlFromCoordinates(latitude, longitude),
     markerIcon: normalizeMarkerIcon("", category),
+    hasWifi: false,
     isActive: true
   };
 }
@@ -223,6 +224,7 @@ function mapRowToCard(row) {
     longitude,
     directionsUrl,
     markerIcon: normalizeMarkerIcon(row.marker_icon, category),
+    hasWifi: normalizeBool(row.has_wifi, false),
     updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : normalizeLine(row.updated_at),
     contacts: {
       instagram: normalizeLine(row.instagram_url),
@@ -256,6 +258,7 @@ async function ensureCardTable() {
       longitude DECIMAL(11, 8) NULL,
       directions_url VARCHAR(500) NOT NULL DEFAULT '',
       marker_icon ENUM('attraction', 'heritage', 'gastronomy', 'lodging') NOT NULL DEFAULT 'attraction',
+      has_wifi TINYINT(1) NOT NULL DEFAULT 0,
       display_order INT NOT NULL DEFAULT 0,
       is_active TINYINT(1) NOT NULL DEFAULT 1,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -307,6 +310,7 @@ async function ensureCardSchema() {
   await ensureTableColumn("longitude", "longitude DECIMAL(11, 8) NULL AFTER latitude");
   await ensureTableColumn("directions_url", "directions_url VARCHAR(500) NOT NULL DEFAULT '' AFTER longitude");
   await ensureTableColumn("marker_icon", "marker_icon ENUM('attraction', 'heritage', 'gastronomy', 'lodging') NOT NULL DEFAULT 'attraction' AFTER directions_url");
+  await ensureTableColumn("has_wifi", "has_wifi TINYINT(1) NOT NULL DEFAULT 0 AFTER marker_icon");
 }
 
 async function seedCardsIfEmpty() {
@@ -328,8 +332,8 @@ async function seedCardsIfEmpty() {
         `INSERT INTO tourism_cards (
           public_id, point_id, category, name, subtitle, description, image_url, image_alt,
           address_line, schedule_line, instagram_url, whatsapp_url, email, phone,
-          latitude, longitude, directions_url, marker_icon, display_order, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          latitude, longitude, directions_url, marker_icon, has_wifi, display_order, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           normalizeLine(card.publicId),
           normalizeLine(card.pointId),
@@ -349,6 +353,7 @@ async function seedCardsIfEmpty() {
           toNullableNumber(card.longitude),
           normalizeLine(card.directionsUrl),
           normalizeMarkerIcon(card.markerIcon, category),
+          normalizeBool(card.hasWifi, false) ? 1 : 0,
           toNumber(card.displayOrder, 0),
           normalizeBool(card.isActive, true) ? 1 : 0
         ]
@@ -372,13 +377,15 @@ async function backfillSeedMapMetadata() {
         SET latitude = COALESCE(latitude, ?),
             longitude = COALESCE(longitude, ?),
             directions_url = CASE WHEN directions_url IS NULL OR directions_url = '' THEN ? ELSE directions_url END,
-            marker_icon = CASE WHEN marker_icon IS NULL OR marker_icon = '' THEN ? ELSE marker_icon END
+            marker_icon = CASE WHEN marker_icon IS NULL OR marker_icon = '' THEN ? ELSE marker_icon END,
+            has_wifi = CASE WHEN ? = 1 THEN 1 ELSE has_wifi END
         WHERE public_id = ? OR point_id = ?`,
       [
         toNullableNumber(card.latitude),
         toNullableNumber(card.longitude),
         normalizeLine(card.directionsUrl),
         normalizeMarkerIcon(card.markerIcon, category),
+        normalizeBool(card.hasWifi, false) ? 1 : 0,
         normalizeLine(card.publicId),
         normalizeLine(card.pointId)
       ]
@@ -506,7 +513,7 @@ async function promoteSubmissionToCard(record, options = {}) {
         `UPDATE tourism_cards
           SET point_id = ?, category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
               address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
-              latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, is_active = 1, updated_at = NOW()
+              latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, has_wifi = ?, is_active = 1, updated_at = NOW()
           WHERE public_id = ?`,
         [
           pointId,
@@ -526,6 +533,7 @@ async function promoteSubmissionToCard(record, options = {}) {
           payload.longitude,
           payload.directionsUrl,
           payload.markerIcon,
+          payload.hasWifi ? 1 : 0,
           payload.publicId
         ]
       );
@@ -536,8 +544,8 @@ async function promoteSubmissionToCard(record, options = {}) {
         `INSERT INTO tourism_cards (
           public_id, point_id, category, name, subtitle, description, image_url, image_alt,
           address_line, schedule_line, instagram_url, whatsapp_url, email, phone,
-          latitude, longitude, directions_url, marker_icon, display_order, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+          latitude, longitude, directions_url, marker_icon, has_wifi, display_order, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
         [
           payload.publicId,
           pointId,
@@ -557,6 +565,7 @@ async function promoteSubmissionToCard(record, options = {}) {
           payload.longitude,
           payload.directionsUrl,
           payload.markerIcon,
+          payload.hasWifi ? 1 : 0,
           displayOrder
         ]
       );
@@ -718,6 +727,9 @@ function buildCardPayload(input, currentCard = null) {
     phone: normalizeLine(pickInputValue(input, "phone", currentCard?.contacts?.phone)),
     displayOrder: toPositiveInteger(pickInputValue(input, "displayOrder", currentCard?.displayOrder || 1), currentCard?.displayOrder || 1),
     isActive: normalizeBool(pickInputValue(input, "isActive", currentCard?.isActive ?? true), currentCard?.isActive ?? true),
+    hasWifi: category === "turistico"
+      ? normalizeBool(pickInputValue(input, "hasWifi", currentCard?.hasWifi ?? false), currentCard?.hasWifi ?? false)
+      : false,
     latitude,
     longitude,
     directionsUrl,
@@ -765,8 +777,8 @@ async function createCard(input) {
       `INSERT INTO tourism_cards (
         public_id, point_id, category, name, subtitle, description, image_url, image_alt,
         address_line, schedule_line, instagram_url, whatsapp_url, email, phone,
-        latitude, longitude, directions_url, marker_icon, display_order, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        latitude, longitude, directions_url, marker_icon, has_wifi, display_order, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         publicId,
         pointId,
@@ -786,6 +798,7 @@ async function createCard(input) {
         payload.longitude,
         payload.directionsUrl,
         payload.markerIcon,
+        payload.hasWifi ? 1 : 0,
         displayOrder,
         payload.isActive ? 1 : 0
       ]
@@ -831,7 +844,7 @@ async function updateCard(publicId, input) {
       `UPDATE tourism_cards
         SET category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
             address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
-            latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, display_order = ?, is_active = ?, updated_at = NOW()
+            latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, has_wifi = ?, display_order = ?, is_active = ?, updated_at = NOW()
         WHERE public_id = ?`,
       [
         payload.category,
@@ -850,6 +863,7 @@ async function updateCard(publicId, input) {
         payload.longitude,
         payload.directionsUrl,
         payload.markerIcon,
+        payload.hasWifi ? 1 : 0,
         displayOrder,
         payload.isActive ? 1 : 0,
         publicId

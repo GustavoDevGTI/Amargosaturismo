@@ -1164,6 +1164,7 @@ const catalogEditCurrentPhotoUrlInput = document.getElementById("catalogEditCurr
 const catalogEditPointIdInput = document.getElementById("catalogEditPointId");
 const catalogEditDisplayOrderInput = document.getElementById("catalogEditDisplayOrder");
 const catalogEditIsActiveInput = document.getElementById("catalogEditIsActive");
+const catalogEditHasWifiInput = document.getElementById("catalogEditHasWifi");
 const catalogEditNameInput = document.getElementById("catalogEditName");
 const catalogEditSubtitleInput = document.getElementById("catalogEditSubtitle");
 const catalogEditDescriptionInput = document.getElementById("catalogEditDescription");
@@ -1176,6 +1177,7 @@ const catalogEditInstagramInput = document.getElementById("catalogEditInstagram"
 const catalogEditWhatsappInput = document.getElementById("catalogEditWhatsapp");
 const catalogEditEmailInput = document.getElementById("catalogEditEmail");
 const catalogEditPhoneInput = document.getElementById("catalogEditPhone");
+const catalogWifiFieldWrap = document.getElementById("catalogWifiFieldWrap");
 const catalogScheduleFieldWrap = document.getElementById("catalogScheduleFieldWrap");
 const catalogSocialFields = document.getElementById("catalogSocialFields");
 const catalogHotelContactFields = document.getElementById("catalogHotelContactFields");
@@ -1463,7 +1465,11 @@ function setCatalogFieldGroupState(group, hidden) {
     field.disabled = hidden;
 
     if (hidden) {
-      field.value = "";
+      if (field.type === "checkbox" || field.type === "radio") {
+        field.checked = false;
+      } else {
+        field.value = "";
+      }
     }
   });
 }
@@ -1477,6 +1483,7 @@ function toggleCatalogDialogFields(category) {
   setCatalogFieldGroupState(catalogScheduleFieldWrap, !isGastronomy);
   setCatalogFieldGroupState(catalogSocialFields, isTourism);
   setCatalogFieldGroupState(catalogHotelContactFields, !isHotel);
+  setCatalogFieldGroupState(catalogWifiFieldWrap, !isTourism);
 
   if (catalogEditHint) {
     catalogEditHint.textContent = isTourism
@@ -1495,6 +1502,7 @@ function getCatalogEditDraft(record) {
     category: normalizeCatalogCategory(record.category),
     displayOrder: Number(record.displayOrder || 0),
     isActive: Boolean(record.isActive),
+    hasWifi: Boolean(record.hasWifi),
     name: record.name || "",
     subtitle: record.subtitle || "",
     description: record.description || "",
@@ -1529,6 +1537,7 @@ function openCatalogEditDialog(recordId) {
   catalogEditPointIdInput.readOnly = true;
   catalogEditDisplayOrderInput.value = draft.displayOrder || 0;
   catalogEditIsActiveInput.checked = draft.isActive;
+  catalogEditHasWifiInput.checked = draft.hasWifi;
   catalogEditNameInput.value = draft.name;
   catalogEditSubtitleInput.value = draft.subtitle;
   catalogEditDescriptionInput.value = draft.description;
@@ -1573,6 +1582,7 @@ function openCatalogCreateDialog() {
   catalogEditPointIdInput.readOnly = false;
   catalogEditDisplayOrderInput.value = "";
   catalogEditIsActiveInput.checked = true;
+  catalogEditHasWifiInput.checked = false;
   catalogEditSubtitleInput.value = "";
   catalogEditLatitudeInput.value = "";
   catalogEditLongitudeInput.value = "";
@@ -1633,6 +1643,7 @@ function buildCatalogPayload() {
       ? ""
       : normalizeDisplayOrderValue(displayOrderValue, 1),
     isActive: catalogEditIsActiveInput.checked ? "true" : "false",
+    hasWifi: isTourism && catalogEditHasWifiInput.checked ? "true" : "false",
     latitude,
     longitude,
     directionsUrl: buildDirectionsUrlFromCoordinates(latitude, longitude)

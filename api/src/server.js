@@ -97,6 +97,7 @@ function buildPayloadFromRequest(req) {
     latitude: body.latitude,
     longitude: body.longitude,
     displayOrder: body.displayOrder,
+    hasWifi: body.hasWifi,
     isActive: body.isActive
   };
 }

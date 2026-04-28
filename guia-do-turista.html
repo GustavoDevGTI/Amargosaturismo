@@ -2330,6 +2330,7 @@
         scheduleLine,
         displayOrder: Number(rawRecord?.displayOrder) || 0,
         isActive: rawRecord?.isActive !== false,
+        hasWifi: rawRecord?.hasWifi === true || rawRecord?.hasWifi === 1 || normalizeText(rawRecord?.hasWifi).toLowerCase() === "true",
         latitude: hasCoordinates ? latitudeValue : null,
         longitude: hasCoordinates ? longitudeValue : null,
         directionsUrl,
@@ -2389,6 +2390,7 @@
       article.className = "attraction-card";
       article.dataset.category = record.category;
       article.dataset.pointId = record.pointId;
+      article.dataset.hasWifi = record.hasWifi ? "true" : "false";
       article.hidden = true;
       article.dataset.submittedCard = "true";
 
@@ -2479,6 +2481,7 @@
       article.className = "attraction-card";
       article.dataset.category = record.category;
       article.dataset.pointId = record.pointId;
+      article.dataset.hasWifi = record.hasWifi ? "true" : "false";
       article.hidden = true;
 
       const image = document.createElement("img");
@@ -2670,12 +2673,23 @@
 
     function applyTourismWifiStatus(cards = allCarouselCards) {
       cards.forEach((card) => {
-        if (card.dataset.category !== "turistico" || !TOURISM_POINT_IDS_WITH_WIFI.has(card.dataset.pointId)) {
+        if (card.dataset.category !== "turistico") {
           return;
         }
 
         const actions = card.querySelector(".card-actions");
-        if (!actions || actions.querySelector(".wifi-status")) {
+        const existingWifiStatus = actions?.querySelector(".wifi-status");
+        const hasExplicitWifiFlag = Object.prototype.hasOwnProperty.call(card.dataset, "hasWifi");
+        const hasWifi = hasExplicitWifiFlag
+          ? card.dataset.hasWifi === "true"
+          : TOURISM_POINT_IDS_WITH_WIFI.has(card.dataset.pointId);
+
+        if (!hasWifi) {
+          existingWifiStatus?.remove();
+          return;
+        }
+
+        if (!actions || existingWifiStatus) {
           return;
         }
 
