@@ -159,7 +159,7 @@ async function ensureCardTable() {
       name VARCHAR(255) NOT NULL,
       subtitle VARCHAR(255) NOT NULL DEFAULT '',
       description TEXT NOT NULL,
-      image_url VARCHAR(500) NOT NULL,
+      image_url LONGTEXT NOT NULL,
       image_alt VARCHAR(255) NOT NULL DEFAULT '',
       address_line VARCHAR(255) NOT NULL DEFAULT '',
       schedule_line VARCHAR(255) NOT NULL DEFAULT '',
@@ -199,8 +199,25 @@ async function ensureTableColumn(columnName, definition) {
   }
 }
 
+async function ensureTableColumnType(columnName, expectedDataType, alterStatement) {
+  const [rows] = await getPool().query(
+    `SELECT DATA_TYPE
+       FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'tourism_cards'
+        AND COLUMN_NAME = ?
+      LIMIT 1`,
+    [columnName]
+  );
+
+  if (rows[0]?.DATA_TYPE && rows[0].DATA_TYPE.toLowerCase() !== expectedDataType) {
+    await runQuery(alterStatement);
+  }
+}
+
 async function ensureCardSchema() {
   await ensureCardTable();
+  await ensureTableColumnType("image_url", "longtext", "ALTER TABLE tourism_cards MODIFY COLUMN image_url LONGTEXT NOT NULL");
   await ensureTableColumn("latitude", "latitude DECIMAL(10, 8) NULL AFTER phone");
   await ensureTableColumn("longitude", "longitude DECIMAL(11, 8) NULL AFTER latitude");
   await ensureTableColumn("directions_url", "directions_url VARCHAR(500) NOT NULL DEFAULT '' AFTER longitude");

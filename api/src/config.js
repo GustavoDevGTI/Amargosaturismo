@@ -10,7 +10,6 @@ function toNumber(value, fallback) {
 module.exports = {
   port: toNumber(process.env.API_PORT, 3000),
   uploadDir: path.resolve(rootDir, process.env.UPLOAD_DIR || "uploads"),
-  maxUploadBytes: toNumber(process.env.MAX_UPLOAD_MB, 4) * 1024 * 1024,
   admin: {
     username: process.env.ADMIN_USERNAME || "admin",
     password: process.env.ADMIN_PASSWORD || "turismo@123",

@@ -2,11 +2,10 @@ require("dotenv").config();
 
 const express = require("express");
 const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 const helmet = require("helmet");
 
-const { admin, port, uploadDir, maxUploadBytes } = require("./config");
+const { admin, port, uploadDir } = require("./config");
 const {
   clearSessionCookie,
   getSessionFromRequest,
@@ -17,7 +16,6 @@ const {
 const {
   createSubmission,
   deleteAllSubmissions,
-  fileNameToUrl,
   listAdminSubmissions,
   listApprovedSubmissions,
   maybeDeleteUpload,
@@ -33,22 +31,8 @@ const { getPool } = require("./db");
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, callback) => {
-    callback(null, uploadDir);
-  },
-  filename: (_req, file, callback) => {
-    const extension = path.extname(file.originalname || "").toLowerCase() || ".jpg";
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${extension}`;
-    callback(null, fileName);
-  }
-});
-
 const upload = multer({
-  storage,
-  limits: {
-    fileSize: maxUploadBytes
-  },
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, callback) => {
     if (file.mimetype && file.mimetype.startsWith("image/")) {
       callback(null, true);
@@ -71,6 +55,14 @@ app.use("/uploads", express.static(uploadDir, {
   maxAge: "7d"
 }));
 
+function fileToDataUrl(file) {
+  if (!file?.buffer || !file?.mimetype) {
+    return "";
+  }
+
+  return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+}
+
 function buildPayloadFromRequest(req) {
   const body = req.body || {};
   return {
@@ -82,7 +74,7 @@ function buildPayloadFromRequest(req) {
     name: body.name,
     cnpj: body.cnpj,
     description: body.description,
-    photoUrl: req.file ? fileNameToUrl(req.file.filename) : body.photoUrl,
+    photoUrl: req.file ? fileToDataUrl(req.file) : body.photoUrl,
     imageAlt: body.imageAlt,
     instagram: body.instagram,
     whatsapp: body.whatsapp,
@@ -211,9 +203,6 @@ app.post("/api/submissions", upload.single("photo"), async (req, res, next) => {
       record
     });
   } catch (error) {
-    if (req.file) {
-      await maybeDeleteUpload(fileNameToUrl(req.file.filename));
-    }
     next(error);
   }
 });
@@ -230,9 +219,6 @@ app.patch("/api/admin/submissions/:id", upload.single("photo"), async (req, res,
       record
     });
   } catch (error) {
-    if (req.file) {
-      await maybeDeleteUpload(fileNameToUrl(req.file.filename));
-    }
     next(error);
   }
 });
@@ -249,9 +235,6 @@ app.patch("/api/admin/cards/:id", upload.single("photo"), async (req, res, next)
       record
     });
   } catch (error) {
-    if (req.file) {
-      await maybeDeleteUpload(fileNameToUrl(req.file.filename));
-    }
     next(error);
   }
 });

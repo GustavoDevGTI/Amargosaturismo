@@ -69,10 +69,6 @@ function buildGastronomyScheduleLine(daysLine, hoursLine) {
   return [normalizeLine(daysLine), normalizeLine(hoursLine)].filter(Boolean).join(", ");
 }
 
-function withUploadsPrefix(fileName) {
-  return `/uploads/${fileName}`;
-}
-
 function serializeDate(value) {
   if (!value) return "";
   if (value instanceof Date) {
@@ -428,10 +424,6 @@ async function maybeDeleteUpload(photoUrl) {
   }
 }
 
-function fileNameToUrl(fileName) {
-  return withUploadsPrefix(fileName);
-}
-
 async function ensureSubmissionTable() {
   await runQuery(
     `CREATE TABLE IF NOT EXISTS tourism_submissions (
@@ -444,7 +436,7 @@ async function ensureSubmissionTable() {
       name VARCHAR(255) NOT NULL,
       cnpj VARCHAR(32) NOT NULL DEFAULT '',
       description TEXT NOT NULL,
-      photo_url VARCHAR(500) NOT NULL,
+      photo_url LONGTEXT NOT NULL,
       instagram_url VARCHAR(500) NOT NULL DEFAULT '',
       whatsapp_url VARCHAR(500) NOT NULL DEFAULT '',
       email VARCHAR(255) NOT NULL DEFAULT '',
@@ -489,8 +481,25 @@ async function ensureTableColumn(columnName, definition) {
   }
 }
 
+async function ensureTableColumnType(columnName, expectedDataType, alterStatement) {
+  const [rows] = await getPool().query(
+    `SELECT DATA_TYPE
+       FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'tourism_submissions'
+        AND COLUMN_NAME = ?
+      LIMIT 1`,
+    [columnName]
+  );
+
+  if (rows[0]?.DATA_TYPE && rows[0].DATA_TYPE.toLowerCase() !== expectedDataType) {
+    await runQuery(alterStatement);
+  }
+}
+
 async function ensureSubmissionSchema() {
   await ensureSubmissionTable();
+  await ensureTableColumnType("photo_url", "longtext", "ALTER TABLE tourism_submissions MODIFY COLUMN photo_url LONGTEXT NOT NULL");
   await ensureTableColumn("latitude", "latitude DECIMAL(10, 8) NULL AFTER popup_title_color");
   await ensureTableColumn("longitude", "longitude DECIMAL(11, 8) NULL AFTER latitude");
   await ensureTableColumn("approval_updated_at", "approval_updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER updated_at");
@@ -511,7 +520,6 @@ module.exports = {
   buildSubmissionPayload,
   createSubmission,
   deleteAllSubmissions,
-  fileNameToUrl,
   getSubmissionByPublicId,
   ensureSubmissionsReady,
   listAdminSubmissions,
