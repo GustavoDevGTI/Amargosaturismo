@@ -632,6 +632,10 @@
       color: var(--body-muted);
     }
 
+    .card-description {
+      overflow-wrap: anywhere;
+    }
+
     .card-meta {
       display: grid;
       gap: 0.35rem;
@@ -2369,6 +2373,7 @@
       }
 
       const description = document.createElement("p");
+      description.className = "card-description";
       description.textContent = record.description;
       content.appendChild(description);
 
@@ -2459,6 +2464,7 @@
       }
 
       const description = document.createElement("p");
+      description.className = "card-description";
       description.textContent = record.description;
       content.appendChild(description);
 

@@ -1330,6 +1330,7 @@ function createCatalogCard(record) {
 
   const subtitle = normalizeLine(record.subtitle);
   const description = document.createElement("p");
+  description.className = "card-description";
   description.textContent = subtitle
     ? mergeGuideDescription(subtitle, record.description || "")
     : normalizeLine(record.description) || "Sem descricao informada.";
@@ -1352,6 +1353,13 @@ function createCatalogCard(record) {
   editButton.textContent = "Editar card";
   editButton.addEventListener("click", () => openCatalogEditDialog(record.id));
   actions.appendChild(editButton);
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "danger-btn card-danger-btn";
+  deleteButton.type = "button";
+  deleteButton.textContent = "Excluir card";
+  deleteButton.addEventListener("click", () => deleteCatalogCard(record.id, record.name));
+  actions.appendChild(deleteButton);
 
   const linksInline = document.createElement("div");
   linksInline.className = "card-actions-inline";
@@ -1608,6 +1616,33 @@ async function saveCatalogCard(event) {
       return;
     }
     window.alert(error.message || "Nao foi possivel salvar o card oficial.");
+  }
+}
+
+async function deleteCatalogCard(recordId, recordName = "") {
+  const normalizedId = normalizeLine(recordId);
+
+  if (!normalizedId) {
+    return;
+  }
+
+  const label = normalizeLine(recordName) || "este card";
+  const confirmed = window.confirm(`Deseja excluir ${label}? O card saira do guia publico.`);
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await apiRequest(`/admin/cards/${encodeURIComponent(normalizedId)}`, {
+      method: "DELETE"
+    });
+    await loadCatalogCards();
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return;
+    }
+    window.alert(error.message || "Nao foi possivel excluir o card.");
   }
 }
 

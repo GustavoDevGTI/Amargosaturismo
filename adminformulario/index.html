@@ -49,8 +49,6 @@
         <header class="admin-header">
           <div>
             <h1>Painel Admin - Estabelecimentos Cadastrados</h1>
-            <p class="admin-intro">Cadastros enviados pelo formulario publico do portal Amargosa Turismo.</p>
-            <p class="admin-note">Somente cadastros validados aparecem no guia publico.</p>
           </div>
           <div class="admin-header__actions">
             <span class="session-pill" id="sessionPill">Sessao admin ativa</span>
@@ -89,8 +87,6 @@
         <header class="admin-header admin-header--catalog">
           <div>
             <h2>Cards Publicados do Guia</h2>
-            <p class="admin-intro">Edite os cards oficiais de pontos turisticos, gastronomia e hospedagem sem mexer no HTML.</p>
-            <p class="admin-note">Esses cards alimentam diretamente a vitrine do Guia do Turista.</p>
           </div>
           <div class="admin-header__actions">
             <button class="neutral-btn" type="button" id="catalogRefreshBtn">Atualizar cards</button>
@@ -140,7 +136,7 @@
 
         <div class="field field--full">
           <label for="editDescription">Descricao</label>
-          <textarea id="editDescription" name="description" rows="4" required></textarea>
+          <textarea id="editDescription" name="description" maxlength="280" rows="4" required></textarea>
         </div>
 
         <div class="field field--full">
@@ -269,7 +265,7 @@
 
         <div class="field field--full">
           <label for="catalogEditDescription">Descricao</label>
-          <textarea id="catalogEditDescription" name="description" rows="4" required></textarea>
+          <textarea id="catalogEditDescription" name="description" maxlength="280" rows="4" required></textarea>
         </div>
 
         <div class="field field--full">
@@ -338,6 +334,6 @@
     </form>
   </dialog>
 
-  <script src="./admin.js?v=20260428-1015" defer></script>
+  <script src="./admin.js?v=20260428-1530" defer></script>
 </body>
 </html>

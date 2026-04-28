@@ -5,11 +5,24 @@ const { listApprovedSubmissions } = require("./submissions");
 
 const VALID_CARD_CATEGORIES = new Set(["turistico", "gastronomia", "hotel"]);
 const VALID_MARKER_ICONS = new Set(["attraction", "heritage", "gastronomy", "lodging"]);
+const MAX_CARD_DESCRIPTION_LENGTH = 280;
 
 let ensureCardsPromise = null;
 
 function normalizeLine(value) {
   return String(value || "").trim();
+}
+
+function normalizeDescription(value) {
+  return normalizeLine(value).slice(0, MAX_CARD_DESCRIPTION_LENGTH);
+}
+
+function pickInputValue(input, key, fallback = "") {
+  if (!Object.prototype.hasOwnProperty.call(input, key)) {
+    return fallback;
+  }
+
+  return input[key] === undefined ? fallback : input[key];
 }
 
 function normalizeMediaUrl(value) {
@@ -146,7 +159,7 @@ function buildScheduleLineFromSubmission(record) {
 
 function buildDescriptionFromSubmission(record) {
   const guide = record.guide || {};
-  return normalizeLine(guide.description || record.description);
+  return normalizeDescription(guide.description || record.description);
 }
 
 function buildCardPayloadFromSubmission(record) {
@@ -199,7 +212,7 @@ function mapRowToCard(row) {
     category,
     name: normalizeLine(row.name),
     subtitle: normalizeLine(row.subtitle),
-    description: normalizeLine(row.description),
+    description: normalizeDescription(row.description),
     photoSrc: normalizeMediaUrl(row.image_url),
     imageAlt: normalizeLine(row.image_alt) || normalizeLine(row.name),
     addressLine: normalizeLine(row.address_line),
@@ -323,7 +336,7 @@ async function seedCardsIfEmpty() {
           category,
           normalizeLine(card.name),
           normalizeLine(card.subtitle),
-          normalizeLine(card.description),
+          normalizeDescription(card.description),
           normalizeLine(card.imageUrl),
           normalizeLine(card.imageAlt || card.name),
           normalizeLine(card.addressLine),
@@ -653,23 +666,23 @@ function buildCardPayload(input, currentCard = null) {
     ? (input.longitude === "" ? null : toNullableNumber(input.longitude))
     : currentCard?.longitude ?? null;
   const directionsUrl = buildDirectionsUrlFromCoordinates(latitude, longitude)
-    || normalizeLine(input.directionsUrl || currentCard?.directionsUrl);
+    || normalizeLine(pickInputValue(input, "directionsUrl", currentCard?.directionsUrl));
 
   return {
-    category: normalizeCategory(input.category || currentCard?.category),
-    name: normalizeLine(input.name || currentCard?.name),
-    subtitle: normalizeLine(input.subtitle || currentCard?.subtitle),
-    description: normalizeLine(input.description || currentCard?.description),
-    photoUrl: normalizeMediaUrl(input.photoUrl || currentCard?.photoSrc),
-    imageAlt: normalizeLine(input.imageAlt || currentCard?.imageAlt || input.name || currentCard?.name),
-    addressLine: normalizeLine(input.addressLine || currentCard?.addressLine),
-    scheduleLine: normalizeLine(input.scheduleLine || currentCard?.scheduleLine),
-    instagramUrl: normalizeLine(input.instagram || currentCard?.contacts?.instagram),
-    whatsappUrl: normalizeWhatsapp(input.whatsapp || currentCard?.contacts?.whatsapp),
-    email: normalizeEmail(input.email || currentCard?.contacts?.email),
-    phone: normalizeLine(input.phone || currentCard?.contacts?.phone),
-    displayOrder: toPositiveInteger(input.displayOrder, currentCard?.displayOrder || 1),
-    isActive: normalizeBool(input.isActive, currentCard?.isActive ?? true),
+    category: normalizeCategory(pickInputValue(input, "category", currentCard?.category)),
+    name: normalizeLine(pickInputValue(input, "name", currentCard?.name)),
+    subtitle: normalizeLine(pickInputValue(input, "subtitle", currentCard?.subtitle)),
+    description: normalizeDescription(pickInputValue(input, "description", currentCard?.description)),
+    photoUrl: normalizeMediaUrl(pickInputValue(input, "photoUrl", currentCard?.photoSrc)),
+    imageAlt: normalizeLine(pickInputValue(input, "imageAlt", currentCard?.imageAlt || input.name || currentCard?.name)),
+    addressLine: normalizeLine(pickInputValue(input, "addressLine", currentCard?.addressLine)),
+    scheduleLine: normalizeLine(pickInputValue(input, "scheduleLine", currentCard?.scheduleLine)),
+    instagramUrl: normalizeLine(pickInputValue(input, "instagram", currentCard?.contacts?.instagram)),
+    whatsappUrl: normalizeWhatsapp(pickInputValue(input, "whatsapp", currentCard?.contacts?.whatsapp)),
+    email: normalizeEmail(pickInputValue(input, "email", currentCard?.contacts?.email)),
+    phone: normalizeLine(pickInputValue(input, "phone", currentCard?.contacts?.phone)),
+    displayOrder: toPositiveInteger(pickInputValue(input, "displayOrder", currentCard?.displayOrder || 1), currentCard?.displayOrder || 1),
+    isActive: normalizeBool(pickInputValue(input, "isActive", currentCard?.isActive ?? true), currentCard?.isActive ?? true),
     latitude,
     longitude,
     directionsUrl,
@@ -741,6 +754,19 @@ async function updateCard(publicId, input) {
   return getCardByPublicId(publicId);
 }
 
+async function deleteCard(publicId) {
+  const currentCard = await getCardByPublicId(publicId);
+
+  if (!currentCard) {
+    const error = new Error("Card nao encontrado.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await runQuery("DELETE FROM tourism_cards WHERE public_id = ?", [publicId]);
+  return currentCard;
+}
+
 async function setPromotedSubmissionCardActive(submissionId, isActive) {
   await ensureCardsSeeded();
 
@@ -754,6 +780,7 @@ async function setPromotedSubmissionCardActive(submissionId, isActive) {
 }
 
 module.exports = {
+  deleteCard,
   getCardByPublicId,
   listAdminCards,
   listPublicCards,

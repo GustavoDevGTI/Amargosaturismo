@@ -288,6 +288,14 @@ img {
   color: var(--body-muted);
 }
 
+.card-description {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
 .card-meta {
   display: grid;
   gap: 0.35rem;
@@ -315,7 +323,8 @@ img {
 }
 
 .card-link,
-.card-button {
+.card-button,
+.card-danger-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -456,6 +465,10 @@ img {
   padding: 22px;
 }
 
+.card-danger-btn {
+  width: 100%;
+}
+
 .empty-state[hidden] {
   display: none;
 }
@@ -473,7 +486,11 @@ img {
 }
 
 .edit-dialog[open] {
-  inset: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
 }
 
 .edit-dialog::backdrop {

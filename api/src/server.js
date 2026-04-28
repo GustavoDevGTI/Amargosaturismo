@@ -23,6 +23,7 @@ const {
   updateSubmissionStatus
 } = require("./submissions");
 const {
+  deleteCard,
   listAdminCards,
   listPublicCards,
   promoteSubmissionToCard,
@@ -234,6 +235,26 @@ app.patch("/api/admin/cards/:id", upload.single("photo"), async (req, res, next)
     }
     res.json({
       message: "Card atualizado com sucesso.",
+      record
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/admin/cards/:id", async (req, res, next) => {
+  try {
+    const record = await deleteCard(req.params.id);
+    const promotedSubmissionId = record.id.startsWith("card-cad-")
+      ? record.id.slice("card-".length)
+      : "";
+
+    if (promotedSubmissionId) {
+      await updateSubmissionStatus(promotedSubmissionId, "rejected").catch(() => null);
+    }
+
+    res.json({
+      message: "Card excluido com sucesso.",
       record
     });
   } catch (error) {
