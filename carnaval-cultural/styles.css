@@ -202,12 +202,14 @@ a {
 .cc-modal-close-area {
     display: flex;
     justify-content: center;
-    padding: 1.2rem 0 0;
+    padding: 1.8rem 0 0;
 }
 
 .cc-modal-close-button {
     border: 0;
     cursor: pointer;
+    min-height: 3.35rem;
+    padding-inline: 2.1rem;
     width: auto;
 }
 
@@ -293,12 +295,12 @@ a {
     }
 
     .cc-modal-close-area {
-        padding-top: 1rem;
+        padding-top: 1.65rem;
     }
 
     .cc-modal-close-area .cc-modal-close-button {
         width: auto;
-        min-width: 10rem;
+        min-width: 11rem;
     }
 
     .cc-button {
