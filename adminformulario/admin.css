@@ -462,10 +462,18 @@ img {
 
 .edit-dialog {
   width: min(760px, calc(100% - 24px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
   border: 0;
   border-radius: 22px;
   padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 28px 60px rgba(26, 37, 46, 0.24);
+}
+
+.edit-dialog[open] {
+  inset: 0;
 }
 
 .edit-dialog::backdrop {

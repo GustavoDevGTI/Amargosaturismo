@@ -105,6 +105,24 @@ function digitsOnly(value) {
   return normalizeLine(value).replace(/\D/g, "");
 }
 
+function sanitizePhoneValue(value) {
+  return normalizeLine(value).replace(/[^\d()+\-\s]/g, "");
+}
+
+function bindPhoneSanitizer(input) {
+  input?.addEventListener("input", () => {
+    const sanitized = sanitizePhoneValue(input.value);
+    if (input.value !== sanitized) {
+      input.value = sanitized;
+    }
+  });
+}
+
+function normalizeDisplayOrderValue(value, fallback = 1) {
+  const parsed = Number.parseInt(normalizeLine(value), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? String(parsed) : String(fallback);
+}
+
 function buildPhoneUrl(value) {
   const digits = digitsOnly(value);
   return digits ? `tel:+${digits}` : "";
@@ -659,19 +677,13 @@ function filterRecords(records) {
 
 function setStatus(records, visibleCount) {
   if (!records.length) {
-    statusText.textContent = "Nenhum cadastro sincronizado com o servidor ainda.";
+    statusText.textContent = "Nenhum cadastro pendente no momento.";
     return;
   }
 
-  const counts = records.reduce((accumulator, record) => {
-    accumulator[record.approvalStatus] += 1;
-    return accumulator;
-  }, { pending: 0, approved: 0, rejected: 0 });
-
   const categoryText = CATEGORY_FILTER_LABELS[activeCategoryFilter] || CATEGORY_FILTER_LABELS.todos;
-  const statusFilterText = STATUS_FILTER_LABELS[activeStatusFilter] || STATUS_FILTER_LABELS.todos;
 
-  statusText.textContent = `Pendentes: ${counts.pending} | Validados: ${counts.approved} | Recusados: ${counts.rejected}. Exibindo ${visibleCount} cadastro(s) em ${categoryText} com filtro ${statusFilterText}.`;
+  statusText.textContent = `Pendentes: ${records.length}. Exibindo ${visibleCount} cadastro(s) em ${categoryText}.`;
 }
 
 function setEmptyState(records, filtered) {
@@ -683,13 +695,12 @@ function setEmptyState(records, filtered) {
   emptyState.hidden = false;
 
   if (!records.length) {
-    emptyState.textContent = "Nenhum estabelecimento cadastrado ainda.";
+    emptyState.textContent = "Nenhum cadastro pendente no momento.";
     return;
   }
 
   const categoryText = CATEGORY_FILTER_LABELS[activeCategoryFilter] || CATEGORY_FILTER_LABELS.todos;
-  const statusFilterText = STATUS_FILTER_LABELS[activeStatusFilter] || STATUS_FILTER_LABELS.todos;
-  emptyState.textContent = `Nenhum cadastro encontrado em ${categoryText} com filtro ${statusFilterText}.`;
+  emptyState.textContent = `Nenhum cadastro pendente encontrado em ${categoryText}.`;
 }
 
 function createCard(record) {
@@ -950,7 +961,7 @@ function buildEditPayload() {
     instagram: normalizeLine(editInstagramInput.value),
     whatsapp: normalizeLine(editWhatsappInput.value),
     email: category === "hotel" ? normalizeLine(editEmailInput.value) : "",
-    phone: category === "hotel" ? normalizeLine(editPhoneInput.value) : "",
+    phone: category === "hotel" ? sanitizePhoneValue(editPhoneInput.value) : "",
     daysLine: category === "gastronomia" ? normalizeLine(editDaysLineInput.value) : "",
     subtitle: category === "gastronomia" ? normalizeLine(editSubtitleInput.value) : "",
     hoursLine: category === "gastronomia" ? normalizeLine(editHoursLineInput.value) : "",
@@ -968,7 +979,7 @@ function buildEditPayload() {
 
 async function loadRecords() {
   statusText.textContent = "Sincronizando cadastros com o servidor...";
-  const result = await apiRequest("/admin/submissions");
+  const result = await apiRequest("/admin/submissions?status=pending");
   recordsState = Array.isArray(result.records) ? result.records : [];
   renderCards();
 }
@@ -1113,6 +1124,8 @@ editAddressLineInput?.addEventListener("input", () => invalidateMapPicker(submis
 editMapLocateBtn?.addEventListener("click", () => {
   openMapPickerAtAddress(submissionMapPickerState);
 });
+bindPhoneSanitizer(editPhoneInput);
+bindPhoneSanitizer(editWhatsappInput);
 editForm.addEventListener("submit", saveEditedRecord);
 cancelEditBtn.addEventListener("click", closeEditDialog);
 closeEditBtn.addEventListener("click", closeEditDialog);
@@ -1543,11 +1556,11 @@ function buildCatalogPayload() {
     instagram: isTourism ? "" : normalizeLine(catalogEditInstagramInput.value),
     whatsapp: isTourism ? "" : normalizeLine(catalogEditWhatsappInput.value),
     email: isHotel ? normalizeLine(catalogEditEmailInput.value) : "",
-    phone: isHotel ? normalizeLine(catalogEditPhoneInput.value) : "",
+    phone: isHotel ? sanitizePhoneValue(catalogEditPhoneInput.value) : "",
     imageAlt: normalizeLine(catalogEditNameInput.value),
     photoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
     currentPhotoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
-    displayOrder: normalizeLine(catalogEditDisplayOrderInput.value) || "0",
+    displayOrder: normalizeDisplayOrderValue(catalogEditDisplayOrderInput.value, 1),
     isActive: catalogEditIsActiveInput.checked ? "true" : "false",
     latitude,
     longitude,
@@ -1647,6 +1660,8 @@ catalogEditAddressLineInput?.addEventListener("input", () => invalidateMapPicker
 catalogMapLocateBtn?.addEventListener("click", () => {
   openMapPickerAtAddress(catalogMapPickerState);
 });
+bindPhoneSanitizer(catalogEditPhoneInput);
+bindPhoneSanitizer(catalogEditWhatsappInput);
 catalogEditForm?.addEventListener("submit", saveCatalogCard);
 catalogCancelEditBtn?.addEventListener("click", closeCatalogEditDialog);
 catalogCloseEditBtn?.addEventListener("click", closeCatalogEditDialog);

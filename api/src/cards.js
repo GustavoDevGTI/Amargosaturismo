@@ -24,6 +24,14 @@ function digitsOnly(value) {
   return normalizeLine(value).replace(/\D/g, "");
 }
 
+function normalizeWhatsapp(value) {
+  const raw = normalizeLine(value);
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const digits = digitsOnly(raw);
+  return digits ? `https://wa.me/${digits}` : "";
+}
+
 function normalizeCategory(value) {
   const category = normalizeLine(value);
   return VALID_CARD_CATEGORIES.has(category) ? category : "";
@@ -62,6 +70,11 @@ function buildDirectionsUrlFromCoordinates(latitude, longitude) {
 function toNumber(value, fallback = 0) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function toPositiveInteger(value, fallback = 1) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function toNullableNumber(value) {
@@ -366,10 +379,10 @@ function buildCardPayload(input, currentCard = null) {
     addressLine: normalizeLine(input.addressLine || currentCard?.addressLine),
     scheduleLine: normalizeLine(input.scheduleLine || currentCard?.scheduleLine),
     instagramUrl: normalizeLine(input.instagram || currentCard?.contacts?.instagram),
-    whatsappUrl: normalizeLine(input.whatsapp || currentCard?.contacts?.whatsapp),
+    whatsappUrl: normalizeWhatsapp(input.whatsapp || currentCard?.contacts?.whatsapp),
     email: normalizeEmail(input.email || currentCard?.contacts?.email),
     phone: normalizeLine(input.phone || currentCard?.contacts?.phone),
-    displayOrder: toNumber(input.displayOrder, currentCard?.displayOrder || 0),
+    displayOrder: toPositiveInteger(input.displayOrder, currentCard?.displayOrder || 1),
     isActive: normalizeBool(input.isActive, currentCard?.isActive ?? true),
     latitude,
     longitude,

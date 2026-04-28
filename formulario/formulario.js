@@ -12,6 +12,8 @@ const cnpjInput = document.getElementById("cnpj");
 const logradouroInput = document.getElementById("logradouro");
 const numeroInput = document.getElementById("numero");
 const bairroInput = document.getElementById("bairro");
+const whatsappInput = document.getElementById("whatsapp");
+const telefoneInput = document.getElementById("telefone");
 const mapLocateBtn = document.getElementById("mapLocateBtn");
 const mapStatus = document.getElementById("mapStatus");
 const mapSummary = document.getElementById("mapSummary");
@@ -40,6 +42,19 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyBdddKSwLzMfQdvDOYIO2Qx5ZX7RiF6syc";
 
 function digitsOnly(value) {
   return String(value || "").replace(/\D/g, "");
+}
+
+function sanitizePhoneValue(value) {
+  return String(value || "").trim().replace(/[^\d()+\-\s]/g, "");
+}
+
+function bindPhoneSanitizer(input) {
+  input?.addEventListener("input", () => {
+    const sanitized = sanitizePhoneValue(input.value);
+    if (input.value !== sanitized) {
+      input.value = sanitized;
+    }
+  });
 }
 
 function toSlug(text) {
@@ -616,7 +631,7 @@ function buildMetaLines(data, category, addressLine, cnpjFormatted) {
   const complemento = data.get("complemento").trim();
   const referencia = data.get("referencia").trim();
   const email = String(data.get("email") || "").trim();
-  const telefone = data.get("telefone").trim();
+  const telefone = sanitizePhoneValue(data.get("telefone"));
 
   const lines = [];
 
@@ -652,7 +667,7 @@ function buildSubmissionPayload(data, category, pointId, mapFocus) {
   const instagram = normalizeInstagram(data.get("instagram").trim());
   const whatsapp = whatsappUrl(data.get("whatsapp").trim());
   const email = String(data.get("email") || "").trim();
-  const phone = data.get("telefone").trim();
+  const phone = sanitizePhoneValue(data.get("telefone"));
   const hoursLine = category === "gastronomia"
     ? normalizeAttendanceHours(data.get("horario").trim())
     : "";
@@ -827,6 +842,8 @@ dropZone.addEventListener("drop", async (event) => {
   input?.addEventListener("input", invalidateLocationSelection);
 });
 
+bindPhoneSanitizer(whatsappInput);
+bindPhoneSanitizer(telefoneInput);
 mapLocateBtn?.addEventListener("click", locateAddressOnMap);
 
 typeInputs.forEach((input) => {
