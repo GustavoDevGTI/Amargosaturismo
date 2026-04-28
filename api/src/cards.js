@@ -446,6 +446,34 @@ async function getCategoryInsertionOrder(connection, category) {
   return insertionIndex + 1;
 }
 
+async function getRequestedInsertionOrder(connection, requestedOrder, category) {
+  const requested = toPositiveInteger(requestedOrder, 0);
+
+  if (!requested) {
+    return getCategoryInsertionOrder(connection, category);
+  }
+
+  const [rows] = await connection.execute(
+    `SELECT id, display_order
+       FROM tourism_cards
+      ORDER BY display_order ASC, id ASC
+      FOR UPDATE`
+  );
+  const targetPosition = Math.min(Math.max(requested, 1), rows.length + 1);
+
+  for (const [index, row] of rows.entries()) {
+    const nextOrder = index >= targetPosition - 1 ? index + 2 : index + 1;
+    if (toNumber(row.display_order, 0) !== nextOrder) {
+      await connection.execute(
+        "UPDATE tourism_cards SET display_order = ? WHERE id = ?",
+        [nextOrder, row.id]
+      );
+    }
+  }
+
+  return targetPosition;
+}
+
 async function promoteSubmissionToCard(record, options = {}) {
   await ensureCardsSeeded();
 
@@ -668,8 +696,15 @@ function buildCardPayload(input, currentCard = null) {
   const directionsUrl = buildDirectionsUrlFromCoordinates(latitude, longitude)
     || normalizeLine(pickInputValue(input, "directionsUrl", currentCard?.directionsUrl));
 
+  const category = normalizeCategory(pickInputValue(input, "category", currentCard?.category));
+  const shouldReuseMarkerIcon = Object.prototype.hasOwnProperty.call(input, "markerIcon")
+    || currentCard?.category === category;
+  const markerIconInput = shouldReuseMarkerIcon
+    ? pickInputValue(input, "markerIcon", currentCard?.markerIcon)
+    : "";
+
   return {
-    category: normalizeCategory(pickInputValue(input, "category", currentCard?.category)),
+    category,
     name: normalizeLine(pickInputValue(input, "name", currentCard?.name)),
     subtitle: normalizeLine(pickInputValue(input, "subtitle", currentCard?.subtitle)),
     description: normalizeDescription(pickInputValue(input, "description", currentCard?.description)),
@@ -686,8 +721,85 @@ function buildCardPayload(input, currentCard = null) {
     latitude,
     longitude,
     directionsUrl,
-    markerIcon: normalizeMarkerIcon(currentCard?.markerIcon, currentCard?.category)
+    markerIcon: normalizeMarkerIcon(markerIconInput, category)
   };
+}
+
+async function createCard(input) {
+  await ensureCardsSeeded();
+
+  const payload = buildCardPayload(input);
+  const validationError = validateCardPayload(payload);
+
+  if (validationError) {
+    const error = new Error(validationError);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const slug = toSlug(payload.name) || shortHash(`${payload.category}-${Date.now()}`);
+  const publicIdBase = normalizeLine(input.publicId || input.id) || `manual-${slug}-${shortHash(`${Date.now()}-${payload.name}`)}`;
+  const publicId = publicIdBase.length <= 64 ? publicIdBase : `manual-${shortHash(publicIdBase)}`;
+  const prefix = payload.category === "hotel" ? "hotel" : payload.category === "gastronomia" ? "gas" : "tur";
+  const requestedPointId = normalizeLine(input.pointId) || `${prefix}-${slug}`;
+  const connection = await getPool().getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [existingRows] = await connection.execute(
+      "SELECT public_id FROM tourism_cards WHERE public_id = ? LIMIT 1 FOR UPDATE",
+      [publicId]
+    );
+
+    if (existingRows.length) {
+      const error = new Error("Ja existe um card com esse identificador.");
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const pointId = await resolvePromotedPointId(connection, requestedPointId, publicId);
+    const displayOrder = await getRequestedInsertionOrder(connection, input.displayOrder, payload.category);
+
+    await connection.execute(
+      `INSERT INTO tourism_cards (
+        public_id, point_id, category, name, subtitle, description, image_url, image_alt,
+        address_line, schedule_line, instagram_url, whatsapp_url, email, phone,
+        latitude, longitude, directions_url, marker_icon, display_order, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        publicId,
+        pointId,
+        payload.category,
+        payload.name,
+        payload.subtitle,
+        payload.description,
+        payload.photoUrl,
+        payload.imageAlt,
+        payload.addressLine,
+        payload.scheduleLine,
+        payload.instagramUrl,
+        payload.whatsappUrl,
+        payload.email,
+        payload.phone,
+        payload.latitude,
+        payload.longitude,
+        payload.directionsUrl,
+        payload.markerIcon,
+        displayOrder,
+        payload.isActive ? 1 : 0
+      ]
+    );
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  return getCardByPublicId(publicId);
 }
 
 async function updateCard(publicId, input) {
@@ -719,7 +831,7 @@ async function updateCard(publicId, input) {
       `UPDATE tourism_cards
         SET category = ?, name = ?, subtitle = ?, description = ?, image_url = ?, image_alt = ?,
             address_line = ?, schedule_line = ?, instagram_url = ?, whatsapp_url = ?, email = ?, phone = ?,
-            latitude = ?, longitude = ?, directions_url = ?, display_order = ?, is_active = ?, updated_at = NOW()
+            latitude = ?, longitude = ?, directions_url = ?, marker_icon = ?, display_order = ?, is_active = ?, updated_at = NOW()
         WHERE public_id = ?`,
       [
         payload.category,
@@ -737,6 +849,7 @@ async function updateCard(publicId, input) {
         payload.latitude,
         payload.longitude,
         payload.directionsUrl,
+        payload.markerIcon,
         displayOrder,
         payload.isActive ? 1 : 0,
         publicId
@@ -780,6 +893,7 @@ async function setPromotedSubmissionCardActive(submissionId, isActive) {
 }
 
 module.exports = {
+  createCard,
   deleteCard,
   getCardByPublicId,
   listAdminCards,

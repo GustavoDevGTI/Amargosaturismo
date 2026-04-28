@@ -89,6 +89,7 @@
             <h2>Cards Publicados do Guia</h2>
           </div>
           <div class="admin-header__actions">
+            <button class="admin-link" type="button" id="newCatalogCardBtn">Criar card</button>
             <button class="neutral-btn" type="button" id="catalogRefreshBtn">Atualizar cards</button>
           </div>
         </header>
@@ -226,22 +227,30 @@
     <form class="edit-form" id="catalogEditForm">
       <div class="edit-form__header">
         <div>
-          <h2>Editar card publicado</h2>
+          <h2 id="catalogEditTitle">Editar card publicado</h2>
           <p class="edit-hint" id="catalogEditHint">Esse card aparece no Guia do Turista assim que a alteracao for salva.</p>
         </div>
         <button class="dialog-close" type="button" id="catalogCancelEditBtn" aria-label="Fechar edicao do card">Fechar</button>
       </div>
 
       <input type="hidden" id="catalogEditRecordId" name="recordId">
-      <input type="hidden" id="catalogEditCategory" name="category">
       <input type="hidden" id="catalogEditCurrentPhotoUrl" name="currentPhotoUrl">
       <input type="hidden" id="catalogEditLatitude" name="latitude">
       <input type="hidden" id="catalogEditLongitude" name="longitude">
 
       <div class="edit-grid">
+        <div class="field field--full">
+          <label for="catalogEditCategory">Tipo do card</label>
+          <select id="catalogEditCategory" name="category" required>
+            <option value="turistico">Ponto turistico</option>
+            <option value="gastronomia">Restaurante / Bar</option>
+            <option value="hotel">Hotel / Pousada</option>
+          </select>
+        </div>
+
         <div class="field">
           <label for="catalogEditPointId">Ponto vinculado</label>
-          <input id="catalogEditPointId" name="pointId" readonly>
+          <input id="catalogEditPointId" name="pointId" placeholder="Gerado automaticamente ao criar">
         </div>
 
         <div class="field">
@@ -334,6 +343,6 @@
     </form>
   </dialog>
 
-  <script src="./admin.js?v=20260428-1530" defer></script>
+  <script src="./admin.js?v=20260428-1710" defer></script>
 </body>
 </html>

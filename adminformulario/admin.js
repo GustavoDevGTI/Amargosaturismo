@@ -1149,10 +1149,12 @@ const CATALOG_CATEGORY_BADGES = {
 const catalogCardsGrid = document.getElementById("catalogCardsGrid");
 const catalogEmptyState = document.getElementById("catalogEmptyState");
 const catalogStatusText = document.getElementById("catalogStatusText");
+const newCatalogCardBtn = document.getElementById("newCatalogCardBtn");
 const catalogRefreshBtn = document.getElementById("catalogRefreshBtn");
 const catalogFilterButtons = Array.from(document.querySelectorAll("[data-catalog-filter]"));
 const catalogEditDialog = document.getElementById("catalogEditDialog");
 const catalogEditForm = document.getElementById("catalogEditForm");
+const catalogEditTitle = document.getElementById("catalogEditTitle");
 const catalogEditHint = document.getElementById("catalogEditHint");
 const catalogCancelEditBtn = document.getElementById("catalogCancelEditBtn");
 const catalogCloseEditBtn = document.getElementById("catalogCloseEditBtn");
@@ -1187,6 +1189,7 @@ const catalogLocationMapElement = document.getElementById("catalogLocationMap");
 let catalogActiveCategoryFilter = "todos";
 let catalogRecordsState = [];
 let selectedCatalogPhotoFile = null;
+let catalogEditMode = "edit";
 
 const submissionMapPickerState = createAdminMapPickerState({
   canvas: editLocationMapElement,
@@ -1499,10 +1502,15 @@ function openCatalogEditDialog(recordId) {
   }
 
   const draft = getCatalogEditDraft(record);
+  catalogEditMode = "edit";
+  if (catalogEditTitle) {
+    catalogEditTitle.textContent = "Editar card publicado";
+  }
   catalogEditRecordIdInput.value = draft.id;
   catalogEditCategoryInput.value = draft.category;
   catalogEditCurrentPhotoUrlInput.value = draft.photoSrc;
   catalogEditPointIdInput.value = draft.pointId;
+  catalogEditPointIdInput.readOnly = true;
   catalogEditDisplayOrderInput.value = draft.displayOrder || 0;
   catalogEditIsActiveInput.checked = draft.isActive;
   catalogEditNameInput.value = draft.name;
@@ -1533,11 +1541,43 @@ function openCatalogEditDialog(recordId) {
   }
 }
 
+function openCatalogCreateDialog() {
+  const category = normalizeCatalogCategory(catalogActiveCategoryFilter === "todos" ? "turistico" : catalogActiveCategoryFilter);
+
+  catalogEditMode = "create";
+  if (catalogEditTitle) {
+    catalogEditTitle.textContent = "Criar card publicado";
+  }
+
+  catalogEditForm?.reset();
+  catalogEditRecordIdInput.value = "";
+  catalogEditCategoryInput.value = category;
+  catalogEditCurrentPhotoUrlInput.value = "";
+  catalogEditPointIdInput.value = "";
+  catalogEditPointIdInput.readOnly = false;
+  catalogEditDisplayOrderInput.value = "";
+  catalogEditIsActiveInput.checked = true;
+  catalogEditSubtitleInput.value = "";
+  catalogEditLatitudeInput.value = "";
+  catalogEditLongitudeInput.value = "";
+  resetCatalogPhotoSelection();
+  setCatalogPhotoPreview("");
+  resetMapPicker(catalogMapPickerState);
+  toggleCatalogDialogFields(category);
+
+  if (typeof catalogEditDialog.showModal === "function") {
+    catalogEditDialog.showModal();
+  } else {
+    catalogEditDialog.setAttribute("open", "open");
+  }
+}
+
 function closeCatalogEditDialog() {
   if (!catalogEditDialog.hasAttribute("open")) {
     return;
   }
 
+  catalogEditMode = "edit";
   resetCatalogPhotoSelection();
   resetMapPicker(catalogMapPickerState);
 
@@ -1556,6 +1596,7 @@ function buildCatalogPayload() {
   const isGastronomy = category === "gastronomia";
   const latitude = normalizeLine(catalogEditLatitudeInput.value);
   const longitude = normalizeLine(catalogEditLongitudeInput.value);
+  const displayOrderValue = normalizeLine(catalogEditDisplayOrderInput.value);
 
   return {
     category,
@@ -1568,10 +1609,13 @@ function buildCatalogPayload() {
     whatsapp: isTourism ? "" : normalizeLine(catalogEditWhatsappInput.value),
     email: isHotel ? normalizeLine(catalogEditEmailInput.value) : "",
     phone: isHotel ? sanitizePhoneValue(catalogEditPhoneInput.value) : "",
+    pointId: normalizeLine(catalogEditPointIdInput.value),
     imageAlt: normalizeLine(catalogEditNameInput.value),
     photoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
     currentPhotoUrl: normalizeLine(catalogEditCurrentPhotoUrlInput.value),
-    displayOrder: normalizeDisplayOrderValue(catalogEditDisplayOrderInput.value, 1),
+    displayOrder: catalogEditMode === "create" && !displayOrderValue
+      ? ""
+      : normalizeDisplayOrderValue(displayOrderValue, 1),
     isActive: catalogEditIsActiveInput.checked ? "true" : "false",
     latitude,
     longitude,
@@ -1584,9 +1628,15 @@ async function saveCatalogCard(event) {
 
   const recordId = normalizeLine(catalogEditRecordIdInput.value);
   const payload = buildCatalogPayload();
+  const isCreateMode = catalogEditMode === "create";
 
-  if (!recordId || !payload.name || !payload.description) {
+  if ((!isCreateMode && !recordId) || !payload.name || !payload.description) {
     window.alert("Preencha pelo menos nome e descricao do card.");
+    return;
+  }
+
+  if (isCreateMode && !selectedCatalogPhotoFile && !payload.photoUrl) {
+    window.alert("Envie uma imagem para criar o card.");
     return;
   }
 
@@ -1605,8 +1655,9 @@ async function saveCatalogCard(event) {
   }
 
   try {
-    await apiRequest(`/admin/cards/${encodeURIComponent(recordId)}`, {
-      method: "PATCH",
+    const endpoint = isCreateMode ? "/admin/cards" : `/admin/cards/${encodeURIComponent(recordId)}`;
+    await apiRequest(endpoint, {
+      method: isCreateMode ? "POST" : "PATCH",
       body: formData
     });
     closeCatalogEditDialog();
@@ -1674,6 +1725,8 @@ catalogRefreshBtn?.addEventListener("click", async () => {
   }
 });
 
+newCatalogCardBtn?.addEventListener("click", openCatalogCreateDialog);
+
 catalogEditPhotoInput?.addEventListener("change", () => {
   const file = catalogEditPhotoInput.files && catalogEditPhotoInput.files[0];
   if (!file) {
@@ -1695,6 +1748,9 @@ catalogEditPhotoInput?.addEventListener("change", () => {
 
 catalogEditNameInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
 catalogEditAddressLineInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
+catalogEditCategoryInput?.addEventListener("change", () => {
+  toggleCatalogDialogFields(catalogEditCategoryInput.value);
+});
 catalogMapLocateBtn?.addEventListener("click", () => {
   openMapPickerAtAddress(catalogMapPickerState);
 });

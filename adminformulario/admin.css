@@ -554,7 +554,8 @@ img {
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   border: 1px solid rgba(21, 124, 98, 0.18);
   border-radius: 14px;
@@ -566,7 +567,8 @@ img {
 }
 
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   outline: 2px solid rgba(51, 154, 128, 0.18);
   border-color: rgba(51, 154, 128, 0.42);
 }

@@ -23,6 +23,7 @@ const {
   updateSubmissionStatus
 } = require("./submissions");
 const {
+  createCard,
   deleteCard,
   listAdminCards,
   listPublicCards,
@@ -193,6 +194,18 @@ app.get("/api/admin/cards", async (req, res, next) => {
       category: req.query.category
     });
     res.json({ records });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/cards", upload.single("photo"), async (req, res, next) => {
+  try {
+    const record = await createCard(buildPayloadFromRequest(req));
+    res.status(201).json({
+      message: "Card criado com sucesso.",
+      record
+    });
   } catch (error) {
     next(error);
   }
