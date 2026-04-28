@@ -3606,8 +3606,8 @@ section h2::after {
 
     .menu-mobile-links-btn--atalho {
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
+        text-transform: none;
+        letter-spacing: 0;
     }
 
     .menu-mobile-links-btn--theme-toggle {
