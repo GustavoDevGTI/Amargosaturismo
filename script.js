@@ -129,6 +129,7 @@ const galleryThemeCards = [
 ];
 
 const GUIDE_MODAL_DEFAULT_SRC = './guia-do-turista.html';
+const GUIDE_MODAL_CACHE_VERSION = '20260428-2';
 
 const galleryCache = new Map();
 const galleryState = {
@@ -290,9 +291,10 @@ function normalizeGuideModalSource(url) {
 
     try {
         const resolvedUrl = new URL(url, window.location.href);
+        resolvedUrl.searchParams.set('v', GUIDE_MODAL_CACHE_VERSION);
         return `${resolvedUrl.pathname}${resolvedUrl.search}${resolvedUrl.hash}`;
     } catch (error) {
-        return GUIDE_MODAL_DEFAULT_SRC;
+        return `${GUIDE_MODAL_DEFAULT_SRC}?v=${GUIDE_MODAL_CACHE_VERSION}`;
     }
 }
 
