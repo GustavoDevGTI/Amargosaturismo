@@ -1,13 +1,12 @@
 const crypto = require("crypto");
 const { runQuery, getPool } = require("./db");
 const cardSeeds = require("./cardSeeds");
-const { ensureSubmissionsReady, listApprovedSubmissions } = require("./submissions");
+const { listApprovedSubmissions } = require("./submissions");
 
 const VALID_CARD_CATEGORIES = new Set(["turistico", "gastronomia", "hotel"]);
 const VALID_MARKER_ICONS = new Set(["attraction", "heritage", "gastronomy", "lodging"]);
 
 let ensureCardsPromise = null;
-let cleanupTestCardsPromise = null;
 
 function normalizeLine(value) {
   return String(value || "").trim();
@@ -535,7 +534,6 @@ async function promoteSubmissionToCard(record, options = {}) {
 
 async function promoteApprovedSubmissionsToCards() {
   await ensureCardsSeeded();
-  await cleanupTestCardsByName();
   const records = await listApprovedSubmissions();
   const promotedCards = [];
 
@@ -544,21 +542,6 @@ async function promoteApprovedSubmissionsToCards() {
   }
 
   return promotedCards;
-}
-
-async function cleanupTestCardsByName() {
-  if (!cleanupTestCardsPromise) {
-    cleanupTestCardsPromise = (async () => {
-      await ensureSubmissionsReady();
-      await runQuery("DELETE FROM tourism_cards WHERE LOWER(TRIM(name)) = 'teste 2'");
-      await runQuery("DELETE FROM tourism_submissions WHERE LOWER(TRIM(name)) = 'teste 2'");
-    })().catch((error) => {
-      cleanupTestCardsPromise = null;
-      throw error;
-    });
-  }
-
-  return cleanupTestCardsPromise;
 }
 
 async function listPublicCards() {
@@ -758,11 +741,24 @@ async function updateCard(publicId, input) {
   return getCardByPublicId(publicId);
 }
 
+async function setPromotedSubmissionCardActive(submissionId, isActive) {
+  await ensureCardsSeeded();
+
+  const publicId = buildPromotedPublicId(submissionId);
+  await runQuery(
+    "UPDATE tourism_cards SET is_active = ?, updated_at = NOW() WHERE public_id = ?",
+    [isActive ? 1 : 0, publicId]
+  );
+
+  return getCardByPublicId(publicId);
+}
+
 module.exports = {
   getCardByPublicId,
   listAdminCards,
   listPublicCards,
   promoteApprovedSubmissionsToCards,
   promoteSubmissionToCard,
+  setPromotedSubmissionCardActive,
   updateCard
 };

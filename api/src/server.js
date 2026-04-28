@@ -26,6 +26,7 @@ const {
   listAdminCards,
   listPublicCards,
   promoteSubmissionToCard,
+  setPromotedSubmissionCardActive,
   updateCard
 } = require("./cards");
 const { getPool } = require("./db");
@@ -245,7 +246,7 @@ app.patch("/api/admin/submissions/:id/status", async (req, res, next) => {
     const record = await updateSubmissionStatus(req.params.id, req.body.status);
     const card = record.approvalStatus === "approved"
       ? await promoteSubmissionToCard(record)
-      : null;
+      : await setPromotedSubmissionCardActive(record.id, false);
     res.json({
       message: "Status atualizado com sucesso.",
       record,
