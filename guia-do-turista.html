@@ -440,6 +440,45 @@
       gap: 8px;
     }
 
+    .guide-modal-close-area {
+      display: none;
+      justify-content: center;
+      padding: 1.35rem 0 0;
+    }
+
+    .guide-modal-close-button {
+      border: 1px solid rgba(51, 154, 128, 0.22);
+      border-radius: 999px;
+      background: rgba(51, 154, 128, 0.08);
+      color: var(--primary-color);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      min-height: 3.15rem;
+      min-width: 11rem;
+      padding: 0 2.1rem;
+      transition: var(--transition);
+    }
+
+    .guide-modal-close-button:hover,
+    .guide-modal-close-button:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .guide-modal-close-button[hidden] {
+      display: none;
+    }
+
+    .is-embedded-guide .guide-modal-close-area {
+      display: flex;
+    }
+
+    @media (min-width: 769px) {
+      .is-embedded-guide .guide-modal-close-area {
+        display: none;
+      }
+    }
+
     .dot {
       width: 12px;
       height: 12px;
@@ -2003,6 +2042,10 @@
             <span><i class="dot gastronomy" aria-hidden="true"></i> Restaurantes/Bares</span>
             <span><i class="dot lodging" aria-hidden="true"></i> Hoteis/Pousadas</span>
           </div>
+
+          <div class="guide-modal-close-area">
+            <button class="guide-modal-close-button" type="button" data-close-parent-modal>Fechar</button>
+          </div>
         </article>
       </div>
     </section>
@@ -2013,6 +2056,18 @@
     if (isEmbeddedGuideView) {
       document.documentElement.classList.add("is-embedded-guide");
     }
+
+    document.querySelectorAll("[data-close-parent-modal]").forEach((button) => {
+      if (!isEmbeddedGuideView) {
+        button.hidden = true;
+        return;
+      }
+
+      button.addEventListener("click", () => {
+        const targetOrigin = window.location.origin === "null" ? "*" : window.location.origin;
+        window.parent.postMessage({ type: "amargosa-close-event-modal" }, targetOrigin);
+      });
+    });
 
     const carouselRoot = document.querySelector("[data-carousel]");
     const carouselViewport = carouselRoot?.querySelector(".points-carousel__viewport");
