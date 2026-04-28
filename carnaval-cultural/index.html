@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260412-2204">
+    <link rel="stylesheet" href="styles.css?v=20260428-0920">
 </head>
 <body>
     <div class="cc-shell">
@@ -72,9 +72,25 @@
 
                 <a class="cc-button cc-button--primary" href="../?gallery=carnaval-cultural" target="_top" data-open-parent-gallery="carnaval-cultural">Ver Galeria</a>
             </section>
+
+            <div class="cc-modal-close-area">
+                <button class="cc-button cc-button--secondary cc-modal-close-button" type="button" data-close-parent-modal>Fechar especial</button>
+            </div>
         </main>
     </div>
     <script>
+        document.querySelectorAll('[data-close-parent-modal]').forEach((button) => {
+            if (window.parent === window) {
+                button.hidden = true;
+                return;
+            }
+
+            button.addEventListener('click', () => {
+                const targetOrigin = window.location.origin === 'null' ? '*' : window.location.origin;
+                window.parent.postMessage({ type: 'amargosa-close-event-modal' }, targetOrigin);
+            });
+        });
+
         document.querySelectorAll('[data-open-parent-gallery]').forEach((link) => {
             link.addEventListener('click', (event) => {
                 const galleryKey = link.dataset.openParentGallery;

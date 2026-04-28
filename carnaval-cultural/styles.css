@@ -193,6 +193,28 @@ a {
     color: #fffaff;
 }
 
+.cc-button--secondary {
+    background: rgba(255, 250, 255, 0.86);
+    color: var(--cc-primary);
+    border: 1px solid rgba(109, 47, 145, 0.14);
+}
+
+.cc-modal-close-area {
+    display: flex;
+    justify-content: center;
+    padding: 1.2rem 0 0;
+}
+
+.cc-modal-close-button {
+    border: 0;
+    cursor: pointer;
+    width: auto;
+}
+
+.cc-modal-close-button[hidden] {
+    display: none;
+}
+
 .cc-gallery-cta {
     display: flex;
     align-items: center;
@@ -268,6 +290,15 @@ a {
 
     .cc-gallery-cta .cc-button {
         width: auto;
+    }
+
+    .cc-modal-close-area {
+        padding-top: 1rem;
+    }
+
+    .cc-modal-close-area .cc-modal-close-button {
+        width: auto;
+        min-width: 10rem;
     }
 
     .cc-button {

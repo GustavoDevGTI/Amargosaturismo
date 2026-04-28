@@ -1588,7 +1588,12 @@ function syncEventModalFrameHeights() {
             return;
         }
 
-        const mobileFrameHeight = Math.max(360, Math.min(window.innerHeight * 0.62, 640));
+        const isPrimaryEventFrame = frame === carnavalCulturalModalFrame
+            || frame === saoJoaoModalFrame
+            || frame === festivalForroModalFrame;
+        const mobileFrameHeight = isPrimaryEventFrame
+            ? Math.max(620, window.innerHeight - 32)
+            : Math.max(360, Math.min(window.innerHeight * 0.62, 640));
         frame.style.height = `${mobileFrameHeight}px`;
         frame.setAttribute('scrolling', 'yes');
     });
@@ -2110,6 +2115,20 @@ window.addEventListener('message', (event) => {
     }
 
     const data = event.data;
+
+    if (data?.type === 'amargosa-close-event-modal') {
+        const visibleModal = getVisibleBrowserModal();
+
+        if (
+            visibleModal?.id === 'carnaval-cultural-modal'
+            || visibleModal?.id === 'sao-joao-modal'
+            || visibleModal?.id === 'festival-forro-modal'
+        ) {
+            visibleModal.close();
+        }
+
+        return;
+    }
 
     if (!data || data.type !== 'amargosa-open-gallery') {
         return;
