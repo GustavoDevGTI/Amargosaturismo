@@ -1355,7 +1355,7 @@ function buildCatalogMetaLines(record) {
     ].filter(Boolean);
   }
 
-  return [normalizeLine(record.addressLine)].filter(Boolean);
+  return [];
 }
 
 function filterCatalogRecords(records) {

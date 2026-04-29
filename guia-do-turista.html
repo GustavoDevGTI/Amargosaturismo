@@ -2262,7 +2262,9 @@
         popupTitleColor: normalizeText(guide.popupTitleColor) || (category === "hotel" ? "#3568c9" : "#c9642b"),
         metaLines: category === "gastronomia"
           ? [gastronomyScheduleLine, addressLine].filter(Boolean)
-          : [addressLine, email || "E-mail nao informado", phone].filter(Boolean),
+          : category === "hotel"
+            ? [addressLine, email || "E-mail nao informado", phone].filter(Boolean)
+            : [],
         contacts: {
           instagram: normalizeText(contacts.instagram),
           whatsapp,
@@ -2339,7 +2341,7 @@
           ? [scheduleLine, addressLine].filter(Boolean)
           : category === "hotel"
             ? [addressLine, email || "E-mail nao informado", phone].filter(Boolean)
-            : [addressLine].filter(Boolean),
+            : [],
         contacts: {
           instagram: normalizeText(contacts.instagram),
           whatsapp: normalizeText(contacts.whatsapp),
