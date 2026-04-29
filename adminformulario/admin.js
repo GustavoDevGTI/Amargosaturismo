@@ -571,7 +571,7 @@ function setLoginFeedback(message, tone = "info") {
     return;
   }
 
-  loginFeedback.textContent = message || "Faca login para liberar o painel.";
+  loginFeedback.textContent = message || "";
 
   if (tone === "info") {
     loginFeedback.removeAttribute("data-tone");
@@ -1875,7 +1875,7 @@ async function initAdminApp() {
 
     if (!session.authenticated) {
       setAuthenticatedView(false);
-      setLoginFeedback("Faca login para liberar o painel.", "info");
+      setLoginFeedback("", "info");
       loginUsernameInput?.focus();
       return;
     }
