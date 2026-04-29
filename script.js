@@ -2125,6 +2125,7 @@ window.addEventListener('message', (event) => {
             visibleModal?.id === 'carnaval-cultural-modal'
             || visibleModal?.id === 'sao-joao-modal'
             || visibleModal?.id === 'festival-forro-modal'
+            || visibleModal?.id === 'guia-modal'
         ) {
             visibleModal.close();
         }
