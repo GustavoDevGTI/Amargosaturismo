@@ -134,6 +134,95 @@ function buildMapQuery(name, addressLine) {
     .join(", ");
 }
 
+function buildStructuredAddressLine(street, number, neighborhood, complement = "", reference = "") {
+  const streetNumber = [normalizeLine(street), normalizeLine(number)].filter(Boolean).join(", ");
+  return [streetNumber, normalizeLine(neighborhood), normalizeLine(complement), normalizeLine(reference)]
+    .filter(Boolean)
+    .join(" | ");
+}
+
+function buildStructuredLocationQuery(street, number, neighborhood) {
+  return [
+    normalizeLine(street),
+    normalizeLine(number),
+    normalizeLine(neighborhood),
+    "Amargosa",
+    "Bahia",
+    "Brasil"
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function splitAddressLine(addressLine) {
+  const normalized = normalizeLine(addressLine);
+  const result = {
+    street: "",
+    number: "",
+    neighborhood: "",
+    complement: "",
+    reference: ""
+  };
+
+  if (!normalized) {
+    return result;
+  }
+
+  const pipeParts = normalized.split("|").map(normalizeLine).filter(Boolean);
+  const mainAddress = pipeParts[0] || normalized;
+  result.neighborhood = pipeParts[1] || "";
+  result.complement = pipeParts[2] || "";
+  result.reference = pipeParts[3] || "";
+
+  const commaParts = mainAddress.split(",").map(normalizeLine).filter(Boolean);
+  if (commaParts.length >= 2) {
+    result.street = commaParts[0];
+    result.number = commaParts[1];
+    result.neighborhood = result.neighborhood || commaParts.slice(2).join(", ");
+  } else {
+    result.street = mainAddress;
+  }
+
+  return result;
+}
+
+function fillCatalogAddressFields(addressLine) {
+  const address = splitAddressLine(addressLine);
+  catalogEditAddressLineInput.value = normalizeLine(addressLine);
+  catalogEditLogradouroInput.value = address.street;
+  catalogEditNumeroInput.value = address.number;
+  catalogEditComplementoInput.value = address.complement;
+  catalogEditReferenciaInput.value = address.reference;
+  catalogEditBairroInput.value = address.neighborhood;
+}
+
+function clearCatalogAddressFields() {
+  catalogEditAddressLineInput.value = "";
+  catalogEditLogradouroInput.value = "";
+  catalogEditNumeroInput.value = "";
+  catalogEditComplementoInput.value = "";
+  catalogEditReferenciaInput.value = "";
+  catalogEditBairroInput.value = "";
+}
+
+function buildCatalogAddressLineFromFields() {
+  return buildStructuredAddressLine(
+    catalogEditLogradouroInput.value,
+    catalogEditNumeroInput.value,
+    catalogEditBairroInput.value,
+    catalogEditComplementoInput.value,
+    catalogEditReferenciaInput.value
+  );
+}
+
+function hasCatalogRequiredAddressParts() {
+  return Boolean(
+    normalizeLine(catalogEditLogradouroInput.value)
+    && normalizeLine(catalogEditNumeroInput.value)
+    && normalizeLine(catalogEditBairroInput.value)
+  );
+}
+
 function buildDirectionsUrl(mapQuery) {
   return mapQuery ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}` : "";
 }
@@ -387,8 +476,11 @@ function invalidateMapPicker(state) {
 
 async function openMapPickerAtAddress(state) {
   const query = normalizeLine(state.buildQuery());
+  const existingLatitude = Number(state.latitudeInput.value);
+  const existingLongitude = Number(state.longitudeInput.value);
+  const hasExistingCoordinates = Number.isFinite(existingLatitude) && Number.isFinite(existingLongitude);
 
-  if (!query) {
+  if (!query && !hasExistingCoordinates) {
     setMapPickerStatus(state, "Informe um nome e um endereco antes de localizar no mapa.", true);
     return;
   }
@@ -404,9 +496,7 @@ async function openMapPickerAtAddress(state) {
     return;
   }
 
-  const existingLatitude = Number(state.latitudeInput.value);
-  const existingLongitude = Number(state.longitudeInput.value);
-  if (Number.isFinite(existingLatitude) && Number.isFinite(existingLongitude)) {
+  if (hasExistingCoordinates) {
     state.map.setCenter({ lat: existingLatitude, lng: existingLongitude });
     state.map.setZoom(17);
     placeMapPickerMarker(state, { lat: existingLatitude, lng: existingLongitude }, false);
@@ -1169,6 +1259,11 @@ const catalogEditNameInput = document.getElementById("catalogEditName");
 const catalogEditSubtitleInput = document.getElementById("catalogEditSubtitle");
 const catalogEditDescriptionInput = document.getElementById("catalogEditDescription");
 const catalogEditAddressLineInput = document.getElementById("catalogEditAddressLine");
+const catalogEditLogradouroInput = document.getElementById("catalogEditLogradouro");
+const catalogEditNumeroInput = document.getElementById("catalogEditNumero");
+const catalogEditComplementoInput = document.getElementById("catalogEditComplemento");
+const catalogEditReferenciaInput = document.getElementById("catalogEditReferencia");
+const catalogEditBairroInput = document.getElementById("catalogEditBairro");
 const catalogEditScheduleLineInput = document.getElementById("catalogEditScheduleLine");
 const catalogEditPhotoInput = document.getElementById("catalogEditPhoto");
 const catalogEditPhotoPreviewWrap = document.getElementById("catalogEditPhotoPreviewWrap");
@@ -1217,10 +1312,12 @@ const catalogMapPickerState = createAdminMapPickerState({
   latitudeInput: catalogEditLatitudeInput,
   longitudeInput: catalogEditLongitudeInput,
   locateButton: catalogMapLocateBtn,
-  buildQuery: () => [normalizeLine(catalogEditNameInput.value), normalizeLine(catalogEditAddressLineInput.value), "Amargosa, Bahia, Brasil"]
-    .filter(Boolean)
-    .join(", "),
-  idleMessage: 'Clique em "Abrir / localizar" para revisar a posicao do card no mapa.',
+  buildQuery: () => buildStructuredLocationQuery(
+    catalogEditLogradouroInput.value,
+    catalogEditNumeroInput.value,
+    catalogEditBairroInput.value
+  ),
+  idleMessage: 'Preencha rua, numero e bairro. Depois clique em "Abrir / localizar".',
   notFoundMessage: "Nao foi possivel localizar este card no mapa. Revise o endereco e tente novamente.",
   locatedMessage: "Endereco do card encontrado. Confira o pino e ajuste se precisar.",
   adjustedMessage: "Pino ajustado manualmente. A nova localizacao sera salva no card.",
@@ -1540,7 +1637,7 @@ function openCatalogEditDialog(recordId) {
   catalogEditNameInput.value = draft.name;
   catalogEditSubtitleInput.value = draft.subtitle;
   catalogEditDescriptionInput.value = draft.description;
-  catalogEditAddressLineInput.value = draft.addressLine;
+  fillCatalogAddressFields(draft.addressLine);
   catalogEditScheduleLineInput.value = draft.scheduleLine;
   catalogEditInstagramInput.value = draft.instagram;
   catalogEditWhatsappInput.value = draft.whatsapp;
@@ -1584,6 +1681,7 @@ function openCatalogCreateDialog() {
   catalogEditSubtitleInput.value = "";
   catalogEditLatitudeInput.value = "";
   catalogEditLongitudeInput.value = "";
+  clearCatalogAddressFields();
   resetCatalogPhotoSelection();
   setCatalogPhotoPreview("");
   resetMapPicker(catalogMapPickerState);
@@ -1621,13 +1719,15 @@ function buildCatalogPayload() {
   const latitude = normalizeLine(catalogEditLatitudeInput.value);
   const longitude = normalizeLine(catalogEditLongitudeInput.value);
   const displayOrderValue = normalizeLine(catalogEditDisplayOrderInput.value);
+  const addressLine = buildCatalogAddressLineFromFields();
+  catalogEditAddressLineInput.value = addressLine;
 
   return {
     category,
     name: normalizeLine(catalogEditNameInput.value),
     subtitle: normalizeLine(catalogEditSubtitleInput.value),
     description: normalizeLine(catalogEditDescriptionInput.value),
-    addressLine: normalizeLine(catalogEditAddressLineInput.value),
+    addressLine,
     scheduleLine: isGastronomy ? normalizeLine(catalogEditScheduleLineInput.value) : "",
     instagram: isTourism ? "" : normalizeLine(catalogEditInstagramInput.value),
     whatsapp: isTourism ? "" : normalizeLine(catalogEditWhatsappInput.value),
@@ -1772,11 +1872,30 @@ catalogEditPhotoInput?.addEventListener("change", () => {
 });
 
 catalogEditNameInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
-catalogEditAddressLineInput?.addEventListener("input", () => invalidateMapPicker(catalogMapPickerState));
+[
+  catalogEditLogradouroInput,
+  catalogEditNumeroInput,
+  catalogEditComplementoInput,
+  catalogEditReferenciaInput,
+  catalogEditBairroInput
+].forEach((input) => {
+  input?.addEventListener("input", () => {
+    catalogEditAddressLineInput.value = buildCatalogAddressLineFromFields();
+    invalidateMapPicker(catalogMapPickerState);
+  });
+});
 catalogEditCategoryInput?.addEventListener("change", () => {
   toggleCatalogDialogFields(catalogEditCategoryInput.value);
 });
 catalogMapLocateBtn?.addEventListener("click", () => {
+  if (
+    !hasCatalogRequiredAddressParts()
+    && !hasConfirmedCoordinates(catalogEditLatitudeInput.value, catalogEditLongitudeInput.value)
+  ) {
+    setMapPickerStatus(catalogMapPickerState, "Informe rua, numero e bairro antes de localizar no mapa.", true);
+    return;
+  }
+
   openMapPickerAtAddress(catalogMapPickerState);
 });
 bindPhoneSanitizer(catalogEditPhoneInput);

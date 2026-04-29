@@ -279,9 +279,31 @@
           <textarea id="catalogEditDescription" name="description" maxlength="280" rows="4" required></textarea>
         </div>
 
-        <div class="field field--full">
-          <label for="catalogEditAddressLine">Endereco</label>
-          <input id="catalogEditAddressLine" name="addressLine" placeholder="Rua, numero, bairro ou referencia principal">
+        <input id="catalogEditAddressLine" name="addressLine" type="hidden">
+
+        <div class="field">
+          <label for="catalogEditLogradouro">Rua / Avenida</label>
+          <input id="catalogEditLogradouro" name="logradouro" placeholder="Ex: Avenida Doutor Luis Sande">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditNumero">Numero</label>
+          <input id="catalogEditNumero" name="numero" placeholder="Ex: 196">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditComplemento">Complemento (opcional)</label>
+          <input id="catalogEditComplemento" name="complemento" placeholder="Ex: Sala 02, fundos">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditReferencia">Ponto de referencia (opcional)</label>
+          <input id="catalogEditReferencia" name="referencia" placeholder="Ex: Em frente a praca central">
+        </div>
+
+        <div class="field">
+          <label for="catalogEditBairro">Bairro</label>
+          <input id="catalogEditBairro" name="bairro" placeholder="Ex: Centro">
         </div>
 
         <div class="field field--full">
@@ -345,6 +367,6 @@
     </form>
   </dialog>
 
-  <script src="./admin.js?v=20260429-0925" defer></script>
+  <script src="./admin.js?v=20260429-1015" defer></script>
 </body>
 </html>
