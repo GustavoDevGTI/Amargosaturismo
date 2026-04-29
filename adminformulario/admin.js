@@ -1534,7 +1534,6 @@ function openCatalogEditDialog(recordId) {
   catalogEditCategoryInput.value = draft.category;
   catalogEditCurrentPhotoUrlInput.value = draft.photoSrc;
   catalogEditPointIdInput.value = draft.pointId;
-  catalogEditPointIdInput.readOnly = true;
   catalogEditDisplayOrderInput.value = draft.displayOrder || 0;
   catalogEditIsActiveInput.checked = draft.isActive;
   catalogEditHasWifiInput.checked = draft.hasWifi;
@@ -1579,7 +1578,6 @@ function openCatalogCreateDialog() {
   catalogEditCategoryInput.value = category;
   catalogEditCurrentPhotoUrlInput.value = "";
   catalogEditPointIdInput.value = "";
-  catalogEditPointIdInput.readOnly = false;
   catalogEditDisplayOrderInput.value = "";
   catalogEditIsActiveInput.checked = true;
   catalogEditHasWifiInput.checked = false;
